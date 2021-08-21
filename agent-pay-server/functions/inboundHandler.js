@@ -26,13 +26,11 @@ exports.handler = async function (context, event, callback) {
         // Now make the call to the SIP end
         const voiceResponse = new Twilio.twiml.VoiceResponse();
 
-        // Add UUI
-        const uui = 'User-to-User=' + event.CallSid;
-        // TODO: How could we grab the SIP Domain here?
-        const userSipTo = context.SIP_NUMBER + '?' + uui;
+        // Remove '+' and send to SIP user -> number@SIP_DOMAIN?User-to-User=CAxxxxx
+        const userSipTo = event.To.substring(1) + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
 
         // Dial SIP URL
-        //console.log(`Dialing ${userSipTo}`);
+        console.log(`Dialing ${userSipTo}`);
         voiceResponse.dial().sip(userSipTo);
 
         callback(null, voiceResponse);
