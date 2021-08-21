@@ -38,9 +38,11 @@ const PayClient = {
         baseURL:
             process.env.VUE_APP_TWILIO_URL + "/" + process.env.VUE_APP_ACCOUNT_SID, //This allows us to change the rest of the URL
         auth: {
-            // Basic Auth only
-            username: process.env.VUE_APP_ACCOUNT_SID,
-            password: process.env.VUE_APP_AUTH_TOKEN,
+            // Basic Auth using API key
+            username: process.env.VUE_APP_API_KEY,
+            password: process.env.VUE_APP_API_SECRET,
+
+
         },
         headers: {
             "Content-Type": "application/x-www-form-urlencoded", // _Required for Twilio API
@@ -56,7 +58,9 @@ const PayClient = {
     // OBJECT METHODS
     async getSyncToken() {
         let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/sync-token"; //+ "?identity=" + this.identity; TODO: strap in Vue Identity to pass to server
+        console.log(`url: ${url}`);
         try {
+            console.log(`geting token`);
             let result = await axios.get(url);
             console.log(`Identity: ${result.data.identity} & Token: ${result.data.token}`);
             this.identity = result.data.identity;
