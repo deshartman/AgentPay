@@ -6,8 +6,7 @@
   <br />
   <div class="card_capture">
     <div class="capture_line">
-      <label>Card Number:</label>
-
+      <label>Card Number: ({{ cardData.paymentCardType }})</label>
       <div class="inputpair">
         <input
           type="text"
@@ -15,9 +14,8 @@
           readonly
           v-model="cardData.paymentCardNumber"
         />
-        <button class="reset" @click="resetCard()">X</button>
+        <button class="reset" @click="resetCard()">x</button>
       </div>
-      <label>{{ cardData.paymentCardType }}</label>
     </div>
     <br />
     <div class="capture_line">
@@ -29,7 +27,7 @@
           v-model="cardData.securityCode"
           readonly
         />
-        <button class="reset" @click="resetCvc()">X</button>
+        <button class="reset" @click="resetCvc()">x</button>
       </div>
     </div>
     <br />
@@ -39,10 +37,10 @@
         <input
           type="text"
           placeholder="MM/YY"
-          v-model="cardData.expirationDate"
+          v-bind:value="formattedDate"
           readonly
         />
-        <button class="reset" @click="resetDate()">X</button>
+        <button class="reset" @click="resetDate()">x</button>
       </div>
     </div>
   </div>
@@ -99,6 +97,15 @@ export default {
     },
     resetDate() {
       PayClient.resetDate();
+    },
+  },
+  computed: {
+    formattedDate() {
+      return (
+        this.cardData.expirationDate.substring(0, 2) +
+        "/" +
+        this.cardData.expirationDate.substring(2, 4)
+      );
     },
   },
 

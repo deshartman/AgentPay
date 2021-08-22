@@ -222,16 +222,35 @@ const PayClient = {
     },
 
     resetCard() {
-        this.updateCaptureType();
         this._cardData.paymentCardNumber = "";
+        if (this.captureOrder[0] === "payment-card-number") {
+            // already capturing
+        } else {
+            // Add item back to front of array
+            this.captureOrder.unshift("payment-card-number");
+        }
+        this.updateCaptureType();
     },
     resetCvc() {
-        this.updateCaptureType();
         this._cardData.securityCode = "";
+        if (this.captureOrder[0] === "security-code") {
+            // already capturing
+        } else {
+            // Add item back to front of array
+            this.captureOrder.unshift("security-code");
+        }
+        this.updateCaptureType();
+
     },
     resetDate() {
-        this.updateCaptureType();
         this._cardData.expirationDate = "";
+        if (this.captureOrder[0] === "expiration-date") {
+            // already capturing
+        } else {
+            // Add item back to front of array
+            this.captureOrder.unshift("expiration-date");
+        }
+        this.updateCaptureType();
     },
 };
 
