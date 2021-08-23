@@ -1,0 +1,10 @@
+ACCOUNT_SID=ACxxxx
+AUTH_TOKEN=
+
+# Variables for Sync
+PAY_SYNC_SERVICE_SID=ISxxxxx
+
+# Variables for SIP Voice. Call will be to/from -> sip:+nnnnnnn@yyyyy.sip.twilio.com
+# NB: Registered SIP endpoint MUST have "+" in username
+# NB: SIP Trunk MUST have "+" in from number
+SIP_DOMAIN=yyyyy.sip.twilio.com

@@ -10,7 +10,7 @@
       "PaymentMethod": "credit-card",
       "CallSid": "CAfc8f6c8101fca0723d77312b81d8e79a",
       "ChargeAmount": "9.99",
-      "AccountSid": "AC75ca6789a296a3f86c54367a0dc5a11a",
+      "AccountSid": "ACxxxxx",
       "Sid": "PK248a4899c8e3311dabc8edadfb9aa07e"
     }
  * 
@@ -26,7 +26,7 @@
     "PaymentConfirmationCode": "ch_a9dc6297cd1a4fb095e61b1a9cf2dd1d",
     "CallSid": "CAc99f75b7f210edd87b01577c84655b4a",
     "Result": "success",
-    "AccountSid": "AC75ca6789a296a3f86c54367a0dc5a11a",
+    "AccountSid": "AC75xxxxxx",
     "ProfileId": "",
     "DateUpdated": "2021-08-10T03:58:27.290Z",
     "PaymentToken": "",

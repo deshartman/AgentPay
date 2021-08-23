@@ -4,24 +4,24 @@
  * Once the call is connected, we call the StatusCallback to write the callSID in the GUID sync map.
  * 
  */
-
 exports.handler = function (context, event, callback) {
     const voiceResponse = new Twilio.twiml.VoiceResponse();
 
-    //console.log(`event: ${JSON.stringify(event, null, 4)}`)
+    // console.log(`event: ${JSON.stringify(event, null, 4)}`)
     const sipTo = event.To;
-    //console.log(`sipTo: ${sipTo}`);
-    // Extract E164
-    const matches = sipTo.match(/sip:([+]?[0-9]+)@/);
+    const sipFrom = event.From;
 
-    if (matches && matches.length > 1) {
-        // Dial PSTN number with Twilio CLI
-        const to = matches[1];
-        //console.log(`Dialing ${to} from ${sipTo} with Caller ID ${context.TWILIO_CLI}`);
+    // Extract E164 numbers fro To and From
+    const toMatches = sipTo.match(/sip:([+]?[0-9]+)@/);
+    const to = toMatches[1];
+    const fromMatches = sipFrom.match(/sip:([+]?[0-9]+)@/);
+    const from = fromMatches[1];
 
+    if (to && from) {
+        console.log(`Dialing ${to} with Caller ID ${from} - Was to:${sipTo} from:${sipFrom}`);
         const dial = voiceResponse.dial(
             {
-                callerId: context.TWILIO_CLI,
+                callerId: from,
             });
         dial.number(
             {
@@ -31,6 +31,7 @@ exports.handler = function (context, event, callback) {
                 statusCallbackMethod: 'POST'
             },
             to);
+
         callback(null, voiceResponse);
     } else {
         callback(error, null);
