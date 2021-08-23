@@ -21,9 +21,6 @@ exports.handler = async function (context, event, callback) {
                 },
                 ttl: 43200  // 12 hours
             });
-        //console.log(`syncMapItem.key (CallSID): ${syncMapItem.key}`);
-
-
 
         /**
          * Now make the call to the endpoint. Comment out what is not needed
@@ -38,11 +35,12 @@ exports.handler = async function (context, event, callback) {
          * Convention is to use the twilio number sans the "+" as the username to register and the SIP domain of the SIP trunk
          * -> number@SIP_DOMAIN?User-to-User=CAxxxxx
          */
-        // Remove '+' and send to SIP user -> number@SIP_DOMAIN?User-to-User=CAxxxxx
-        const userSipTo = event.To.substring(1) + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
+        // Send to SIP user -> sip:+number@SIP_DOMAIN?User-to-User=CAxxxxx
+        //const userSipTo = event.To.substring(1) + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
+        const userSipTo = event.To + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
 
         // Dial SIP URL
-        //console.log(`Dialing ${userSipTo}`);
+        console.log(`Dialing ${userSipTo}`);
         voiceResponse.dial().sip(userSipTo);
 
         /**
