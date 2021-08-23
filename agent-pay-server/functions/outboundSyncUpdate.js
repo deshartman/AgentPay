@@ -18,13 +18,15 @@ exports.handler = async function (context, event, callback) {
     //console.log(`Use ParentCallSid to get UUI`);
     var parentCall = await restClient.calls(event.ParentCallSid).fetch();
     //console.log(`parentCall: ${JSON.stringify(parentCall, null, 4)}`);
+
+    ///////////////////////// TEMP CODE /////////////////////////////
     parentCall.to = 'sip:+61401277115@example.com?User-to-User=' + Math.round(Math.random() * 1000000000); // TODO: Test with UUI. This is temp to test
-    console.log(`parentCall To: ${parentCall.to}`);
+    //////////////////////////////////////////////////////
+    //console.log(`parentCall To: ${parentCall.to}`);
 
     const paramPart = parentCall.to.split("?")[1];
     const params = new URLSearchParams(paramPart);
     const uui = params.get('User-to-User');
-    //console.log(`sp.User-to-User: ${uui}`);
 
     if (uui) {
       // Write the CallSid into Sync

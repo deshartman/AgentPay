@@ -14,14 +14,14 @@ import axios from "axios";
 import SyncClient from "twilio-sync";
 
 const PayClient = {
-    version: "v2",
+    version: "v0.2",
     _debug: true, // logs verbosely to console
 
     // Sync variables
     _syncClient: null,
     _guidMap: null,
     _payMap: null,
-    _token: "",
+    _synToken: "",
     identity: "alice",
 
     // Payment Variables
@@ -64,7 +64,7 @@ const PayClient = {
             let result = await axios.get(url);
             console.log(`Identity: ${result.data.identity} & Token: ${result.data.token}`);
             this.identity = result.data.identity;
-            this._token = result.data.token;
+            this._synToken = result.data.token;
         } catch (error) {
             console.error(`getting token error: ${error}`);
         }
@@ -80,7 +80,7 @@ const PayClient = {
 
         try {
             //console.log(`Setting up Sync`);
-            this._syncClient = new SyncClient(this._token, {});
+            this._syncClient = new SyncClient(this._synToken, {});
             //console.log(`Connecting to Maps`);
             this._guidMap = await this._syncClient.map('guidMap');
             this._payMap = await this._syncClient.map('payMap');
