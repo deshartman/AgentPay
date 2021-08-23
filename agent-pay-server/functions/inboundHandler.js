@@ -32,30 +32,24 @@ exports.handler = async function (context, event, callback) {
 
         /**
          * 1) Registered SIP endpoint:
-         * Convention is to use the twilio number sans the "+" as the username to register and the SIP domain of the SIP trunk
-         * -> number@SIP_DOMAIN?User-to-User=CAxxxxx
+         * Convention is to use the twilio number as the username, including the "+", to register and the SIP domain as required
+         * This allows us to use the same code for registered users and SIP trunks
+         * 
+         * 3) SIP Trunk
+         * Send the call out to the configured domain as is.
+         * 
+         * -> +number@SIP_DOMAIN?User-to-User=CAxxxxx
          */
         // Send to SIP user -> sip:+number@SIP_DOMAIN?User-to-User=CAxxxxx
-        //const userSipTo = event.To.substring(1) + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
-        const userSipTo = event.To + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
+        const sipTo = event.To + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
 
         // Dial SIP URL
-        console.log(`Dialing ${userSipTo}`);
-        voiceResponse.dial().sip(userSipTo);
+        console.log(`Dialing ${sipTo}`);
+        voiceResponse.dial().sip(sipTo);
 
         /**
          * 2) WebRTC Client TODO: Add example code here
          */
-
-        /**
-         * 3) SIP Trunk
-         * Send the call out to the configured domain as is.
-         */
-
-
-
-
-
 
 
         callback(null, voiceResponse);
