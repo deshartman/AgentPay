@@ -30,7 +30,7 @@ exports.handler = async function (context, event, callback) {
       // Write the CallSid into Sync
       try {
         await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-          .syncMaps('guidMap')  //process.env.PAY_GUID_SYNC_MAP_SID)
+          .syncMaps('guidMap')
           .syncMapItems
           .create({
             key: uui,

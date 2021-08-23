@@ -13,7 +13,10 @@ exports.handler = async function (context, event, callback) {
       .syncMapItems(event.uui)
       .fetch();
 
-    callback(null, syncMapItem);
+    callback(null, {
+      data: syncMapItem.data,
+      dateExpires: syncMapItem.dateExpires
+    });
   } catch (error) {
     callback(error, null);
   }
