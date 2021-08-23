@@ -36,7 +36,7 @@ const PayClient = {
     // Axios setup for Twilio API calls directly from the client
     _axios_twilio: axios.create({
         baseURL:
-            process.env.VUE_APP_TWILIO_URL + "/" + process.env.VUE_APP_ACCOUNT_SID, //This allows us to change the rest of the URL
+            'https://api.twilio.com/2010-04-01/Accounts/' + process.env.VUE_APP_ACCOUNT_SID, //This allows us to change the rest of the URL
         auth: {
             // Basic Auth using API key
             username: process.env.VUE_APP_API_KEY,
@@ -76,6 +76,9 @@ const PayClient = {
      * 2) Initialise Sync maps
     */
     async initialise() {
+
+
+
         await this.getSyncToken();
 
         try {

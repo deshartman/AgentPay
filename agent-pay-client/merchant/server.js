@@ -13,6 +13,8 @@ app.use(express.urlencoded({ extended: true }));    // for express >4.16
 const accountSid = process.env.VUE_APP_ACCOUNT_SID;
 const apiKey = process.env.VUE_APP_API_KEY;
 const apiSecret = process.env.VUE_APP_API_SECRET;
+//const restClient = require('twilio')(apiKey, apiSecret, { accountSid: accountSid });
+
 
 const paySyncSid = process.env.PAY_SYNC_SERVICE_SID;    // TODO: Create the service in Console and update .env file.
 const identity = 'alice';                               // TODO: Identity is Merchant responsibility. It is fixed here for demo.
