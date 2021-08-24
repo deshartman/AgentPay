@@ -21,7 +21,7 @@ const PayClient = {
     _syncClient: null,
     _guidMap: null,
     _payMap: null,
-    _synToken: "",
+    _syncToken: "",
     identity: "alice",
 
     // Payment Variables
@@ -43,6 +43,37 @@ const PayClient = {
     ///////////////////////////////////////////////////////////////////////////////////
 
     // OBJECT METHODS
+    async getConfig() {
+        // Grab config from the Merchant Server
+        let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/get-config";
+        console.log(`url: ${url}`);
+        try {
+            let config = await axios.get(url);
+            console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
+
+            const axios_config = {
+                baseURL:
+                    'https://api.twilio.com/2010-04-01/Accounts/' + config.data.accountSid, //This allows us to change the rest of the URL
+                auth: {
+                    // Basic Auth using API key
+                    username: config.data.apiKey,
+                    password: config.data.apiSecret
+                },
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded", // _Required for Twilio API
+                },
+                timeout: 5000,
+            };
+            console.log('Axios config' + JSON.stringify(axios_config, null, 4));
+            // Update Axios and status call back
+            this._axios_twilio = axios.create(axios_config);
+            this._statusCallback = config.data.callHandler + '/pay/paySyncUpdate';
+        } catch (error) {
+            console.error(`Error getting config from Merchant Server: ${error}`);
+        }
+    },
+
+    // OBJECT METHODS
     async getSyncToken() {
         let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/sync-token"; //+ "?identity=" + this.identity; TODO: strap in Vue Identity to pass to server
         console.log(`url: ${url}`);
@@ -51,32 +82,23 @@ const PayClient = {
             let result = await axios.get(url);
             console.log(`Identity: ${result.data.identity} & Token: ${result.data.token}`);
             this.identity = result.data.identity;
-            this._synToken = result.data.token;
+            this._syncToken = result.data.token;
         } catch (error) {
             console.error(`getting token error: ${error}`);
         }
     },
-
     /**
      * This method straps up all the parts we need for the Sync and payment components. Process is:
      * 1) get Sync Token
      * 2) Initialise Sync maps
     */
     async initialise() {
-        // Grab config from the Merchant Server
-        let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/initialise-axios";
-        let config = await axios.get(url);
-        console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
-
-        // Update Axios and status call back
-        this._axios_twilio = axios.create(config.data.twilio_axios);
-        this._statusCallback = config.data.statusCallback;
-
+        await this.getConfig();
         await this.getSyncToken();
 
         try {
             //console.log(`Setting up Sync`);
-            this._syncClient = new SyncClient(this._synToken, {});
+            this._syncClient = new SyncClient(this._syncToken, {});
             //console.log(`Connecting to Maps`);
             this._guidMap = await this._syncClient.map('guidMap');
             this._payMap = await this._syncClient.map('payMap');

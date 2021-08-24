@@ -35,26 +35,17 @@ app.get('/', (req, res) => {
 
 /**
  * Set up HTTP Axios server config for API calls to the Merchant account
- * TODO: abstract the Axios config a bit more here with just parameters
+ * 
+ * This will eventually be replaced by Pay token logic
  */
-app.get('/initialise-axios', (req, res) => {
-    res.status(200).send({
-        twilio_axios: {
-            baseURL:
-                'https://api.twilio.com/2010-04-01/Accounts/' + accountSid, //This allows us to change the rest of the URL
-            auth: {
-                // Basic Auth using API key
-                username: apiKey,
-                password: apiSecret
-            },
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded", // _Required for Twilio API
-            },
-            timeout: 5000,
-        },
-        statusCallback: callHandler + '/pay/paySyncUpdate',
-    });
+app.get('/get-config', (req, res) => {
 
+    res.status(200).send({
+        accountSid: accountSid,
+        apiKey: apiKey,
+        apiSecret: apiSecret,
+        callHandler: callHandler
+    });
 });
 
 app.get('/sync-token', (req, res) => {
@@ -81,6 +72,32 @@ app.get('/sync-token', (req, res) => {
         token: accessToken.toJwt(),
     });
 });
+
+// app.get('/pay-token', (req, res) => {
+
+//     console.log(`pay-token server`);
+//     const payGrant = AccessToken.PayGrant;
+//     const payGrant = new PayGrant({
+//         serviceSid: callSid,
+//     });
+
+//     const accessToken = new AccessToken(
+//         accountSid,
+//         apiKey,
+//         apiSecret,
+//         { identity: identity }
+//     );
+
+//     accessToken.addGrant(payGrant);
+
+//     res.status(200).send({
+//         identity: identity,
+//         token: accessToken.toJwt(),
+//     });
+// });
+
+
+
 
 app.listen(port, () => {
     console.log(`Merchant Server listening at http://localhost:${port}`)
