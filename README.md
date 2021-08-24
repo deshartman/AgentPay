@@ -29,16 +29,6 @@ The CALL_HANDLER_URL tells the Merchant server where to get Sync updates from, u
 Note: Even though we still use API_Key and Secret, they are presented via the MErchant server and not directly in the Client code. Once
 a Pay Token service is created, this need is removed.
 
-# CONFIG in .env
-
-ACCOUNT_SID=ACxxx
-API_KEY=SKxxx
-API_SECRET=yyyyy
-PAY_SYNC_SERVICE_SID=ISxxxx
-CALL_HANDLER_URL=https://functions-0000-xxx.twil.io
-PAY_CONNECTOR=connector_name
-VUE_APP_MERCHANT_SERVER_URL=http://merchant.server.com:xxxx
-
 ## Server
 
 The server uses Twilio Sync to keep track of calls and payment progression, to which thee Client subscribes. The functions are used
@@ -63,10 +53,7 @@ and used as the CLI.
 
 The Merchant can now query with the UUI to find the CallSID and use that to initiate the Pay components.
 
-# CONFIG in .env
-
-PAY_SYNC_SERVICE_SID=ISXXXYYYYZZZZ
-SIP_DOMAIN=YYYYY.sip.twilio.com
+# Configuration steps:
 
 1. Create an API Key/secret to use with the services. Update the .env files with details.
 
@@ -89,11 +76,11 @@ SIP_DOMAIN=YYYYY.sip.twilio.com
 
 6. Start the local Merchant server via NPM Script.
 
-- "1 Merchant": "node -r dotenv/config merchant/server.js"
+- "1 Merchant"
 
 7. Start the client via NPM script
 
-- "2 Vue serve": "vue-cli-service serve"
+- "2 Vue serve"
 
 8. Go to the client URL
 
