@@ -34,24 +34,11 @@ const PayClient = {
     _required: "",
 
     // Axios setup for Twilio API calls directly from the client
-    _axios_twilio: axios.create({
-        baseURL:
-            'https://api.twilio.com/2010-04-01/Accounts/' + process.env.VUE_APP_ACCOUNT_SID, //This allows us to change the rest of the URL
-        auth: {
-            // Basic Auth using API key
-            username: process.env.VUE_APP_API_KEY,
-            password: process.env.VUE_APP_API_SECRET,
-
-
-        },
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded", // _Required for Twilio API
-        },
-        timeout: 5000,
-    }),
+    _axios_twilio: null,
+    _statusCallback: '',
 
     captureOrder: [],
-    statusCallback: 'https://agent-pay-3089-dev.twil.io/pay/paySyncUpdate', // TODO: incorporate the URL in the SDK launch process.env.VUE_APP_STATUS_CALLBACK + "/pay/paySyncUpdate",
+
 
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -76,8 +63,14 @@ const PayClient = {
      * 2) Initialise Sync maps
     */
     async initialise() {
+        // Grab config from the Merchant Server
+        let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/initialise-axios";
+        let config = await axios.get(url);
+        console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
 
-
+        // Update Axios and status call back
+        this._axios_twilio = axios.create(config.data.twilio_axios);
+        this._statusCallback = config.data.statusCallback;
 
         await this.getSyncToken();
 
@@ -141,7 +134,7 @@ const PayClient = {
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('IdempotencyKey', Date.now().toString());
-        urlEncodedData.append('StatusCallback', this.statusCallback);
+        urlEncodedData.append('StatusCallback', this._statusCallback);
         urlEncodedData.append('ChargeAmount', '0');
         urlEncodedData.append('tokenType', 'reusable');
         urlEncodedData.append('Currency', 'AUD');
@@ -193,7 +186,7 @@ const PayClient = {
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('Capture', this.captureOrder[0]);
         urlEncodedData.append('IdempotencyKey', Date.now().toString());
-        urlEncodedData.append('StatusCallback', this.statusCallback);
+        urlEncodedData.append('StatusCallback', this._statusCallback);
 
         try {
             const response = await this._axios_twilio.post(theUrl, urlEncodedData);
@@ -213,7 +206,7 @@ const PayClient = {
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('Status', changeType);
         urlEncodedData.append('IdempotencyKey', Date.now().toString());
-        urlEncodedData.append('StatusCallback', this.statusCallback);
+        urlEncodedData.append('StatusCallback', this._statusCallback);
 
         try {
             const response = await this._axios_twilio.post(theUrl, urlEncodedData);

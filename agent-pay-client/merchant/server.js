@@ -10,9 +10,10 @@ app.use(express.urlencoded({ extended: true }));    // for express >4.16
 
 //const { response } = require('express');
 
-const accountSid = process.env.VUE_APP_ACCOUNT_SID;
-const apiKey = process.env.VUE_APP_API_KEY;
-const apiSecret = process.env.VUE_APP_API_SECRET;
+const accountSid = process.env.ACCOUNT_SID;
+const apiKey = process.env.API_KEY;
+const apiSecret = process.env.API_SECRET;
+const callHandler = process.env.CALL_HANDLER_URL;
 //const restClient = require('twilio')(apiKey, apiSecret, { accountSid: accountSid });
 
 
@@ -30,6 +31,30 @@ app.use(cors(options));
 // Default path
 app.get('/', (req, res) => {
     res.send('<h1>Merchant Server used to get tokens and manage agent identity</h1>');
+});
+
+/**
+ * Set up HTTP Axios server config for API calls to the Merchant account
+ * TODO: abstract the Axios config a bit more here with just parameters
+ */
+app.get('/initialise-axios', (req, res) => {
+    res.status(200).send({
+        twilio_axios: {
+            baseURL:
+                'https://api.twilio.com/2010-04-01/Accounts/' + accountSid, //This allows us to change the rest of the URL
+            auth: {
+                // Basic Auth using API key
+                username: apiKey,
+                password: apiSecret
+            },
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded", // _Required for Twilio API
+            },
+            timeout: 5000,
+        },
+        statusCallback: callHandler + '/pay/paySyncUpdate',
+    });
+
 });
 
 app.get('/sync-token', (req, res) => {
