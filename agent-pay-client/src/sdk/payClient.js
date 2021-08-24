@@ -181,6 +181,9 @@ const PayClient = {
     async _checkPayProgress() {
         if (this._capture) {
             console.log(`this._capture: ${this._capture}`);
+            // console.log(`this._required ${this._required}`);
+            // console.log(`this.captureOrder ${this.captureOrder}`);
+
             if (this._required.includes(this.captureOrder[0])) {
                 // continue _capture
                 console.log(`Still capturing currentCaptureType: [${this.captureOrder[0]}]`);
