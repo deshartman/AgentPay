@@ -46,10 +46,10 @@ const PayClient = {
     async getConfig() {
         // Grab config from the Merchant Server
         let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/get-config";
-        console.log(`url: ${url}`);
+        //console.log(`url: ${url}`);
         try {
             let config = await axios.get(url);
-            console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
+            //console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
 
             const axios_config = {
                 baseURL:
@@ -64,7 +64,7 @@ const PayClient = {
                 },
                 timeout: 5000,
             };
-            console.log('Axios config' + JSON.stringify(axios_config, null, 4));
+            //console.log('Axios config' + JSON.stringify(axios_config, null, 4));
             // Update Axios and status call back
             this._axios_twilio = axios.create(axios_config);
             this._statusCallback = config.data.callHandler + '/pay/paySyncUpdate';
