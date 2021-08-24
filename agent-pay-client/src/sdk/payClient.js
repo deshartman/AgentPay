@@ -38,7 +38,9 @@ const PayClient = {
     _statusCallback: '',
 
     captureOrder: [],
-
+    payConnector: '',
+    currency: 'USD',
+    tokenType: 'reusable',
 
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -68,6 +70,12 @@ const PayClient = {
             // Update Axios and status call back
             this._axios_twilio = axios.create(axios_config);
             this._statusCallback = config.data.callHandler + '/pay/paySyncUpdate';
+            this.payConnector = config.data.payConnector;
+            this.captureOrder = config.data.captureOrder;
+            this.currency = config.data.currency;
+            this.tokenType = config.data.tokenType;
+            this.identity = config.data.identity;
+
         } catch (error) {
             console.error(`Error getting config from Merchant Server: ${error}`);
         }
@@ -75,13 +83,12 @@ const PayClient = {
 
     // OBJECT METHODS
     async getSyncToken() {
-        let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/sync-token"; //+ "?identity=" + this.identity; TODO: strap in Vue Identity to pass to server
-        console.log(`url: ${url}`);
+        let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/sync-token";
+        //console.log(`url: ${url}`);
         try {
             console.log(`geting token`);
             let result = await axios.get(url);
-            console.log(`Identity: ${result.data.identity} & Token: ${result.data.token}`);
-            this.identity = result.data.identity;
+            console.log(`Identity: ${this.identity} & Token: ${result.data.token}`);
             this._syncToken = result.data.token;
         } catch (error) {
             console.error(`getting token error: ${error}`);
@@ -137,31 +144,26 @@ const PayClient = {
                 this._checkPayProgress();
             });
         } catch (error) {
-            console.error(`Could not Initialise. Error setting up Sync ${error}`);
+            console.error(`Could not Initialize. Error setting up Sync for Pay with Error: ${error}`);
         }
     },
 
     ///////////         PAY         ///////////
-    async createPayment(cardData) {
+    async createToken(cardData) {
         //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this._callSID}/Payments.json
         let theUrl = '/Calls/' + this._callSID + '/Payments.json';
         this._cardData = cardData;
 
-        this.captureOrder = [
-            "payment-card-number",
-            "security-code",
-            "expiration-date",
-        ];
-
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
-        urlEncodedData.append('IdempotencyKey', Date.now().toString());
+        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
         urlEncodedData.append('StatusCallback', this._statusCallback);
         urlEncodedData.append('ChargeAmount', '0');
-        urlEncodedData.append('tokenType', 'reusable');
-        urlEncodedData.append('Currency', 'AUD');
-        urlEncodedData.append('PaymentConnector', 'Braintree_Connector');
-        urlEncodedData.append('PostalCode', false);
+        urlEncodedData.append('TokenType', this.tokenType);
+        urlEncodedData.append('Currency', this.currency);
+        urlEncodedData.append('PaymentConnector', this.payConnector);
+        urlEncodedData.append('SecurityCode', this.captureOrder.includes('security-code')); // set flag based on contents of captureOrder array
+        urlEncodedData.append('PostalCode', this.captureOrder.includes('postal-code'));
 
         try {
             const response = await this._axios_twilio.post(theUrl, urlEncodedData);
@@ -207,7 +209,7 @@ const PayClient = {
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('Capture', this.captureOrder[0]);
-        urlEncodedData.append('IdempotencyKey', Date.now().toString());
+        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
         urlEncodedData.append('StatusCallback', this._statusCallback);
 
         try {
@@ -227,7 +229,7 @@ const PayClient = {
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('Status', changeType);
-        urlEncodedData.append('IdempotencyKey', Date.now().toString());
+        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
         urlEncodedData.append('StatusCallback', this._statusCallback);
 
         try {

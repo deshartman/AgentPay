@@ -1,7 +1,7 @@
 <template>
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
-  <button @click="createPayment()">Start Pay Session</button>
+  <button @click="createToken()">Start Pay Session</button>
   <br />
   <br />
   <div class="card_capture">
@@ -74,9 +74,9 @@ export default {
     };
   },
   methods: {
-    async createPayment() {
+    async createToken() {
       // Have to pass in a reference, so the data remains reactive, when it changes
-      PayClient.createPayment(this.cardData);
+      PayClient.createToken(this.cardData);
     },
 
     cancelSession() {

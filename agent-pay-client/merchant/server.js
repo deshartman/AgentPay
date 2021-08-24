@@ -44,7 +44,17 @@ app.get('/get-config', (req, res) => {
         accountSid: accountSid,
         apiKey: apiKey,
         apiSecret: apiSecret,
-        callHandler: callHandler
+        callHandler: callHandler,
+        payConnector: 'Braintree_Connector',
+        captureOrder: [
+            "payment-card-number",
+            "security-code",
+            "expiration-date",
+        ],
+        currency: 'AUD',
+        tokenType: 'reusable',
+        identity: identity,
+
     });
 });
 
@@ -66,6 +76,30 @@ app.get('/sync-token', (req, res) => {
     );
 
     accessToken.addGrant(syncGrant);
+
+    res.status(200).send({
+        token: accessToken.toJwt(),
+    });
+});
+
+app.get('/voice-token', (req, res) => {
+
+    console.log(`voice-token server`);
+    const VoiceGrant = AccessToken.VoiceGrant;
+    const voiceGrant = new VoiceGrant({
+        incomingAllow: true,
+    });
+
+    // Create an access token which we will sign and return to the client,
+    // containing the grant we just created
+    const accessToken = new AccessToken(
+        accountSid,
+        apiKey,
+        apiSecret,
+        { identity: identity }
+    );
+
+    accessToken.addGrant(voiceGrant);
 
     res.status(200).send({
         identity: identity,
