@@ -19,6 +19,7 @@ const callHandler = process.env.CALL_HANDLER_URL;
 
 const paySyncSid = process.env.PAY_SYNC_SERVICE_SID;    // TODO: Create the service in Console and update .env file.
 const identity = 'alice';                               // TODO: Identity is Merchant responsibility. It is fixed here for demo.
+const payConnector = process.env.PAY_CONNECTOR;
 
 // TODO: Only needed for local demo and dev
 const cors = require('cors');
@@ -45,7 +46,7 @@ app.get('/get-config', (req, res) => {
         apiKey: apiKey,
         apiSecret: apiSecret,
         callHandler: callHandler,
-        payConnector: 'Braintree_Connector',
+        payConnector: payConnector,
         captureOrder: [
             "payment-card-number",
             "security-code",
