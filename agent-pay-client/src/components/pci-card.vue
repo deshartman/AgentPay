@@ -1,7 +1,9 @@
 <template>
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
-  <button @click="captureToken()">Start Pay Session</button>
+  <button @click="captureToken()" :disabled="!cardData.capturing">
+    Start Pay Session
+  </button>
   <br />
   <br />
   <div class="card_capture">
@@ -14,7 +16,13 @@
           readonly
           v-model="cardData.paymentCardNumber"
         />
-        <button class="reset" @click="resetCard()">x</button>
+        <button
+          class="reset"
+          @click="resetCard()"
+          :disabled="!cardData.capturingCard"
+        >
+          x
+        </button>
       </div>
     </div>
     <br />
@@ -27,7 +35,13 @@
           v-model="cardData.securityCode"
           readonly
         />
-        <button class="reset" @click="resetCvc()">x</button>
+        <button
+          class="reset"
+          @click="resetCvc()"
+          :disabled="!cardData.capturingCvc"
+        >
+          x
+        </button>
       </div>
     </div>
     <br />
@@ -37,19 +51,25 @@
         <input
           type="text"
           placeholder="MM/YY"
-          v-bind:value="formattedDate"
+          v-model="formattedDate"
           readonly
         />
-        <button class="reset" @click="resetDate()">x</button>
+        <button
+          class="reset"
+          @click="resetDate()"
+          :disabled="!cardData.capturingDate"
+        >
+          x
+        </button>
       </div>
     </div>
   </div>
 
+  <br />
+  <br />
   <div>
-    <br />
-    <br />
-    <button @click="submit()">Submit</button>
-    <button @click="cancel()">Cancel</button>
+    <button @click="submit()" v-show="cardData.captureComplete">Submit</button>
+    <button @click="cancel()" v-show="cardData.capturing">Cancel</button>
     <p>Token: {{ cardData.paymentToken }}</p>
   </div>
 </template>
@@ -70,6 +90,7 @@ export default {
         capturingCard: false,
         capturingCvc: false,
         capturingDate: false,
+        captureComplete: false,
       },
     };
   },

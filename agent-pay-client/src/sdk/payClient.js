@@ -130,12 +130,15 @@ const PayClient = {
             this._payMap = await this._syncClient.map('payMap');
 
             this._callSID = callSid;
+            console.log(`this.initialize CallSid: ${this._callSID}`);
 
             ////////////////////////////////////////////// REMOVE WHEN USING CTI /////////////////////////////////////
             //////// Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
             this._guidMap.on('itemAdded', (args) => {
                 this._callSID = args.item.data.SID;
                 console.log(`Call SID is = ${this._callSID}`);
+                this._cardData.capturing = true;
+                console.log(`this._cardData.capturing = ${this._cardData.capturing}`);
             });
             /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -161,9 +164,19 @@ const PayClient = {
     },
 
     /**
+     * This allows a PBC CTI to update the call SID at any point.
+     * 
+     * @param {String} callSid 
+     */
+    updateCallSid(callSid) {
+        this._callSID = callSid;
+        this._cardData.capturing = true;
+    },
+
+    /**
      * This will set up a Agent Assisted Pay session based on the Call SID
      * 
-     * @param { paymentCardNumber: String, securityCode: String, expirationDate: String, paymentToken: String, capturing: boolean, capturingCard: boolean, capturingCvc: boolean, capturingDate: boolean, } cardData
+     * @param { paymentCardNumber: String, securityCode: String, expirationDate: String, paymentToken: String, capturing: boolean, capturingCard: boolean, capturingCvc: boolean, capturingDate: boolean, captureComplete: boolean } cardData
      * 
      * The cardData object is expected to be reactive and will be updated from here.
      * Status callbacks will be sent to the Functions function defined in StatusCallback
@@ -196,6 +209,7 @@ const PayClient = {
             this._cardData.capturingCard = false;
             this._cardData.capturingCvc = false;
             this._cardData.capturingDate = false;
+            this._cardData.captureComplete = false;
 
             await this._updateCaptureType(this.captureOrder[0]);
         } catch (error) {
@@ -224,6 +238,7 @@ const PayClient = {
                 } else {
                     // Stop polling
                     console.log(`Stopping polling`);
+                    this._cardData.captureComplete = true;
                 }
             }
         } else {
