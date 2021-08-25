@@ -1,7 +1,7 @@
 <template>
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
-  <button @click="createToken()">Start Pay Session</button>
+  <button @click="captureToken()">Start Pay Session</button>
   <br />
   <br />
   <div class="card_capture">
@@ -48,8 +48,8 @@
   <div>
     <br />
     <br />
-    <button @click="completeSession()">Submit</button>
-    <button @click="cancelSession()">Cancel</button>
+    <button @click="submit()">Submit</button>
+    <button @click="cancel()">Cancel</button>
     <p>Token: {{ cardData.paymentToken }}</p>
   </div>
 </template>
@@ -61,32 +61,29 @@ export default {
   data() {
     return {
       debug: true,
-      panCaptureDone: false,
-      cvcCaptureDone: false,
-      dateCaptureDone: false,
-      GUID: "",
       cardData: {
         paymentCardNumber: "",
         securityCode: "",
         expirationDate: "",
         paymentToken: "",
+        capturing: false,
+        capturingCard: false,
+        capturingCvc: false,
+        capturingDate: false,
       },
     };
   },
   methods: {
-    async createToken() {
+    async captureToken() {
       // Have to pass in a reference, so the data remains reactive, when it changes
-      PayClient.createToken(this.cardData);
+      PayClient.captureToken(this.cardData);
     },
 
-    cancelSession() {
-      PayClient.changeSession("cancel");
-      if (this.debug) console.log(`Vue Cancel Capture`);
+    cancel() {
+      PayClient.cancelCapture();
     },
-
-    completeSession() {
-      const temp = PayClient.changeSession("complete");
-      if (this.debug) console.log(`Vue Complete Capture`);
+    submit() {
+      PayClient.submitCapture();
     },
 
     resetCard() {
@@ -110,8 +107,12 @@ export default {
   },
 
   mounted() {
+    // Set the Internal Merchant Server URL for config and Access Tokens
+    let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
+    let callSid = ""; // This value needs to be provided by contact centre CTI, when calling this page
+
     try {
-      PayClient.initialise();
+      PayClient.initialize(merchantServerUrl, callSid);
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
     }

@@ -10,11 +10,11 @@ app.use(express.urlencoded({ extended: true }));    // for express >4.16
 
 //const { response } = require('express');
 
-const accountSid = process.env.ACCOUNT_SID;
-const apiKey = process.env.API_KEY;
-const apiSecret = process.env.API_SECRET;
-const callHandler = process.env.CALL_HANDLER_URL;
-//const restClient = require('twilio')(apiKey, apiSecret, { accountSid: accountSid });
+const twilioAccountSid = process.env.ACCOUNT_SID;
+const twilioApiKey = process.env.API_KEY;
+const twilioApiSecret = process.env.API_SECRET;
+const callHandlerURL = process.env.CALL_HANDLER_URL;    // The Twilio Functions URL where the call handlers are deploye
+//const restClient = require('twilio')(twilioApiKey, twilioApiSecret, { twilioAccountSid: twilioAccountSid });
 
 
 const paySyncSid = process.env.PAY_SYNC_SERVICE_SID;    // TODO: Create the service in Console and update .env file.
@@ -42,11 +42,11 @@ app.get('/', (req, res) => {
 app.get('/get-config', (req, res) => {
 
     res.status(200).send({
-        accountSid: accountSid,
-        apiKey: apiKey,
-        apiSecret: apiSecret,
-        callHandler: callHandler,
-        payConnector: payConnector,
+        twilioAccountSid: twilioAccountSid,
+        twilioApiKey: twilioApiKey,
+        twilioApiSecret: twilioApiSecret,
+        callHandlerURL: callHandlerURL,     // The Twilio Functions URL where the call handlers are deployed
+        payConnector: payConnector,         // The name of the Twilio Pay connector configured
         captureOrder: [
             "payment-card-number",
             "security-code",
@@ -54,7 +54,7 @@ app.get('/get-config', (req, res) => {
         ],
         currency: 'AUD',
         tokenType: 'reusable',
-        identity: identity,
+        identity: identity,                 // Identity of the Agent for the session
 
     });
 });
@@ -70,9 +70,9 @@ app.get('/sync-token', (req, res) => {
     // Create an access token which we will sign and return to the client,
     // containing the grant we just created
     const accessToken = new AccessToken(
-        accountSid,
-        apiKey,
-        apiSecret,
+        twilioAccountSid,
+        twilioApiKey,
+        twilioApiSecret,
         { identity: identity }
     );
 
@@ -94,9 +94,9 @@ app.get('/voice-token', (req, res) => {
     // Create an access token which we will sign and return to the client,
     // containing the grant we just created
     const accessToken = new AccessToken(
-        accountSid,
-        apiKey,
-        apiSecret,
+        twilioAccountSid,
+        twilioApiKey,
+        twilioApiSecret,
         { identity: identity }
     );
 
@@ -117,9 +117,9 @@ app.get('/voice-token', (req, res) => {
 //     });
 
 //     const accessToken = new AccessToken(
-//         accountSid,
-//         apiKey,
-//         apiSecret,
+//         twilioAccountSid,
+//         twilioApiKey,
+//         twilioApiSecret,
 //         { identity: identity }
 //     );
 

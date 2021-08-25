@@ -44,6 +44,8 @@ exports.handler = async function (context, event, callback) {
 
   const restClient = context.getTwilioClient();
 
+  console.log(`paySyncUpdate event: ${JSON.stringify(event, null, 4)}`);
+
   try {
     // create or update an existing pay SID with data
     try {
@@ -51,6 +53,7 @@ exports.handler = async function (context, event, callback) {
         .syncMaps('payMap')
         .syncMapItems(event.Sid)
         .fetch();
+
 
       await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
         .syncMaps('payMap')
