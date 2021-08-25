@@ -117,13 +117,16 @@ const PayClient = {
         }
      * 
      * @param {URL: String} merchantServerUrl
-     * 
+     * @param { paymentCardNumber: String, securityCode: String, expirationDate: String, paymentToken: String, capturing: boolean, capturingCard: boolean, capturingCvc: boolean, capturingDate: boolean, captureComplete: boolean } cardData
+     * @param {callSid: String} callSid
+     *
     */
-    async initialize(merchantServerUrl, callSid = "") {
-        await this._getConfig(merchantServerUrl + "/get-config");
-        await this._getSyncToken(merchantServerUrl + "/sync-token");
+    async initialize(merchantServerUrl, cardData, callSid = "") {
 
         try {
+            await this._getConfig(merchantServerUrl + "/get-config");
+            await this._getSyncToken(merchantServerUrl + "/sync-token");
+
             //console.log(`Setting up Sync`);
             this._syncClient = new SyncClient(this._syncToken, {});
             this._guidMap = await this._syncClient.map('guidMap');
@@ -131,6 +134,8 @@ const PayClient = {
 
             this._callSID = callSid;
             console.log(`this.initialize CallSid: ${this._callSID}`);
+
+            this._cardData = cardData;
 
             ////////////////////////////////////////////// REMOVE WHEN USING CTI /////////////////////////////////////
             //////// Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
@@ -184,11 +189,11 @@ const PayClient = {
      * This attaches a Payment on the Twilio call with CallSID.
      * 
      */
-    async captureToken(cardData) {
+    async captureToken() { //cardData) {
         //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this._callSID}/Payments.json
         let theUrl = '/Calls/' + this._callSID + '/Payments.json';
         //console.log(`captureToken url: [${theUrl}]`);
-        this._cardData = cardData;
+        //this._cardData = cardData;
 
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();

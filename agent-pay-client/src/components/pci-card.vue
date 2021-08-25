@@ -1,7 +1,7 @@
 <template>
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
-  <button @click="captureToken()" :disabled="!cardData.capturing">
+  <button @click="captureToken()" v-show="cardData.capturing">
     Start Pay Session
   </button>
   <br />
@@ -97,7 +97,7 @@ export default {
   methods: {
     async captureToken() {
       // Have to pass in a reference, so the data remains reactive, when it changes
-      PayClient.captureToken(this.cardData);
+      PayClient.captureToken(); //this.cardData);
     },
 
     cancel() {
@@ -133,7 +133,7 @@ export default {
     let callSid = ""; // This value needs to be provided by contact centre CTI, when calling this page
 
     try {
-      PayClient.initialize(merchantServerUrl, callSid);
+      PayClient.initialize(merchantServerUrl, this.cardData, callSid);
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
     }
