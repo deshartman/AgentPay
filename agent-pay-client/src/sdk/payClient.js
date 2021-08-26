@@ -121,7 +121,9 @@ const PayClient = {
      * @param {callSid: String} callSid
      *
     */
-    async initialize(merchantServerUrl, cardData, callSid = "") {
+    async initialize(merchantServerUrl, cardData, callSid = null) {
+
+        this._cardData = cardData;
 
         try {
             await this._getConfig(merchantServerUrl + "/get-config");
@@ -132,37 +134,69 @@ const PayClient = {
             this._guidMap = await this._syncClient.map('guidMap');
             this._payMap = await this._syncClient.map('payMap');
 
-            this._callSID = callSid;
-            console.log(`this.initialize CallSid: ${this._callSID}`);
+            // If a Call SID was passed in, CTI has call already and now opening view
+            if (callSid) {
+                this._callSID = callSid;
+                console.log(`Initialize with a CTI callSid: ${this._callSID}`);
+                // Update View elements
+                this._cardData.callConnected = true;
+                this._cardData.capturing = false;
+                this._cardData.captureComplete = false;
+                console.log(`Initialise. this._cardData.capturing = ${this._cardData.capturing}`);
 
-            this._cardData = cardData;
+                // Add Event Listener for data changes. Update the _cardData object
+                this._payMap.on('itemUpdated', (args) => {
+                    //console.log(`_payMap item ${args.item.key} was UPDATED`);
+                    // Update the local variables:
+                    this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
+                    this._cardData.securityCode = args.item.data.SecurityCode;
+                    this._cardData.expirationDate = args.item.data.ExpirationDate;
+                    this._cardData.paymentToken = args.item.data.PaymentToken;
+                    this._cardData.paymentCardType = args.item.data.PaymentCardType;
+                    this._capture = args.item.data.Capture;
+                    this._partialResult = args.item.data.PartialResult;
+                    this._required = args.item.data.Required;
 
-            ////////////////////////////////////////////// REMOVE WHEN USING CTI /////////////////////////////////////
-            //////// Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
-            this._guidMap.on('itemAdded', (args) => {
-                this._callSID = args.item.data.SID;
-                console.log(`Call SID is = ${this._callSID}`);
-                this._cardData.capturing = true;
-                console.log(`this._cardData.capturing = ${this._cardData.capturing}`);
-            });
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // Check if we need to move to next capture item
+                    this._checkPayProgress();
+                });
+            } else {
+                // View opened with no call, so cannot determine the Call SID
+                console.log(`Cannot determine the Call SID. Please open App first and then place a call`);
+                this._cardData.callConnected = false;
+                this._cardData.capturing = false;
+                this._cardData.captureComplete = false;
 
-            // Add Event Listener for data changes. Update the _cardData object
-            this._payMap.on('itemUpdated', (args) => {
-                //console.log(`_payMap item ${args.item.key} was UPDATED`);
-                // Update the local variables:
-                this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
-                this._cardData.securityCode = args.item.data.SecurityCode;
-                this._cardData.expirationDate = args.item.data.ExpirationDate;
-                this._cardData.paymentToken = args.item.data.PaymentToken;
-                this._cardData.paymentCardType = args.item.data.PaymentCardType;
-                this._capture = args.item.data.Capture;
-                this._partialResult = args.item.data.PartialResult;
-                this._required = args.item.data.Required;
+                ////////////////////////////////////////////// REMOVE WHEN USING CTI /////////////////////////////////////
+                //////// Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
+                this._guidMap.on('itemAdded', (args) => {
+                    this._callSID = args.item.data.SID;
+                    console.log(`Call SID is = ${this._callSID}`);
 
-                // Check if we need to move to next capture item
-                this._checkPayProgress();
-            });
+                    console.log(`Initialise. TEMP HACK this._cardData.capturing = ${this._cardData.capturing}`);
+                    this._cardData.callConnected = true;
+                    this._cardData.capturing = false;
+                    this._cardData.captureComplete = false;
+                });
+
+                // Add Event Listener for data changes. Update the _cardData object
+                this._payMap.on('itemUpdated', (args) => {
+                    //console.log(`_payMap item ${args.item.key} was UPDATED`);
+                    // Update the local variables:
+                    this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
+                    this._cardData.securityCode = args.item.data.SecurityCode;
+                    this._cardData.expirationDate = args.item.data.ExpirationDate;
+                    this._cardData.paymentToken = args.item.data.PaymentToken;
+                    this._cardData.paymentCardType = args.item.data.PaymentCardType;
+                    this._capture = args.item.data.Capture;
+                    this._partialResult = args.item.data.PartialResult;
+                    this._required = args.item.data.Required;
+
+                    // Check if we need to move to next capture item
+                    this._checkPayProgress();
+                });
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////
+            }
         } catch (error) {
             console.error(`Could not Initialize. Error setting up Pay Session with Error: ${error}`);
         }
@@ -175,7 +209,8 @@ const PayClient = {
      */
     updateCallSid(callSid) {
         this._callSID = callSid;
-        this._cardData.capturing = true;
+        //this._cardData.capturing = true;
+        this._cardData.callConnected = true;
     },
 
     /**
@@ -287,30 +322,6 @@ const PayClient = {
         }
     },
 
-    // Change the Pay session; Cancel or Complete
-    async _changeSession(changeType) {
-        //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this._callSID}/Payments/{Sid}.json
-        let theUrl = '/Calls/' + this._callSID + '/Payments/' + this._paySID + '.json';
-
-        console.log(`_changeSession ChangeType: ${changeType}`);
-        // URL Encode the POST body data
-        const urlEncodedData = new URLSearchParams();
-        urlEncodedData.append('Status', changeType);
-        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
-        urlEncodedData.append('StatusCallback', this._statusCallback);
-
-        try {
-            const response = await this._twilioAPI.post(theUrl, urlEncodedData);
-            if (this._debug) console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
-            //return response.data.sid;
-            this._cardData.capturing = false;
-            this._cardData.capturingCard = false;
-            this._cardData.capturingCvc = false;
-            this._cardData.capturingDate = false;
-        } catch (error) {
-            console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
-        }
-    },
 
     /**
      * Reset the card Number captured.
@@ -355,17 +366,44 @@ const PayClient = {
         this._updateCaptureType(this.captureOrder[0]);
     },
 
+    // Change the Pay session; Cancel or Complete
+    async _changeSession(changeType) {
+        //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this._callSID}/Payments/{Sid}.json
+        let theUrl = '/Calls/' + this._callSID + '/Payments/' + this._paySID + '.json';
+
+        console.log(`_changeSession ChangeType: ${changeType}`);
+        // URL Encode the POST body data
+        const urlEncodedData = new URLSearchParams();
+        urlEncodedData.append('Status', changeType);
+        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
+        urlEncodedData.append('StatusCallback', this._statusCallback);
+
+        try {
+            const response = await this._twilioAPI.post(theUrl, urlEncodedData);
+            if (this._debug) console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
+            //return response.data.sid;
+            this._cardData.capturing = false;
+            this._cardData.capturingCard = false;
+            this._cardData.capturingCvc = false;
+            this._cardData.capturingDate = false;
+        } catch (error) {
+            console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
+        }
+    },
+
     /**
      * Cancel this Assisted Pay session 
      */
     cancelCapture() {
+        this._cardData.captureComplete = false;
         this._changeSession("cancel");
     },
 
     /**
-     * Complete this Assisted Pay session and submit for tokenisation
+     * Complete this Assisted Pay session and submit for tokenization
      */
     submitCapture() {
+        this._cardData.captureComplete = false;
         this._changeSession("complete");
     }
 }

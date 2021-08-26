@@ -1,76 +1,87 @@
 <template>
-  <h1>Twilio Demo</h1>
-  <h2>Agent Assisted Pay</h2>
-  <button @click="captureToken()" v-show="cardData.capturing">
-    Start Pay Session
-  </button>
-  <br />
-  <br />
-  <div class="card_capture">
-    <div class="capture_line">
-      <label>Card Number: ({{ cardData.paymentCardType }})</label>
-      <div class="inputpair">
-        <input
-          type="text"
-          placeholder="card number"
-          readonly
-          v-model="cardData.paymentCardNumber"
-        />
-        <button
-          class="reset"
-          @click="resetCard()"
-          :disabled="!cardData.capturingCard"
-        >
-          x
-        </button>
-      </div>
-    </div>
-    <br />
-    <div class="capture_line">
-      <label>CVC:</label>
-      <div class="inputpair">
-        <input
-          type="text"
-          placeholder="cvc"
-          v-model="cardData.securityCode"
-          readonly
-        />
-        <button
-          class="reset"
-          @click="resetCvc()"
-          :disabled="!cardData.capturingCvc"
-        >
-          x
-        </button>
-      </div>
-    </div>
-    <br />
-    <div class="capture_line">
-      <label>Expiry Date</label>
-      <div class="inputpair">
-        <input
-          type="text"
-          placeholder="MM/YY"
-          v-model="formattedDate"
-          readonly
-        />
-        <button
-          class="reset"
-          @click="resetDate()"
-          :disabled="!cardData.capturingDate"
-        >
-          x
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <br />
-  <br />
   <div>
-    <button @click="submit()" v-show="cardData.captureComplete">Submit</button>
-    <button @click="cancel()" v-show="cardData.capturing">Cancel</button>
-    <p>Token: {{ cardData.paymentToken }}</p>
+    <h1>Twilio Demo</h1>
+    <h2>Agent Assisted Pay</h2>
+    <button
+      @click="captureToken()"
+      v-show="cardData.callConnected && !cardData.capturing"
+    >
+      Start Pay Session
+    </button>
+    <br />
+    <br />
+    <div class="card_capture">
+      <div class="capture_line">
+        <label>Card Number: ({{ cardData.paymentCardType }})</label>
+        <div class="inputpair">
+          <input
+            type="text"
+            placeholder="card number"
+            readonly
+            v-model="cardData.paymentCardNumber"
+          />
+          <button
+            class="reset"
+            @click="resetCard()"
+            :disabled="!cardData.capturingCard"
+          >
+            x
+          </button>
+        </div>
+      </div>
+      <br />
+      <div class="capture_line">
+        <label>CVC:</label>
+        <div class="inputpair">
+          <input
+            type="text"
+            placeholder="cvc"
+            v-model="cardData.securityCode"
+            readonly
+          />
+          <button
+            class="reset"
+            @click="resetCvc()"
+            :disabled="!cardData.capturingCvc"
+          >
+            x
+          </button>
+        </div>
+      </div>
+      <br />
+      <div class="capture_line">
+        <label>Expiry Date</label>
+        <div class="inputpair">
+          <input
+            type="text"
+            placeholder="MM/YY"
+            v-model="formattedDate"
+            readonly
+          />
+          <button
+            class="reset"
+            @click="resetDate()"
+            :disabled="!cardData.capturingDate"
+          >
+            x
+          </button>
+        </div>
+      </div>
+    </div>
+    <br />
+    <br />
+    <div>
+      <button @click="submit()" v-show="cardData.captureComplete">
+        Submit
+      </button>
+      <button
+        @click="cancel()"
+        v-show="cardData.capturing || cardData.captureComplete"
+      >
+        Cancel
+      </button>
+      <p>Token: {{ cardData.paymentToken }}</p>
+    </div>
   </div>
 </template>
 
@@ -86,6 +97,7 @@ export default {
         securityCode: "",
         expirationDate: "",
         paymentToken: "",
+        callConnected: false,
         capturing: false,
         capturingCard: false,
         capturingCvc: false,
