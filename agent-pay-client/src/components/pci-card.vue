@@ -131,11 +131,13 @@ export default {
   },
   computed: {
     formattedDate() {
-      return (
-        this.cardData.expirationDate.substring(0, 2) +
-        "/" +
-        this.cardData.expirationDate.substring(2, 4)
-      );
+      if (this.cardData.expirationDate) {
+        return (
+          this.cardData.expirationDate.substring(0, 2) +
+          "/" +
+          this.cardData.expirationDate.substring(2, 4)
+        );
+      }
     },
   },
 
