@@ -185,7 +185,7 @@ const PayClient = {
 
                 // Add Event Listener for data changes. Update the _cardData object
                 this._payMap.on('itemUpdated', (args) => {
-                    ///console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
+                    console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
                     // Update the local variables:
                     this._payMapItemKey = args.item.key;
                     this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
@@ -380,6 +380,10 @@ const PayClient = {
         let theUrl = '/Calls/' + this._callSID + '/Payments/' + this._paySID + '.json';
 
         console.log(`_changeSession ChangeType: ${changeType}`);
+
+        // Reset the Capture Order
+        this.captureOrder = this._config.data.captureOrder.slice(); // copy by value to reset the order array
+
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('Status', changeType);
@@ -394,6 +398,34 @@ const PayClient = {
             this._cardData.capturingCard = false;
             this._cardData.capturingCvc = false;
             this._cardData.capturingDate = false;
+
+
+            if (changeType === "complete") {
+
+                // Clear the syncMapItems to avoid visual issues
+                try {
+                    const item = await this._payMap.update(this._payMapItemKey,
+                        {
+                            PaymentCardNumber: "",
+                            SecurityCode: "",
+                            ExpirationDate: ""
+                        }
+                    );
+                    console.log(`Submit: payMapItem data cleared: ${JSON.stringify(item, null, 4)}`);
+                    this._cardData.paymentCardNumber = "";
+                    this._cardData.securityCode = "";
+                    this._cardData.expirationDate = "";
+
+                } catch (error) {
+                    console.log(`Error deleting submitted payMapItem with error: ${error}`);
+                }
+
+            }
+
+
+
+
+
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
@@ -406,10 +438,6 @@ const PayClient = {
         console.log(`Cancelling: ${this._payMapItemKey}`);
         this._cardData.captureComplete = false;
 
-        this._cardData.paymentCardNumber = "";
-        this._cardData.securityCode = "";
-        this._cardData.expirationDate = "";
-        this.captureOrder = this._config.data.captureOrder.slice(); // copy by value to reset the order array
 
         // Cancel the payment
         await this._changeSession("cancel");
@@ -419,10 +447,13 @@ const PayClient = {
         try {
             await this._payMap.remove(this._payMapItemKey);
             console.log(`payMapItem removed with key: ${this._payMapItemKey}`);
+            this._cardData.paymentCardNumber = "";
+            this._cardData.securityCode = "";
+            this._cardData.expirationDate = "";
+            // this.captureOrder = this._config.data.captureOrder.slice(); // copy by value to reset the order array
         } catch (error) {
             console.log(`Error deleting cancelled payMapItem with error: ${error}`);
         }
-
     },
 
     /**
