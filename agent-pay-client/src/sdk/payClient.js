@@ -53,7 +53,7 @@ const PayClient = {
     async _getConfig(url) {
         // Grab config from the Merchant Server
         ///let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/get-config";
-        console.log(`_getConfig url: ${url}`);
+        //console.log(`_getConfig url: ${url}`);
         try {
             this._config = await axios.get(url);
             //console.log(`the this._config: ${JSON.stringify(config.data, null, 4)}`);
@@ -95,7 +95,7 @@ const PayClient = {
             //console.log(`getting token`);
             let result = await axios.get(url);
             this._syncToken = result.data.token;
-            console.log(`Identity: ${this.identity} & Token: ${this._syncToken}`);
+            console.log(`Identity: ${this.identity}`);  // & Token: ${this._syncToken}`);
         } catch (error) {
             console.error(`getting token error: ${error}`);
         }
@@ -145,7 +145,7 @@ const PayClient = {
                 this._cardData.callConnected = true;
                 this._cardData.capturing = false;
                 this._cardData.captureComplete = false;
-                console.log(`Initialise. this._cardData.capturing = ${this._cardData.capturing}`);
+                console.log(`Initialize. this._cardData.capturing = ${this._cardData.capturing}`);
 
                 // Add Event Listener for data changes. Update the _cardData object
                 this._payMap.on('itemUpdated', (args) => {
@@ -172,7 +172,7 @@ const PayClient = {
                 this._cardData.captureComplete = false;
 
                 ////////////////////////////////////////////// REMOVE WHEN USING CTI /////////////////////////////////////
-                //////// Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
+                //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
                 this._guidMap.on('itemAdded', (args) => {
                     this._callSID = args.item.data.SID;
                     console.log(`Call SID is = ${this._callSID}`);
@@ -185,7 +185,7 @@ const PayClient = {
 
                 // Add Event Listener for data changes. Update the _cardData object
                 this._payMap.on('itemUpdated', (args) => {
-                    //console.log(`_payMap item ${args.item.key} was UPDATED`);
+                    ///console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
                     // Update the local variables:
                     this._payMapItemKey = args.item.key;
                     this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
@@ -410,7 +410,6 @@ const PayClient = {
         this._cardData.securityCode = "";
         this._cardData.expirationDate = "";
         this.captureOrder = this._config.data.captureOrder.slice(); // copy by value to reset the order array
-
 
         // Cancel the payment
         await this._changeSession("cancel");

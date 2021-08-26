@@ -132,6 +132,7 @@ export default {
   computed: {
     formattedDate() {
       if (this.cardData.expirationDate) {
+        // This is to handle the bug VPAY-832
         return (
           this.cardData.expirationDate.substring(0, 2) +
           "/" +
