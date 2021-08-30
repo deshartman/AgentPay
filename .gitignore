@@ -142,3 +142,5 @@ pnpm-debug.log*
 *.sw?
 agent-pay-server/.twiliodeployinfo
 .twiliodeployinfo
+EmbedExample
+WoW AgentPay.mp4
