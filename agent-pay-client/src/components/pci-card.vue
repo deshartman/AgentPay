@@ -1,18 +1,8 @@
 <template>
   <div>
-    <h1>Twilio Demo</h1>
-    <h2>Agent Assisted Pay</h2>
-    <button
-      @click="captureToken()"
-      v-show="cardData.callConnected && !cardData.capturing"
-    >
-      Start Pay Session
-    </button>
-    <br />
-    <br />
     <div class="card_capture">
       <div class="capture_line">
-        <label>Card Number: ({{ cardData.paymentCardType }})</label>
+        <!-- <label>Card Number: ({{ cardData.paymentCardType }})</label> -->
         <div class="inputpair">
           <input
             type="text"
@@ -29,9 +19,8 @@
           </button>
         </div>
       </div>
-      <br />
       <div class="capture_line">
-        <label>CVC:</label>
+        <!-- <label>CVC:</label> -->
         <div class="inputpair">
           <input
             type="text"
@@ -48,9 +37,8 @@
           </button>
         </div>
       </div>
-      <br />
       <div class="capture_line">
-        <label>Expiry Date</label>
+        <!-- <label>Expiry Date</label> -->
         <div class="inputpair">
           <input
             type="text"
@@ -68,18 +56,16 @@
         </div>
       </div>
     </div>
-    <br />
-    <br />
     <div>
       <button @click="submit()" v-show="cardData.captureComplete">
         Submit
       </button>
-      <button
+      <!-- <button
         @click="cancel()"
         v-show="cardData.capturing || cardData.captureComplete"
       >
         Cancel
-      </button>
+      </button> -->
       <p>Token: {{ cardData.paymentToken }}</p>
     </div>
   </div>
@@ -108,10 +94,8 @@ export default {
   },
   methods: {
     async captureToken() {
-      // Have to pass in a reference, so the data remains reactive, when it changes
-      PayClient.captureToken(); //this.cardData);
+      PayClient.captureToken();
     },
-
     cancel() {
       PayClient.cancelCapture();
     },
@@ -163,7 +147,7 @@ export default {
 button {
   background-color: red;
   color: white;
-  padding: 5px 32px;
+  padding: 5px 20px;
   margin: 10px;
   text-align: center;
   text-decoration: none;
@@ -188,6 +172,7 @@ label {
 }
 
 .card_capture {
+  display: inline;
   width: 400px;
   margin: 0 auto 0 auto;
 }

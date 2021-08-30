@@ -181,6 +181,9 @@ const PayClient = {
                     this._cardData.callConnected = true;
                     this._cardData.capturing = false;
                     this._cardData.captureComplete = false;
+
+                    // Now initialise the capture
+                    this.captureToken();
                 });
 
                 // Add Event Listener for data changes. Update the _cardData object
@@ -429,6 +432,7 @@ const PayClient = {
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
+        console.log(`_changeSession: this._cardData.captureComplete: ${this._cardData.captureComplete}`);
     },
 
     /**
@@ -459,9 +463,10 @@ const PayClient = {
     /**
      * Complete this Assisted Pay session and submit for tokenization
      */
-    submitCapture() {
+    async submitCapture() {
+        await this._changeSession("complete");
         this._cardData.captureComplete = false;
-        this._changeSession("complete");
+        console.log(`submitCapture: this._cardData.captureComplete: ${this._cardData.captureComplete}`);
     }
 }
 
