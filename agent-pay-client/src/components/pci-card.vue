@@ -168,12 +168,17 @@ label {
 }
 
 .inputpair {
-  float: right;
+  /* float: right; */
+  width: 100%;
+}
+
+input {
+  width: 80%;
 }
 
 .card_capture {
   display: inline;
-  width: 400px;
+  width: 100%;
   margin: 0 auto 0 auto;
 }
 
