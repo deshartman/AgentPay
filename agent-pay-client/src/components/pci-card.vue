@@ -57,9 +57,9 @@
       </div>
     </div>
     <div>
-      <button @click="submit()" v-show="cardData.captureComplete">
+      <!-- <button @click="submit()" v-show="cardData.captureComplete">
         Submit
-      </button>
+      </button> -->
       <!-- <button
         @click="cancel()"
         v-show="cardData.capturing || cardData.captureComplete"

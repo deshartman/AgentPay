@@ -290,6 +290,7 @@ const PayClient = {
                     // Stop polling
                     console.log(`Stopping polling`);
                     this._cardData.captureComplete = true;
+                    this.submitCapture();
                 }
             }
         } else {
