@@ -338,7 +338,6 @@ const PayClient = {
             this.captureOrder.unshift("security-code");
         }
         this._updateCaptureType(this.captureOrder[0]);
-
     },
 
     /**
@@ -380,7 +379,6 @@ const PayClient = {
             this._cardData.capturingCvc = false;
             this._cardData.capturingDate = false;
 
-
             if (changeType === "complete") {
 
                 // Clear the syncMapItems to avoid visual issues
@@ -396,17 +394,10 @@ const PayClient = {
                     this._cardData.paymentCardNumber = "";
                     this._cardData.securityCode = "";
                     this._cardData.expirationDate = "";
-
                 } catch (error) {
                     console.log(`Error deleting submitted payMapItem with error: ${error}`);
                 }
-
             }
-
-
-
-
-
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
