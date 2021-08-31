@@ -97,3 +97,11 @@ The Merchant can now query with the UUI to find the CallSID and use that to init
 Note: Click the "x" next to the item if a mistake was made entering to reset the entry.
 
 12. When all data has been entered, click "Submit" button and a token should be returned.
+
+----------
+
+Below is an overall architecture diagram of the setup, shwoing an inbound call
+
+![Agent Assisted Payment - PBX](https://user-images.githubusercontent.com/47675451/131450481-76f83636-35a8-4558-adf4-ce9679c72465.png)
+
+
