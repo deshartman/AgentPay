@@ -21,7 +21,7 @@ const PayClient = {
 
     // Sync variables
     _syncClient: null,
-    _guidMap: null,
+    // _guidMap: null,
     _payMap: null,
     _payMapItemKey: null,
     _syncToken: "",
@@ -134,7 +134,6 @@ const PayClient = {
 
             //console.log(`Setting up Sync`);
             this._syncClient = new SyncClient(this._syncToken, {});
-            //this._guidMap = await this._syncClient.map('guidMap');
             this._payMap = await this._syncClient.map('payMap');
 
             // If a Call SID was passed in, CTI has call already and now opening view
@@ -173,7 +172,8 @@ const PayClient = {
 
                 ////////////////////////////////////////////// REMOVE WHEN USING CTI /////////////////////////////////////
                 //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
-                this._guidMap.on('itemAdded', (args) => {
+                const guidMap = await this._syncClient.map('guidMap');
+                guidMap.on('itemAdded', (args) => {
                     this._callSID = args.item.data.SID;
                     console.log(`Call SID is = ${this._callSID}`);
 
