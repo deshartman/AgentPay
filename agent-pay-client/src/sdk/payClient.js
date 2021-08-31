@@ -145,24 +145,6 @@ const PayClient = {
                 this._cardData.capturing = false;
                 this._cardData.captureComplete = false;
                 console.log(`Initialize. this._cardData.capturing = ${this._cardData.capturing}`);
-
-                // Add Event Listener for data changes. Update the _cardData object
-                this._payMap.on('itemUpdated', (args) => {
-                    //console.log(`_payMap item ${args.item.key} was UPDATED`);
-                    // Update the local variables:
-                    this._payMapItemKey = args.item.key;
-                    this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
-                    this._cardData.securityCode = args.item.data.SecurityCode;
-                    this._cardData.expirationDate = args.item.data.ExpirationDate;
-                    this._cardData.paymentToken = args.item.data.PaymentToken;
-                    this._cardData.paymentCardType = args.item.data.PaymentCardType;
-                    this._capture = args.item.data.Capture;
-                    this._partialResult = args.item.data.PartialResult;
-                    this._required = args.item.data.Required;
-
-                    // Check if we need to move to next capture item
-                    this._checkPayProgress();
-                });
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID. Please open App first and then place a call`);
@@ -170,38 +152,37 @@ const PayClient = {
                 this._cardData.capturing = false;
                 this._cardData.captureComplete = false;
 
-                ////////////////////////////////////////////// REMOVE WHEN USING CTI /////////////////////////////////////
-                //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI ///////////
+                ////////////////////////////////////////////// REMOVE WHEN USING CTI ///////////////////////////////////////////////////
+                //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI or Flex ///////////
                 const guidMap = await this._syncClient.map('guidMap');
                 guidMap.on('itemAdded', (args) => {
                     this._callSID = args.item.data.SID;
                     console.log(`Call SID is = ${this._callSID}`);
-
                     console.log(`Initialise. TEMP HACK this._cardData.capturing = ${this._cardData.capturing}`);
                     this._cardData.callConnected = true;
                     this._cardData.capturing = false;
                     this._cardData.captureComplete = false;
                 });
-
-                // Add Event Listener for data changes. Update the _cardData object
-                this._payMap.on('itemUpdated', (args) => {
-                    console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
-                    // Update the local variables:
-                    this._payMapItemKey = args.item.key;
-                    this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
-                    this._cardData.securityCode = args.item.data.SecurityCode;
-                    this._cardData.expirationDate = args.item.data.ExpirationDate;
-                    this._cardData.paymentToken = args.item.data.PaymentToken;
-                    this._cardData.paymentCardType = args.item.data.PaymentCardType;
-                    this._capture = args.item.data.Capture;
-                    this._partialResult = args.item.data.PartialResult;
-                    this._required = args.item.data.Required;
-
-                    // Check if we need to move to next capture item
-                    this._checkPayProgress();
-                });
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
+
+            // Add Event Listener for data changes. Update the _cardData object
+            this._payMap.on('itemUpdated', (args) => {
+                console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
+                // Update the local variables:
+                this._payMapItemKey = args.item.key;
+                this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
+                this._cardData.securityCode = args.item.data.SecurityCode;
+                this._cardData.expirationDate = args.item.data.ExpirationDate;
+                this._cardData.paymentToken = args.item.data.PaymentToken;
+                this._cardData.paymentCardType = args.item.data.PaymentCardType;
+                this._capture = args.item.data.Capture;
+                this._partialResult = args.item.data.PartialResult;
+                this._required = args.item.data.Required;
+
+                // Check if we need to move to next capture item
+                this._checkPayProgress();
+            });
         } catch (error) {
             console.error(`Could not Initialize. Error setting up Pay Session with Error: ${error}`);
         }
