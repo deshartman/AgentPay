@@ -134,7 +134,7 @@ const PayClient = {
 
             //console.log(`Setting up Sync`);
             this._syncClient = new SyncClient(this._syncToken, {});
-            this._guidMap = await this._syncClient.map('guidMap');
+            //this._guidMap = await this._syncClient.map('guidMap');
             this._payMap = await this._syncClient.map('payMap');
 
             // If a Call SID was passed in, CTI has call already and now opening view
