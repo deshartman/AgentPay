@@ -177,7 +177,6 @@ const PayClient = {
                     this._callSID = args.item.data.SID;
                     console.log(`Call SID is = ${this._callSID}`);
 
-                    console.log(`Initialise. TEMP HACK this._cardData.capturing = ${this._cardData.capturing}`);
                     this._cardData.callConnected = true;
                     this._cardData.capturing = false;
                     this._cardData.captureComplete = false;
@@ -188,7 +187,7 @@ const PayClient = {
 
                 // Add Event Listener for data changes. Update the _cardData object
                 this._payMap.on('itemUpdated', (args) => {
-                    console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
+                    //console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
                     // Update the local variables:
                     this._payMapItemKey = args.item.key;
                     this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
@@ -239,8 +238,6 @@ const PayClient = {
         //this._cardData = cardData;
         this.captureOrder = this._config.data.captureOrder.slice(); // Copy value
 
-        console.log(`Capture order: ${this.captureOrder} vs ${this._config.data.captureOrder}`);
-
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
@@ -270,7 +267,8 @@ const PayClient = {
 
     // Initiates and stops polling for the _capture
     // Progresses through the _required information as per the API update _required fields
-    async _checkPayProgress() {
+    //async 
+    _checkPayProgress() {
         if (this._capture) {
             // console.log(`this._capture: ${this._capture}`);
             // console.log(`this._required ${this._required}`);
@@ -396,40 +394,34 @@ const PayClient = {
 
         try {
             const response = await this._twilioAPI.post(theUrl, urlEncodedData);
-            if (this._debug) console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
+            console.log(`_changeSession Response data: ${JSON.stringify(response.data, null, 4)}`);
             //return response.data.sid;
             this._cardData.capturing = false;
             this._cardData.capturingCard = false;
             this._cardData.capturingCvc = false;
             this._cardData.capturingDate = false;
 
+            // if (changeType === "complete") {
 
-            if (changeType === "complete") {
+            //     // Clear the syncMapItems to avoid visual issues
+            //     try {
+            //         const item = await this._payMap.update(this._payMapItemKey,
+            //             {
+            //                 PaymentCardNumber: "",
+            //                 SecurityCode: "",
+            //                 ExpirationDate: ""
+            //             }
+            //         );
+            //         console.log(`Submit: payMapItem data cleared: ${JSON.stringify(item, null, 4)}`);
+            //         this._cardData.paymentCardNumber = "";
+            //         this._cardData.securityCode = "";
+            //         this._cardData.expirationDate = "";
 
-                // Clear the syncMapItems to avoid visual issues
-                try {
-                    const item = await this._payMap.update(this._payMapItemKey,
-                        {
-                            PaymentCardNumber: "",
-                            SecurityCode: "",
-                            ExpirationDate: ""
-                        }
-                    );
-                    console.log(`Submit: payMapItem data cleared: ${JSON.stringify(item, null, 4)}`);
-                    this._cardData.paymentCardNumber = "";
-                    this._cardData.securityCode = "";
-                    this._cardData.expirationDate = "";
+            //     } catch (error) {
+            //         console.log(`Error deleting submitted payMapItem with error: ${error}`);
+            //     }
 
-                } catch (error) {
-                    console.log(`Error deleting submitted payMapItem with error: ${error}`);
-                }
-
-            }
-
-
-
-
-
+            // }
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
