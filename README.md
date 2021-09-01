@@ -24,7 +24,7 @@ In addition to the client, there is also an example MErchant server. The intenti
 currently gets their user interface from and thus would serve the pay component as an asset. The Merchant server is used to
 set up configuration details for Pay, including the API Keys.
 
-The CALL_HANDLER_URL tells the Merchant server where to get Sync updates from, using the same Sync Service SID as for the server.
+The FUNCTIONS_URL tells the Merchant server where to get Sync updates from, using the same Sync Service SID as for the server.
 
 Note: Even though we still use API_Key and Secret, they are presented via the MErchant server and not directly in the Client code. Once
 a Pay Token service is created, this need is removed.
@@ -63,7 +63,7 @@ The Merchant can now query with the UUI to find the CallSID and use that to init
 
 2. Configure a SIP Domain and registered users as required and update SIP_DOMAIN.
 
-3. Deploy the Server side with "twilio serverless:deploy" and update the client .env with the CALL_HANDLER_URL Functions domain.
+3. Deploy the Server side with "twilio serverless:deploy" and update the client .env with the FUNCTIONS_URL Functions domain.
 
 4. Update VUE_APP_MERCHANT_SERVER_URL with the required local merchant node server url; e.g., http://localhost:4000
 

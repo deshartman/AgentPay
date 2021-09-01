@@ -5,7 +5,7 @@ API_SECRET=yyyyy
 
 # Variables for Sync
 PAY_SYNC_SERVICE_SID=ISxxxx
-CALL_HANDLER_URL=https://functions-0000-xxx.twil.io
+FUNCTIONS_URL=https://functions-0000-xxx.twil.io
 
 # Variables for pay
 PAY_CONNECTOR=connector_name
