@@ -17,13 +17,9 @@ import SyncClient from "twilio-sync";
 
 const PayClient = {
     version: "v0.2",
-    _debug: true, // logs verbosely to console
-
-    _config: {},
 
     // Sync variables
     _syncClient: null,
-    // _guidMap: null,
     _payMap: null,
     _payMapItemKey: null,
     _syncToken: "",
@@ -55,8 +51,6 @@ const PayClient = {
     //
     async _getConfig(url) {
         // Grab config from the Merchant Server
-        ///let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/get-config";
-        //console.log(`_getConfig url: ${url}`);
         try {
             const config = await axios.get(url);
             //console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
@@ -79,7 +73,7 @@ const PayClient = {
             this._twilioAPI = axios.create(axios_config);
             this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
             this.payConnector = config.data.payConnector;
-            this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
+            this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value
             this.captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
             this.currency = config.data.currency;
             this.tokenType = config.data.tokenType;
@@ -112,25 +106,6 @@ const PayClient = {
         }
     },
 
-    // Get a Sync token
-    //
-    // async _getSyncToken(url) {
-    //     ///let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/sync-token";
-    //     //console.log(`url: ${url}`);
-    //     try {
-    //         //console.log(`getting token`);
-    //         let result = await axios.get(url);
-    //         this._syncToken = result.data.token;
-    //         console.log(`Identity: ${this.identity}`);  // & Token: ${this._syncToken}`);
-    //     } catch (error) {
-    //         console.error(`getting token error: ${error}`);
-    //     }
-    // },
-
-
-
-
-
 
     /**
      * Initialise the Agent Assisted Pay Session by getting the configuration parameters from the Merchant server
@@ -161,7 +136,6 @@ const PayClient = {
 
         try {
             await this._getConfig(merchantServerUrl + "/get-config");
-            //await this._getSyncToken(merchantServerUrl + "/sync-token");
 
             //console.log(`Setting up Sync`);
             this._syncClient = new SyncClient(this._syncToken, {});
@@ -220,7 +194,7 @@ const PayClient = {
     },
 
     /**
-     * This allows a PBC CTI to update the call SID at any point.
+     * This allows a PBX CTI to update the call SID at any point.
      * 
      * @param {String} callSid 
      */
@@ -246,7 +220,7 @@ const PayClient = {
         let theUrl = '/Calls/' + this._callSID + '/Payments.json';
         //console.log(`captureToken url: [${theUrl}]`);
         //this._cardData = cardData;
-        this.captureOrder = this._captureOrderTemplate.slice(); //config.data.captureOrder.slice(); // Copy value
+        this.captureOrder = this._captureOrderTemplate.slice(); // Copy value
 
         console.log(`Capture order: ${this.captureOrder} vs ${this._captureOrderTemplate}`);
 
@@ -273,7 +247,7 @@ const PayClient = {
 
             await this._updateCaptureType(this.captureOrder[0]);
         } catch (error) {
-            if (this._debug) console.error(error);
+            console.error(`Error with Capture Token: ${error}`);
         }
     },
 
@@ -393,7 +367,7 @@ const PayClient = {
         console.log(`_changeSession ChangeType: ${changeType}`);
 
         // Reset the Capture Order
-        this.captureOrder = this._captureOrderTemplate.slice(); //config.data.captureOrder.slice(); // copy by value to reset the order array
+        this.captureOrder = this._captureOrderTemplate.slice(); // copy by value to reset the order array
 
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
@@ -403,32 +377,12 @@ const PayClient = {
 
         try {
             const response = await this._twilioAPI.post(theUrl, urlEncodedData);
-            if (this._debug) console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
-            //return response.data.sid;
+            console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
+
             this._cardData.capturing = false;
             this._cardData.capturingCard = false;
             this._cardData.capturingCvc = false;
             this._cardData.capturingDate = false;
-
-            // if (changeType === "complete") {
-
-            //     // Clear the syncMapItems to avoid visual issues
-            //     try {
-            //         const item = await this._payMap.update(this._payMapItemKey,
-            //             {
-            //                 PaymentCardNumber: "",
-            //                 SecurityCode: "",
-            //                 ExpirationDate: ""
-            //             }
-            //         );
-            //         console.log(`Submit: payMapItem data cleared: ${JSON.stringify(item, null, 4)}`);
-            //         this._cardData.paymentCardNumber = "";
-            //         this._cardData.securityCode = "";
-            //         this._cardData.expirationDate = "";
-            //     } catch (error) {
-            //         console.log(`Error deleting submitted payMapItem with error: ${error}`);
-            //     }
-            // }
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
@@ -441,7 +395,6 @@ const PayClient = {
         console.log(`Cancelling: ${this._payMapItemKey}`);
         this._cardData.captureComplete = false;
 
-
         // Cancel the payment
         await this._changeSession("cancel");
         console.log(`Pay cancelled payMapItem key: ${this._payMapItemKey}`);
@@ -453,7 +406,6 @@ const PayClient = {
             this._cardData.paymentCardNumber = "";
             this._cardData.securityCode = "";
             this._cardData.expirationDate = "";
-            // this.captureOrder = this._captureOrderTemplate.slice(); //config.data.captureOrder.slice(); // copy by value to reset the order array
         } catch (error) {
             console.log(`Error deleting cancelled payMapItem with error: ${error}`);
         }
