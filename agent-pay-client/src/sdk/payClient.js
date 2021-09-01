@@ -74,7 +74,7 @@ const PayClient = {
             //console.log('Axios config' + JSON.stringify(axios_config, null, 4));
             // Update Axios and status call back
             this._twilioAPI = axios.create(axios_config);
-            this._statusCallback = this._config.data.functionsURL + '/pay/paySyncUpdate';
+            this._statusCallback = this._config.data.functionsURL + 'paySyncUpdate';
             this.payConnector = this._config.data.payConnector;
             this.captureOrder = this._config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
             this.currency = this._config.data.currency;
