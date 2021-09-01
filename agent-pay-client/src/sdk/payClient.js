@@ -10,6 +10,8 @@
  * only!
  * 
  */
+//import twilio from "twilio";
+import AccessToken from "twilio/lib/jwt/AccessToken";
 import axios from "axios";
 import SyncClient from "twilio-sync";
 
@@ -41,6 +43,7 @@ const PayClient = {
     _statusCallback: '',
 
     captureOrder: [],
+    _captureOrderTemplate: [],
     payConnector: '',
     currency: 'USD',
     tokenType: 'reusable',
@@ -55,16 +58,16 @@ const PayClient = {
         ///let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/get-config";
         //console.log(`_getConfig url: ${url}`);
         try {
-            this._config = await axios.get(url);
-            //console.log(`the this._config: ${JSON.stringify(config.data, null, 4)}`);
+            const config = await axios.get(url);
+            //console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
 
             const axios_config = {
                 baseURL:
-                    'https://api.twilio.com/2010-04-01/Accounts/' + this._config.data.twilioAccountSid, //This allows us to change the rest of the URL
+                    'https://api.twilio.com/2010-04-01/Accounts/' + config.data.twilioAccountSid, //This allows us to change the rest of the URL
                 auth: {
                     // Basic Auth using API key
-                    username: this._config.data.twilioApiKey,
-                    password: this._config.data.twilioApiSecret
+                    username: config.data.twilioApiKey,
+                    password: config.data.twilioApiSecret
                 },
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded", // _Required for Twilio API
@@ -74,13 +77,36 @@ const PayClient = {
             //console.log('Axios config' + JSON.stringify(axios_config, null, 4));
             // Update Axios and status call back
             this._twilioAPI = axios.create(axios_config);
-            this._statusCallback = this._config.data.functionsURL + 'paySyncUpdate';
-            this.payConnector = this._config.data.payConnector;
-            this.captureOrder = this._config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
-            this.currency = this._config.data.currency;
-            this.tokenType = this._config.data.tokenType;
-            this.identity = this._config.data.identity;
+            this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
+            this.payConnector = config.data.payConnector;
+            this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
+            this.captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
+            this.currency = config.data.currency;
+            this.tokenType = config.data.tokenType;
+            this.identity = config.data.identity;
 
+            try {
+                console.log(`Getting sync-token`);
+                const SyncGrant = AccessToken.SyncGrant;
+                const syncGrant = new SyncGrant({
+                    serviceSid: config.data.paySyncSid
+                });
+
+                // Create an access token which we will sign and return to the client,
+                // containing the grant we just created
+                const accessToken = new AccessToken(
+                    config.data.twilioAccountSid,
+                    config.data.twilioApiKey,
+                    config.data.twilioApiSecret,
+                    { identity: config.data.identity }
+                );
+
+                accessToken.addGrant(syncGrant);
+                this._syncToken = accessToken.toJwt();
+                console.log(`sync-token: ${this._syncToken}`);
+            } catch (error) {
+                console.error(`Error getting sync token: ${error}`);
+            }
         } catch (error) {
             console.error(`Error getting config from Merchant Server: ${error}`);
         }
@@ -88,18 +114,23 @@ const PayClient = {
 
     // Get a Sync token
     //
-    async _getSyncToken(url) {
-        ///let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/sync-token";
-        //console.log(`url: ${url}`);
-        try {
-            //console.log(`getting token`);
-            let result = await axios.get(url);
-            this._syncToken = result.data.token;
-            console.log(`Identity: ${this.identity}`);  // & Token: ${this._syncToken}`);
-        } catch (error) {
-            console.error(`getting token error: ${error}`);
-        }
-    },
+    // async _getSyncToken(url) {
+    //     ///let url = process.env.VUE_APP_MERCHANT_SERVER_URL + "/sync-token";
+    //     //console.log(`url: ${url}`);
+    //     try {
+    //         //console.log(`getting token`);
+    //         let result = await axios.get(url);
+    //         this._syncToken = result.data.token;
+    //         console.log(`Identity: ${this.identity}`);  // & Token: ${this._syncToken}`);
+    //     } catch (error) {
+    //         console.error(`getting token error: ${error}`);
+    //     }
+    // },
+
+
+
+
+
 
     /**
      * Initialise the Agent Assisted Pay Session by getting the configuration parameters from the Merchant server
@@ -130,7 +161,7 @@ const PayClient = {
 
         try {
             await this._getConfig(merchantServerUrl + "/get-config");
-            await this._getSyncToken(merchantServerUrl + "/sync-token");
+            //await this._getSyncToken(merchantServerUrl + "/sync-token");
 
             //console.log(`Setting up Sync`);
             this._syncClient = new SyncClient(this._syncToken, {});
@@ -158,7 +189,7 @@ const PayClient = {
                 guidMap.on('itemAdded', (args) => {
                     this._callSID = args.item.data.SID;
                     console.log(`Call SID is = ${this._callSID}`);
-                    console.log(`Initialise. TEMP HACK this._cardData.capturing = ${this._cardData.capturing}`);
+                    //console.log(`Initialise. TEMP HACK this._cardData.capturing = ${this._cardData.capturing}`);
                     this._cardData.callConnected = true;
                     this._cardData.capturing = false;
                     this._cardData.captureComplete = false;
@@ -215,9 +246,9 @@ const PayClient = {
         let theUrl = '/Calls/' + this._callSID + '/Payments.json';
         //console.log(`captureToken url: [${theUrl}]`);
         //this._cardData = cardData;
-        this.captureOrder = this._config.data.captureOrder.slice(); // Copy value
+        this.captureOrder = this._captureOrderTemplate.slice(); //config.data.captureOrder.slice(); // Copy value
 
-        console.log(`Capture order: ${this.captureOrder} vs ${this._config.data.captureOrder}`);
+        console.log(`Capture order: ${this.captureOrder} vs ${this._captureOrderTemplate}`);
 
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
@@ -362,7 +393,7 @@ const PayClient = {
         console.log(`_changeSession ChangeType: ${changeType}`);
 
         // Reset the Capture Order
-        this.captureOrder = this._config.data.captureOrder.slice(); // copy by value to reset the order array
+        this.captureOrder = this._captureOrderTemplate.slice(); //config.data.captureOrder.slice(); // copy by value to reset the order array
 
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
@@ -422,7 +453,7 @@ const PayClient = {
             this._cardData.paymentCardNumber = "";
             this._cardData.securityCode = "";
             this._cardData.expirationDate = "";
-            // this.captureOrder = this._config.data.captureOrder.slice(); // copy by value to reset the order array
+            // this.captureOrder = this._captureOrderTemplate.slice(); //config.data.captureOrder.slice(); // copy by value to reset the order array
         } catch (error) {
             console.log(`Error deleting cancelled payMapItem with error: ${error}`);
         }

@@ -34,7 +34,6 @@ app.get('/', (req, res) => {
 /**
  * Set up HTTP Axios server config for API calls to the Merchant account
  * 
- * This will eventually be replaced by Pay token logic
  */
 app.get('/get-config', (req, res) => {
 
@@ -50,33 +49,10 @@ app.get('/get-config', (req, res) => {
             "expiration-date",
         ],
         currency: 'AUD',
+        paySyncSid: paySyncSid,             // This need to be moved into payClient
         tokenType: 'reusable',
         identity: identity,                 // Identity of the Agent for the session
 
-    });
-});
-
-app.get('/sync-token', (req, res) => {
-
-    console.log(`sync-token server`);
-    const SyncGrant = AccessToken.SyncGrant;
-    const syncGrant = new SyncGrant({
-        serviceSid: paySyncSid,
-    });
-
-    // Create an access token which we will sign and return to the client,
-    // containing the grant we just created
-    const accessToken = new AccessToken(
-        twilioAccountSid,
-        twilioApiKey,
-        twilioApiSecret,
-        { identity: identity }
-    );
-
-    accessToken.addGrant(syncGrant);
-
-    res.status(200).send({
-        token: accessToken.toJwt(),
     });
 });
 
