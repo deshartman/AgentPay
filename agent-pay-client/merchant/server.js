@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));    // for express >4.16
 const twilioAccountSid = process.env.ACCOUNT_SID;
 const twilioApiKey = process.env.API_KEY;
 const twilioApiSecret = process.env.API_SECRET;
-const callHandlerURL = process.env.CALL_HANDLER_URL;    // The Twilio Functions URL where the call handlers are deploye
+const callHandlerURL = process.env.FUNCTIONS_URL;    // The Twilio Functions URL where the call handlers are deploye
 //const restClient = require('twilio')(twilioApiKey, twilioApiSecret, { twilioAccountSid: twilioAccountSid });
 
 
