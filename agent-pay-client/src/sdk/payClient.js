@@ -74,7 +74,7 @@ const PayClient = {
             //console.log('Axios config' + JSON.stringify(axios_config, null, 4));
             // Update Axios and status call back
             this._twilioAPI = axios.create(axios_config);
-            this._statusCallback = this._config.data.callHandlerURL + '/pay/paySyncUpdate';
+            this._statusCallback = this._config.data.functionsURL + '/pay/paySyncUpdate';
             this.payConnector = this._config.data.payConnector;
             this.captureOrder = this._config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
             this.currency = this._config.data.currency;
@@ -108,7 +108,7 @@ const PayClient = {
             twilioAccountSid: twilioAccountSid,
             twilioApiKey: twilioApiKey,
             twilioApiSecret: twilioApiSecret,
-            callHandlerURL: callHandlerURL,     // The Twilio Functions URL where the call handlers are deployed
+            functionsURL: functionsURL,     // The Twilio Functions URL where the call handlers are deployed
             payConnector: payConnector,         // The name of the Twilio Pay connector configured
             captureOrder: [                     // The order in which the components will be captured
                 "payment-card-number",
@@ -379,25 +379,25 @@ const PayClient = {
             this._cardData.capturingCvc = false;
             this._cardData.capturingDate = false;
 
-            if (changeType === "complete") {
+            // if (changeType === "complete") {
 
-                // Clear the syncMapItems to avoid visual issues
-                try {
-                    const item = await this._payMap.update(this._payMapItemKey,
-                        {
-                            PaymentCardNumber: "",
-                            SecurityCode: "",
-                            ExpirationDate: ""
-                        }
-                    );
-                    console.log(`Submit: payMapItem data cleared: ${JSON.stringify(item, null, 4)}`);
-                    this._cardData.paymentCardNumber = "";
-                    this._cardData.securityCode = "";
-                    this._cardData.expirationDate = "";
-                } catch (error) {
-                    console.log(`Error deleting submitted payMapItem with error: ${error}`);
-                }
-            }
+            //     // Clear the syncMapItems to avoid visual issues
+            //     try {
+            //         const item = await this._payMap.update(this._payMapItemKey,
+            //             {
+            //                 PaymentCardNumber: "",
+            //                 SecurityCode: "",
+            //                 ExpirationDate: ""
+            //             }
+            //         );
+            //         console.log(`Submit: payMapItem data cleared: ${JSON.stringify(item, null, 4)}`);
+            //         this._cardData.paymentCardNumber = "";
+            //         this._cardData.securityCode = "";
+            //         this._cardData.expirationDate = "";
+            //     } catch (error) {
+            //         console.log(`Error deleting submitted payMapItem with error: ${error}`);
+            //     }
+            // }
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
