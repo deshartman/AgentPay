@@ -20,7 +20,7 @@ const payConnector = process.env.PAY_CONNECTOR;
 
 // TODO: Only needed for local demo and dev
 const cors = require('cors');
-const allowedOrigins = ['http://localhost:8080'];
+const allowedOrigins = ['http://localhost:8080', 'https://des.ngrok.io'];
 const options = { origin: allowedOrigins };
 app.use(cors(options));
 
