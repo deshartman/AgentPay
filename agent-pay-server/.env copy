@@ -8,3 +8,15 @@ PAY_SYNC_SERVICE_SID=ISxxxxx
 # NB: Registered SIP endpoint MUST have "+" in username
 # NB: SIP Trunk MUST have "+" in from number
 SIP_DOMAIN=yyyyy.sip.twilio.com
+
+
+# Sync Token and Merchant server variables:
+API_KEY=SK
+API_SECRET=xxx
+
+# Variables for Sync
+PAY_SYNC_SERVICE_SID=ISxxx
+FUNCTIONS_URL=https://xxx.twil.io
+
+# Variables for pay
+PAY_CONNECTOR=xxxx

@@ -135,7 +135,7 @@ const PayClient = {
         this._cardData = cardData;
 
         try {
-            await this._getConfig(merchantServerUrl + "/get-config");
+            await this._getConfig(merchantServerUrl);
 
             //console.log(`Setting up Sync`);
             this._syncClient = new SyncClient(this._syncToken, {});
@@ -150,6 +150,8 @@ const PayClient = {
                 this._cardData.capturing = false;
                 this._cardData.captureComplete = false;
                 console.log(`Initialize. this._cardData.capturing = ${this._cardData.capturing}`);
+                // Now initialise the capture
+                this.captureToken();
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID. Please open App first and then place a call`);
