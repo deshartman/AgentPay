@@ -135,7 +135,7 @@ const PayClient = {
         this._cardData = cardData;
 
         try {
-            await this._getConfig(merchantServerUrl);
+            await this._getConfig(merchantServerUrl + '/getConfig');
 
             //console.log(`Setting up Sync`);
             this._syncClient = new SyncClient(this._syncToken, {});
