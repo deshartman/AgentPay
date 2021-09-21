@@ -173,7 +173,7 @@ const PayClient = {
 
             // Add Event Listener for data changes. Update the _cardData object
             this._payMap.on('itemUpdated', (args) => {
-                console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
+                //console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
                 // Update the local variables:
                 this._payMapItemKey = args.item.key;
                 this._cardData.paymentCardNumber = args.item.data.PaymentCardNumber;
