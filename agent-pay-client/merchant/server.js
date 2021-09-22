@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));    // for express >4.16
 const twilioAccountSid = process.env.ACCOUNT_SID;
 const twilioApiKey = process.env.API_KEY;
 const twilioApiSecret = process.env.API_SECRET;
-const functionsURL = process.env.FUNCTIONS_URL;    // The Twilio Functions URL where the call handlers are deploye
+const functionsURL = process.env.FUNCTIONS_URL;    // The Twilio Functions URL where the call handlers are deployed
 const paySyncSid = process.env.PAY_SYNC_SERVICE_SID;    // TODO: Create the service in Console and update .env file.
 const identity = 'alice';                               // TODO: Identity is Merchant responsibility. It is fixed here for demo.
 const payConnector = process.env.PAY_CONNECTOR;
