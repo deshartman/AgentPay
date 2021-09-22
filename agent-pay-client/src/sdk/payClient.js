@@ -73,6 +73,7 @@ const PayClient = {
             this._twilioAPI = axios.create(axios_config);
             this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
             this.payConnector = config.data.payConnector;
+            console.log(`this.payConnector: ${this.payConnector}`);
             this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value
             this.captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
             this.currency = config.data.currency;
@@ -97,7 +98,7 @@ const PayClient = {
 
                 accessToken.addGrant(syncGrant);
                 this._syncToken = accessToken.toJwt();
-                console.log(`sync-token: ${this._syncToken}`);
+                //console.log(`sync-token: ${this._syncToken}`);
             } catch (error) {
                 console.error(`Error getting sync token: ${error}`);
             }
@@ -154,7 +155,7 @@ const PayClient = {
                 this.captureToken();
             } else {
                 // View opened with no call, so cannot determine the Call SID
-                console.log(`Cannot determine the Call SID. Please open App first and then place a call`);
+                console.log(`Cannot determine the Call SID. Please place a call or initiate the app with a call SID`);
                 this._cardData.callConnected = false;
                 this._cardData.capturing = false;
                 this._cardData.captureComplete = false;
@@ -223,11 +224,11 @@ const PayClient = {
     async captureToken() { //cardData) {
         //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this._callSID}/Payments.json
         let theUrl = '/Calls/' + this._callSID + '/Payments.json';
-        //console.log(`captureToken url: [${theUrl}]`);
+        console.log(`captureToken url: [${theUrl}]`);
         //this._cardData = cardData;
         this.captureOrder = this._captureOrderTemplate.slice(); // Copy value
 
-        console.log(`Capture order: ${this.captureOrder} vs ${this._captureOrderTemplate}`);
+        //console.log(`Capture order: ${this.captureOrder} vs ${this._captureOrderTemplate}`);
 
         // URL Encode the POST body data
         const urlEncodedData = new URLSearchParams();
@@ -267,17 +268,17 @@ const PayClient = {
 
             if (this._required.includes(this.captureOrder[0])) {
                 // continue _capture
-                console.log(`Still capturing currentCaptureType: [${this.captureOrder[0]}]`);
+                console.log(`Capturing: [${this.captureOrder[0]}]`);
             } else {
                 // move to next Capture Type in the list
                 if (this._required.length > 0) {
                     // Remove the current (first) item in capture Order Array
                     this.captureOrder.shift();
-                    console.log(`changing this.captureOrder[0]: ${this.captureOrder[0]}`);
+                    console.log(`Changing to: ${this.captureOrder[0]}`);
                     this._updateCaptureType(this.captureOrder[0]);
                 } else {
                     // Stop polling
-                    console.log(`Stopping polling`);
+                    console.log(`Stopping Capture`);
                     this._cardData.captureComplete = true;
                     this.submitCapture();
                 }
@@ -371,7 +372,7 @@ const PayClient = {
         //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this._callSID}/Payments/{Sid}.json
         let theUrl = '/Calls/' + this._callSID + '/Payments/' + this._paySID + '.json';
 
-        console.log(`_changeSession ChangeType: ${changeType}`);
+        //console.log(`_changeSession ChangeType: ${changeType}`);
 
         // Reset the Capture Order
         this.captureOrder = this._captureOrderTemplate.slice(); // copy by value to reset the order array
@@ -384,7 +385,7 @@ const PayClient = {
 
         try {
             const response = await this._twilioAPI.post(theUrl, urlEncodedData);
-            console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
+            //console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
 
             this._cardData.capturing = false;
             this._cardData.capturingCard = false;
@@ -393,7 +394,7 @@ const PayClient = {
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
-        console.log(`_changeSession: this._cardData.captureComplete: ${this._cardData.captureComplete}`);
+        //console.log(`_changeSession: this._cardData.captureComplete: ${this._cardData.captureComplete}`);
     },
 
     /**
@@ -425,7 +426,7 @@ const PayClient = {
     async submitCapture() {
         await this._changeSession("complete");
         this._cardData.captureComplete = false;
-        console.log(`submitCapture: this._cardData.captureComplete: ${this._cardData.captureComplete}`);
+        //console.log(`submitCapture: this._cardData.captureComplete: ${this._cardData.captureComplete}`);
     }
 }
 

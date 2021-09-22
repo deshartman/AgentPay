@@ -9,7 +9,7 @@ exports.handler = async function (context, event, callback) {
         twilioAccountSid: context.ACCOUNT_SID,
         twilioApiKey: context.API_KEY,
         twilioApiSecret: context.API_SECRET,
-        functionsURL: context.FUNCTIONS_URL,     // The Twilio Functions URL where the call handlers are deployed
+        functionsURL: 'https://' + context.DOMAIN_NAME, //context.FUNCTIONS_URL,     // The Twilio Functions URL where the call handlers are deployed 
         payConnector: context.PAY_CONNECTOR,         // The name of the Twilio Pay connector configured
         paySyncSid: context.PAY_SYNC_SERVICE_SID,             // This need to be moved into payClient
         captureOrder: [
@@ -21,6 +21,8 @@ exports.handler = async function (context, event, callback) {
         tokenType: 'reusable',
         identity: 'alice',                 // Identity of the Agent for the session
     };
+
+    console.log(`Pay Connector: ${config.payConnector}`);
 
     callback(null, config);
 
