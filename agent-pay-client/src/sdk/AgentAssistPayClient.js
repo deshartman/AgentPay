@@ -11,11 +11,13 @@ import axios from "axios";
 
 export default class AgentAssistPayClient extends EventEmitter {
 
-    constructor(merchantServerUrl = null, identity = null, callSid = null) {
+    constructor(merchantServerUrl = null, identity = null, callSid = null, currency = 'USD', tokenType = 'reusable') {
         this._version = "v0.2";
         this.merchantServerUrl = merchantServerUrl;
         this.identity = identity;
         this.callSID = '';
+        this.currency = currency;
+        this.tokenType = tokenType;
 
         // Axios setup for Twilio API calls directly from the client
         this._twilioAPI = null;
@@ -39,12 +41,6 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._captureOrderTemplate = [];
         this._payConnector = '';
 
-
-        this._currency = 'USD';
-        this._tokenType = 'reusable';
-
-        // Now initialise
-        this.initialize(this.merchantServerUrl, this.callSID);
     }
 
 
@@ -76,27 +72,13 @@ export default class AgentAssistPayClient extends EventEmitter {
             this.payConnector = config.data.payConnector;
             this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value
             this.captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
-            this.currency = config.data.currency;
-            this.tokenType = config.data.tokenType;
-            this.identity = config.data.identity;
+            // this.currency = config.data.currency;
+            // this.tokenType = config.data.tokenType;
+            // this.identity = config.data.identity;
 
             try {
                 console.log(`Getting sync-token`);
-                const SyncGrant = AccessToken.SyncGrant;
-                const syncGrant = new SyncGrant({
-                    serviceSid: config.data.paySyncSid
-                });
-
-                // Create an access token which we will sign and return to the client,
-                // containing the grant we just created
-                const accessToken = new AccessToken(
-                    config.data.twilioAccountSid,
-                    config.data.twilioApiKey,
-                    config.data.twilioApiSecret,
-                    { identity: config.data.identity }
-                );
-
-                accessToken.addGrant(syncGrant);
+                // TODO: Call the mock server and decode the pay token to get the sync token
                 this._syncToken = accessToken.toJwt();
                 console.log(`sync-token: ${this._syncToken}`);
             } catch (error) {
@@ -158,20 +140,6 @@ export default class AgentAssistPayClient extends EventEmitter {
     /**
      * Initialise the Agent Assisted Pay Session by getting the configuration parameters from the Merchant server
      * The Merchant server will provide the parameters in the following object format:
-       {
-            twilioAccountSid: twilioAccountSid,
-            twilioApiKey: twilioApiKey,
-            twilioApiSecret: twilioApiSecret,
-            functionsURL: functionsURL,     // The Twilio Functions URL where the call handlers are deployed
-            payConnector: payConnector,         // The name of the Twilio Pay connector configured
-            captureOrder: [                     // The order in which the components will be captured
-                "payment-card-number",
-                "security-code",
-                "expiration-date" ],
-            currency: 'AUD',
-            tokenType: 'reusable',              // Token type: "once off" or "reusable"
-            identity: identity,                 // Identity of the Agent for the session
-        }
      *
      * @param {URL: String} merchantServerUrl
      * @param {callSid: String} callSid
@@ -268,11 +236,6 @@ export default class AgentAssistPayClient extends EventEmitter {
             this._paySID = response.data.sid;
             // Update View element events
             this.emit('capturing');
-            // this._cardData.capturingCard = false;
-            // this._cardData.capturingCvc = false;
-            // this._cardData.capturingDate = false;
-            // this._cardData.captureComplete = false;
-
             await this._updateCaptureType(this.captureOrder[0]);
         } catch (error) {
             console.error(`Error with Capture Token: ${error}`);

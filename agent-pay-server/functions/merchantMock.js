@@ -34,7 +34,7 @@ exports.handler = async function (context, event, callback) {
         "twilioApiSecret": context.API_SECRET,
         "functionsURL": 'https://' + context.DOMAIN_NAME,  // The Twilio Functions URL where the call handlers are deployed
         "payConnectorSid": context.PAY_CONNECTOR_SID,             // The name of the Twilio Pay connector configured
-        "paySyncSid": context.PAY_SYNC_SERVICE_SID,
+        "paySyncServiceSid": context.PAY_SYNC_SERVICE_SID,
         "ttl": 86400,
     };
 
