@@ -1,8 +1,15 @@
 <template>
   <div>
+    <h1>Twilio Demo</h1>
+    <h2>Agent Assisted Pay</h2>
+    <button @click="startCapture()" v-show="callConnected && !capturing">
+      Start Pay Session
+    </button>
+    <br />
+    <br />
     <div class="card_capture">
       <div class="capture_line">
-        <!-- <label>Card Number: ({{ cardData.paymentCardType }})</label> -->
+        <label>Card Number: ({{ cardData.paymentCardType }})</label>
         <div class="inputpair">
           <input
             type="text"
@@ -10,17 +17,14 @@
             readonly
             v-model="cardData.paymentCardNumber"
           />
-          <button
-            class="reset"
-            @click="resetCard()"
-            :disabled="!cardData.capturingCard"
-          >
+          <button class="reset" @click="resetCard()" :disabled="!capturingCard">
             x
           </button>
         </div>
       </div>
+      <br />
       <div class="capture_line">
-        <!-- <label>CVC:</label> -->
+        <label>CVC:</label>
         <div class="inputpair">
           <input
             type="text"
@@ -28,17 +32,14 @@
             v-model="cardData.securityCode"
             readonly
           />
-          <button
-            class="reset"
-            @click="resetCvc()"
-            :disabled="!cardData.capturingCvc"
-          >
+          <button class="reset" @click="resetCvc()" :disabled="!capturingCvc">
             x
           </button>
         </div>
       </div>
+      <br />
       <div class="capture_line">
-        <!-- <label>Expiry Date</label> -->
+        <label>Expiry Date</label>
         <div class="inputpair">
           <input
             type="text"
@@ -46,71 +47,77 @@
             v-model="formattedDate"
             readonly
           />
-          <button
-            class="reset"
-            @click="resetDate()"
-            :disabled="!cardData.capturingDate"
-          >
+          <button class="reset" @click="resetDate()" :disabled="!capturingDate">
             x
           </button>
         </div>
       </div>
     </div>
+    <br />
+    <br />
     <div>
-      <!-- <button @click="submit()" v-show="cardData.captureComplete">
+      <button @click="submit()" v-show="captureComplete">
         Submit
-      </button> -->
-      <!-- <button
-        @click="cancel()"
-        v-show="cardData.capturing || cardData.captureComplete"
-      >
+      </button>
+      <button @click="cancel()" v-show="capturing || captureComplete">
         Cancel
-      </button> -->
+      </button>
       <p>Token: {{ cardData.paymentToken }}</p>
     </div>
   </div>
 </template>
 
 <script>
-import PayClient from "../sdk/payClient";
+import PayClient from "../sdk/AgentAssistPayClient";
 
 export default {
   data() {
     return {
-      debug: true,
+      payClient: null,
+      callConnected: false,
+      capturing: false,
+      capturingCard: false,
+      capturingCvc: false,
+      capturingDate: false,
+      captureComplete: false,
+
       cardData: {
         paymentCardNumber: "",
+        paymentCardType: "",
         securityCode: "",
         expirationDate: "",
         paymentToken: "",
-        callConnected: false,
-        capturing: false,
-        capturingCard: false,
-        capturingCvc: false,
-        capturingDate: false,
-        captureComplete: false,
       },
     };
   },
   methods: {
-    async captureToken() {
-      PayClient.captureToken();
+    async startCapture() {
+      this.payClient.startCapture();
     },
     cancel() {
-      PayClient.cancelCapture();
+      this.payClient.cancelCapture();
+      this.cardData.paymentCardNumber = "";
+      this.cardData.securityCode = "";
+      this.cardData.expirationDate = "";
     },
     submit() {
-      PayClient.submitCapture();
+      this.payClient.submitCapture();
+      this.cardData.paymentCardNumber = "";
+      this.cardData.securityCode = "";
+      this.cardData.expirationDate = "";
     },
 
     resetCard() {
-      PayClient.resetCard();
+      this.cardData.paymentCardNumber = "";
+      this.payClient.resetCard();
     },
     resetCvc() {
-      PayClient.resetCvc();
+      this.cardData.securityCode = "";
+      this.payClient.resetCvc();
     },
     resetDate() {
-      PayClient.resetDate();
+      this.cardData.expirationDate = "";
+      this.payClient.resetDate();
     },
   },
   computed: {
@@ -130,9 +137,51 @@ export default {
     // Set the Internal Merchant Server URL for config and Access Tokens
     let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
     let callSid = ""; // This value needs to be provided by contact centre CTI, when calling this page
+    this.payClient = new PayClient(merchantServerUrl, "Des", callSid);
 
     try {
-      PayClient.initialize(merchantServerUrl, this.cardData, callSid);
+      this.payClient.initialize();
+
+      //Establish the listeners
+      this.payClient.on("callConnected", () => {
+        this.callConnected = true;
+      });
+
+      this.payClient.on("capturing", () => {
+        this.capturing = true;
+      });
+
+      this.payClient.on("capturingCard", () => {
+        this.capturingCard = true;
+      });
+
+      this.payClient.on("capturingCvc", () => {
+        this.capturingCvc = true;
+      });
+
+      this.payClient.on("capturingDate", () => {
+        this.capturingDate = true;
+      });
+
+      this.payClient.on("captureComplete", () => {
+        this.captureComplete = true;
+      });
+
+      this.payClient.on("cancelledCapture", () => {
+        this.capturing = false;
+      });
+
+      this.payClient.on("submitComplete", () => {
+        this.capturing = false;
+      });
+
+      this.payClient.on("cardUpdate", (data) => {
+        this.cardData.paymentCardNumber = data.paymentCardNumber;
+        this.cardData.paymentCardType = data.paymentCardType;
+        this.cardData.securityCode = data.securityCode;
+        this.cardData.expirationDate = data.expirationDate;
+        this.cardData.paymentToken = data.paymentToken;
+      });
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
     }

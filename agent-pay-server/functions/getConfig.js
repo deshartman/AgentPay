@@ -11,7 +11,9 @@ exports.handler = async function (context, event, callback) {
         twilioApiSecret: context.API_SECRET,
         functionsURL: 'https://' + context.DOMAIN_NAME, //context.FUNCTIONS_URL,     // The Twilio Functions URL where the call handlers are deployed 
         payConnector: context.PAY_CONNECTOR,         // The name of the Twilio Pay connector configured
-        paySyncSid: context.PAY_SYNC_SERVICE_SID,             // This need to be moved into payClient
+        paySyncServiceSid: context.PAY_SYNC_SERVICE_SID,
+
+        // These are MErchant specific config, each Agent will use each time
         captureOrder: [
             "payment-card-number",
             "security-code",
@@ -19,7 +21,6 @@ exports.handler = async function (context, event, callback) {
         ],
         currency: 'AUD',
         tokenType: 'reusable',
-        identity: 'alice',                 // Identity of the Agent for the session
     };
 
     console.log(`Pay Connector: ${config.payConnector}`);
