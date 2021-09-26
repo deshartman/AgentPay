@@ -18,7 +18,6 @@
           </button>
         </div>
       </div>
-      <br />
       <div class="capture_line">
         <div class="inputpair">
           <input
@@ -128,11 +127,13 @@ export default {
   mounted() {
     // Set the Internal Merchant Server URL for config and Access Tokens
     let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
-    let callSid = ""; // This value needs to be provided by contact centre CTI, when calling this page
+    // This value needs to be provided by contact centre CTI, when calling this page
+    let callSid = ""; //
     this.payClient = new PayClient(merchantServerUrl, "Des", callSid);
 
     try {
-      this.payClient.initialize();
+      //this.payClient.initialize();
+      this.startCapture();
 
       //Establish the listeners
       this.payClient.on("callConnected", () => {

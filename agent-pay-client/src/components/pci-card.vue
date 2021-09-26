@@ -22,7 +22,6 @@
           </button>
         </div>
       </div>
-      <br />
       <div class="capture_line">
         <label>Security Code:</label>
         <div class="inputpair">
@@ -41,7 +40,6 @@
           </button>
         </div>
       </div>
-      <br />
       <div class="capture_line">
         <label>Expiry Date</label>
         <div class="inputpair">
@@ -140,11 +138,11 @@ export default {
   mounted() {
     // Set the Internal Merchant Server URL for config and Access Tokens
     let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
-    let callSid = ""; // This value needs to be provided by contact centre CTI, when calling this page
-    this.payClient = new PayClient(merchantServerUrl, "Des", callSid);
+    // This value needs to be provided by contact centre CTI, when calling this page
+    let callSid = "";
 
     try {
-      this.payClient.initialize();
+      this.payClient = new PayClient(merchantServerUrl, "SomeUser", callSid);
 
       //Establish the listeners
       this.payClient.on("callConnected", () => {

@@ -87,6 +87,8 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._captureOrderTemplate = [];
         this._payConnector = '';
         this._paySyncServiceSid = '';
+
+        this.initialize();
     }
 
     async _getConfig(url) {
