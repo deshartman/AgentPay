@@ -7,7 +7,7 @@ import SyncClient from "twilio-sync";
 import axios from "axios";
 
 /**
- * This is the main calls for the Pay SDK. It akes care of all the connectivity to the Voice <Pay> API
+ * This is the main calls for the Pay SDK. It takes care of all the connectivity to the Voice <Pay> API
  * as well as synchronizing the data via Sync.
  * 
  * The Merchant Server has to pass in the following data to configure the SDK:

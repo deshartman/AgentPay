@@ -239,7 +239,7 @@ export default {
           this.cardData.securityCode = data.securityCode;
           this.cardData.expirationDate = data.expirationDate;
         }
-        console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
+        //console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
       });
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
