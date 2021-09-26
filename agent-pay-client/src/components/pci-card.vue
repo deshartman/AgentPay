@@ -24,15 +24,19 @@
       </div>
       <br />
       <div class="capture_line">
-        <label>CVC:</label>
+        <label>Security Code:</label>
         <div class="inputpair">
           <input
             type="text"
-            placeholder="cvc"
+            placeholder="Security Code"
             v-model="cardData.securityCode"
             readonly
           />
-          <button class="reset" @click="resetCvc()" :disabled="!capturingCvc">
+          <button
+            class="reset"
+            @click="resetSecurityCode()"
+            :disabled="!capturingSecurityCode"
+          >
             x
           </button>
         </div>
@@ -77,7 +81,7 @@ export default {
       callConnected: false,
       capturing: false,
       capturingCard: false,
-      capturingCvc: false,
+      capturingSecurityCode: false,
       capturingDate: false,
       captureComplete: false,
 
@@ -111,9 +115,9 @@ export default {
       this.cardData.paymentCardNumber = "";
       this.payClient.resetCard();
     },
-    resetCvc() {
+    resetSecurityCode() {
       this.cardData.securityCode = "";
-      this.payClient.resetCvc();
+      this.payClient.resetSecurityCode();
     },
     resetDate() {
       this.cardData.expirationDate = "";
@@ -145,42 +149,97 @@ export default {
       //Establish the listeners
       this.payClient.on("callConnected", () => {
         this.callConnected = true;
+        console.log(`callConnected: this.callConnected ${this.callConnected}`);
       });
 
       this.payClient.on("capturing", () => {
         this.capturing = true;
+        console.log(`capturing: this.capturing ${this.capturing}`);
       });
 
       this.payClient.on("capturingCard", () => {
         this.capturingCard = true;
+        this.capturingSecurityCode = false;
+        this.capturingDate = false;
+        console.log(
+          `capturingCard: this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
+        );
       });
 
-      this.payClient.on("capturingCvc", () => {
-        this.capturingCvc = true;
+      this.payClient.on("capturingSecurityCode", () => {
+        this.capturingSecurityCode = true;
+        this.capturingCard = false;
+        this.capturingDate = false;
+        console.log(
+          `capturingSecurityCode: this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingCard ${this.capturingCard} this.capturingDate ${this.capturingDate}`
+        );
       });
 
       this.payClient.on("capturingDate", () => {
         this.capturingDate = true;
+        this.capturingCard = false;
+        this.capturingSecurityCode = false;
+        console.log(
+          `capturingDate: this.capturingDate ${this.capturingDate} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} `
+        );
+      });
+
+      this.payClient.on("cardReset", () => {
+        this.capturingCard = true;
+        console.log(`cardReset: this.capturingCard ${this.capturingCard}`);
+      });
+
+      this.payClient.on("securityCodeReset", () => {
+        this.capturingSecurityCode = true;
+        console.log(
+          `securityCodeReset: this.capturingSecurityCode ${this.capturingSecurityCode}`
+        );
+      });
+
+      this.payClient.on("dateReset", () => {
+        this.capturingDate = true;
+        console.log(`dateReset: this.capturingDate ${this.capturingDate}`);
       });
 
       this.payClient.on("captureComplete", () => {
         this.captureComplete = true;
+        console.log(
+          `captureComplete: this.captureComplete ${this.captureComplete}`
+        );
       });
 
       this.payClient.on("cancelledCapture", () => {
         this.capturing = false;
+        this.capturingCard = false;
+        this.capturingSecurityCode = false;
+        this.capturingDate = false;
+        this.captureComplete = false;
+        console.log(
+          `cancelledCapture: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate} this.captureComplete ${this.captureComplete}`
+        );
       });
 
       this.payClient.on("submitComplete", () => {
         this.capturing = false;
+        this.capturingCard = false;
+        this.capturingSecurityCode = false;
+        this.capturingDate = false;
+        console.log(
+          `submitComplete: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
+        );
       });
 
       this.payClient.on("cardUpdate", (data) => {
-        this.cardData.paymentCardNumber = data.paymentCardNumber;
-        this.cardData.paymentCardType = data.paymentCardType;
-        this.cardData.securityCode = data.securityCode;
-        this.cardData.expirationDate = data.expirationDate;
-        this.cardData.paymentToken = data.paymentToken;
+        if (this.captureComplete) {
+          this.cardData.paymentToken = data.paymentToken;
+          this.captureComplete = false;
+        } else {
+          this.cardData.paymentCardNumber = data.paymentCardNumber;
+          this.cardData.paymentCardType = data.paymentCardType;
+          this.cardData.securityCode = data.securityCode;
+          this.cardData.expirationDate = data.expirationDate;
+        }
+        console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
       });
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);

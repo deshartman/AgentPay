@@ -1,14 +1,2 @@
-# Sync Token and Merchant server variables:
-ACCOUNT_SID=ACxxx
-API_KEY=SKxxx
-API_SECRET=yyyyy
-
-# Variables for Sync
-PAY_SYNC_SERVICE_SID=ISxxxx
-FUNCTIONS_URL=https://functions-0000-xxx.twil.io
-
-# Variables for pay
-PAY_CONNECTOR=connector_name
-
 # Merchant server details. This is the Merchant's own server.
 VUE_APP_MERCHANT_SERVER_URL=http://merchant.server.com:xxxx
