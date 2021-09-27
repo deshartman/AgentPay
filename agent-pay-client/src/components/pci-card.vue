@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-window">
     <h1>Twilio Demo</h1>
     <h2>Agent Assisted Pay</h2>
     <button @click="startCapture()" v-show="callConnected && !capturing">
@@ -9,7 +9,9 @@
     <br />
     <div class="card_capture">
       <div class="capture_line">
-        <label>Card Number: ({{ cardData.paymentCardType }})</label>
+        <label class="card-label"
+          >Card Number: ({{ cardData.paymentCardType }})</label
+        >
         <div class="inputpair">
           <input
             type="text"
@@ -23,7 +25,7 @@
         </div>
       </div>
       <div class="capture_line">
-        <label>Security Code:</label>
+        <label class="card-label">Security Code:</label>
         <div class="inputpair">
           <input
             type="text"
@@ -41,7 +43,7 @@
         </div>
       </div>
       <div class="capture_line">
-        <label>Expiry Date</label>
+        <label class="card-label">Expiry Date</label>
         <div class="inputpair">
           <input
             type="text"
@@ -248,6 +250,10 @@ export default {
 </script>
 
 <style>
+.main-window {
+  text-align: center;
+}
+
 .tempSID {
   border-style: solid;
 }
@@ -280,16 +286,20 @@ label {
 }
 
 input {
-  width: 80%;
+  /* width: 80%; */
 }
 
 .card_capture {
-  display: inline;
   width: 100%;
   margin: 0 auto 0 auto;
 }
 
 .capture_line {
   margin: 2px;
+}
+
+.card-label {
+  float: left;
+  width: 120px;
 }
 </style>
