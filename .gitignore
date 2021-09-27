@@ -144,3 +144,4 @@ agent-pay-server/.twiliodeployinfo
 .twiliodeployinfo
 WoW
 WoW AgentPay.mp4
+agent-pay-client/vue.config.js
