@@ -115,7 +115,7 @@ export default class AgentAssistPayClient extends EventEmitter {
                 //console.log(`Getting sync-token`);
                 const SyncGrant = AccessToken.SyncGrant;
                 const syncGrant = new SyncGrant({
-                    serviceSid: config.data.paySyncSid
+                    serviceSid: config.data.paySyncServiceSid
                 });
 
                 // Create an access token which we will sign and return to the client,
@@ -205,22 +205,17 @@ export default class AgentAssistPayClient extends EventEmitter {
         try {
             await this._getConfig(this.merchantServerUrl + '/getConfig');
 
-            console.log(`Setting up Sync: ${this._syncToken}`);
             this._syncClient = new SyncClient(this._syncToken, {});
-            console.log(this._syncClient);
-
             this._payMap = await this._syncClient.map('payMap');
-            console.log(`Setting up Sync COMPLETE`);
 
             // If a Call SID was passed in, CTI has the call already and now opening view
             if (this.callSID) {
-
                 console.log(`Initialize with a CTI callSid: ${this.callSID} `);
 
                 // Update View element events
                 this.emit('callConnected', this.callSID);
 
-                // Now initialise the capture
+                // Now start the capture
                 //this.startCapture();
             } else {
                 // View opened with no call, so cannot determine the Call SID
