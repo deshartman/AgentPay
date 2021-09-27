@@ -20,13 +20,15 @@ There are two parts to this project:
 The Client is a Vue frontend to show what could be built. This cab be ANY implementation and not just Vue. The main use is to use
 the small pay SDK JS file "PayClient", which does all the heavy lifting for Pay and Sync.
 
-In addition to the client, there is also an example MErchant server. The intention is that the Merchant server is where the Agent
+In addition to the client, there is also an example Merchant server. The intention is that the Merchant server is where the Agent
 currently gets their user interface from and thus would serve the pay component as an asset. The Merchant server is used to
 set up configuration details for Pay, including the API Keys.
 
-The FUNCTIONS_URL tells the Merchant server where to get Sync updates from, using the same Sync Service SID as for the server.
+The VUE_APP_MERCHANT_SERVER_URL tells the Merchant server where to get Config and Sync updates from, using the same Sync Service SID
+as for the server. In this release we are using a Functions URL to provide the config. Merchant can change this to provide the config
+to the client.
 
-Note: Even though we still use API_Key and Secret, they are presented via the MErchant server and not directly in the Client code. Once
+Note: Even though we still use API_Key and Secret, they are presented via the Merchant server and not directly in the Client code. Once
 a Pay Token service is created, this need is removed.
 
 ## Server
@@ -55,40 +57,34 @@ The Merchant can now query with the UUI to find the CallSID and use that to init
 
 # Configuration steps:
 
-1. Create an API Key/secret to use with the services. Update the .env files with details.
+1. Create an API Key/secret to use with the services. Update the server "agent-pay-server/.env" with details.
 
-2. Create a Twilio Sync Service and update the "agent-pay-server/env" & "agent-pay-client/.env" with:
+2. Create a Twilio Sync Service and update PAY_SYNC_SERVICE_SID in "agent-pay-server/.env"
 
-- PAY_SYNC_SERVICE_SID=ISxxxx
+3. Create a new Pay connector and note the name of the connector. Update PAY_CONNECTOR in "agent-pay-server/.env"
 
-2. Configure a SIP Domain and registered users as required and update SIP_DOMAIN.
+4. Configure a SIP Domain and registered users as required and update SIP_DOMAIN in "agent-pay-server/.env"
 
-3. Deploy the Server side with "twilio serverless:deploy" and update the client .env with the FUNCTIONS_URL Functions domain.
+5. Deploy the Server side with "twilio serverless:deploy" and update the client "agent-pay-client/.env" with the VUE_APP_MERCHANT_SERVER_URL.
 
-4. Update VUE_APP_MERCHANT_SERVER_URL with the required local merchant node server url; e.g., http://localhost:4000
+6. Test Voice calls
 
 - make an inbound test call to make sure the SIP endpoint receives the call.
 - Check the Sync service map "guidMap" to make sure a Call SID was written
 - Make an outbound call from the SIP endpoint to any number
 - Check the Sync service map "guidMap" to make sure a UUI was written and a corresponding Call SID
 
-5. Create a new Pay connector and note the name of the connector. Update PAY_CONNECTOR .env in the client side
+5. Start the client via NPM script
 
-6. Start the local Merchant server via NPM Script.
+- "Vue serve"
 
-- "1 Merchant"
+6. Go to the client URL
 
-7. Start the client via NPM script
+7. Make a call to the SIP user or PBX from a PSTN number
 
-- "2 Vue serve"
+8. Once answered, click the "Start Pay Session" button.
 
-8. Go to the client URL
-
-9. Make a call to the SIP user or PBX from a PSTN number
-
-10. Once answered, click the "Start Pay Session" button.
-
-11. on the calling handset now enter the card details using the keypad:
+9. on the calling handset now enter the card details using the keypad:
 
 - Enter a test credit card e.g. 4444 3333 2222 1111
 - enter a cvc e.g. 123
@@ -96,7 +92,7 @@ The Merchant can now query with the UUI to find the CallSID and use that to init
 
 Note: Click the "x" next to the item if a mistake was made entering to reset the entry.
 
-12. When all data has been entered, click "Submit" button and a token should be returned.
+10. When all data has been entered, click "Submit" button and a token should be returned.
 
 ---
 
