@@ -1,22 +1,18 @@
 ACCOUNT_SID=ACxxxx
 AUTH_TOKEN=
 
-# Variables for Sync
-PAY_SYNC_SERVICE_SID=ISxxxxx
-
 # Variables for SIP Voice. Call will be to/from -> sip:+nnnnnnn@yyyyy.sip.twilio.com
 # NB: Registered SIP endpoint MUST have "+" in username
 # NB: SIP Trunk MUST have "+" in from number
 SIP_DOMAIN=yyyyy.sip.twilio.com
 
+# Variables for pay
+PAY_CONNECTOR=xxxx
 
 # Sync Token and Merchant server variables:
-API_KEY=SK
-API_SECRET=xxx
+API_KEY=SKxxxxx
+API_SECRET=xxxxxxx
 
 # Variables for Sync
 PAY_SYNC_SERVICE_SID=ISxxx
-FUNCTIONS_URL=https://xxx.twil.io
 
-# Variables for pay
-PAY_CONNECTOR=xxxx

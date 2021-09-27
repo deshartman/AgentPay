@@ -129,72 +129,52 @@ export default {
     let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
     // This value needs to be provided by contact centre CTI, when calling this page
     let callSid = ""; //
-    this.payClient = new PayClient(merchantServerUrl, "Des", callSid);
 
     try {
-      //this.payClient.initialize();
+      this.payClient = new PayClient(merchantServerUrl, "Des", callSid);
       this.startCapture();
 
       //Establish the listeners
       this.payClient.on("callConnected", () => {
         this.callConnected = true;
-        console.log(`callConnected: this.callConnected ${this.callConnected}`);
       });
 
       this.payClient.on("capturing", () => {
         this.capturing = true;
-        console.log(`capturing: this.capturing ${this.capturing}`);
       });
 
       this.payClient.on("capturingCard", () => {
         this.capturingCard = true;
         this.capturingSecurityCode = false;
         this.capturingDate = false;
-        console.log(
-          `capturingCard: this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
-        );
       });
 
       this.payClient.on("capturingSecurityCode", () => {
         this.capturingSecurityCode = true;
         this.capturingCard = false;
         this.capturingDate = false;
-        console.log(
-          `capturingSecurityCode: this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingCard ${this.capturingCard} this.capturingDate ${this.capturingDate}`
-        );
       });
 
       this.payClient.on("capturingDate", () => {
         this.capturingDate = true;
         this.capturingCard = false;
         this.capturingSecurityCode = false;
-        console.log(
-          `capturingDate: this.capturingDate ${this.capturingDate} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} `
-        );
       });
 
       this.payClient.on("cardReset", () => {
         this.capturingCard = true;
-        console.log(`cardReset: this.capturingCard ${this.capturingCard}`);
       });
 
       this.payClient.on("securityCodeReset", () => {
         this.capturingSecurityCode = true;
-        console.log(
-          `securityCodeReset: this.capturingSecurityCode ${this.capturingSecurityCode}`
-        );
       });
 
       this.payClient.on("dateReset", () => {
         this.capturingDate = true;
-        console.log(`dateReset: this.capturingDate ${this.capturingDate}`);
       });
 
       this.payClient.on("captureComplete", () => {
         this.captureComplete = true;
-        console.log(
-          `captureComplete: this.captureComplete ${this.captureComplete}`
-        );
       });
 
       this.payClient.on("cancelledCapture", () => {
@@ -203,9 +183,6 @@ export default {
         this.capturingSecurityCode = false;
         this.capturingDate = false;
         this.captureComplete = false;
-        console.log(
-          `cancelledCapture: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate} this.captureComplete ${this.captureComplete}`
-        );
       });
 
       this.payClient.on("submitComplete", () => {
@@ -213,9 +190,6 @@ export default {
         this.capturingCard = false;
         this.capturingSecurityCode = false;
         this.capturingDate = false;
-        console.log(
-          `submitComplete: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
-        );
       });
 
       this.payClient.on("cardUpdate", (data) => {
@@ -228,7 +202,6 @@ export default {
           this.cardData.securityCode = data.securityCode;
           this.cardData.expirationDate = data.expirationDate;
         }
-        //console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
       });
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);

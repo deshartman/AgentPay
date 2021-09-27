@@ -143,6 +143,7 @@ export default {
 
     try {
       this.payClient = new PayClient(merchantServerUrl, "SomeUser", callSid);
+      //console.log(`after new payClient`);
 
       //Establish the listeners
       this.payClient.on("callConnected", () => {
@@ -238,6 +239,7 @@ export default {
           this.cardData.expirationDate = data.expirationDate;
         }
         //console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
+        console.log(`Mounted complete`);
       });
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
