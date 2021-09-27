@@ -95,7 +95,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         // Grab config from the Merchant Server
         try {
             const config = await axios.get(url);
-            console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
+            //console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
 
             this._twilioAPI = axios.create({
                 baseURL:
