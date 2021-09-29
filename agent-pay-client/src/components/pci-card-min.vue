@@ -58,8 +58,10 @@
     </div>
   </div>
 </template>
+
 <script>
-import PayClient from "../sdk/AgentAssistPayClient";
+//import PayClient from "../sdk/AgentAssistPayClient";
+import PayClient from "@deshartman/payclient";
 
 export default {
   data() {
@@ -132,7 +134,7 @@ export default {
 
     try {
       this.payClient = new PayClient(merchantServerUrl, "Des", callSid);
-      this.startCapture();
+      this.payClient.startCapture();
 
       //Establish the listeners
       this.payClient.on("callConnected", () => {

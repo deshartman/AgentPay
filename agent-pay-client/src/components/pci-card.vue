@@ -72,7 +72,8 @@
 </template>
 
 <script>
-import PayClient from "../sdk/AgentAssistPayClient";
+//import PayClient from "../sdk/AgentAssistPayClient";
+import PayClient from "@deshartman/payclient";
 
 export default {
   data() {
@@ -300,6 +301,7 @@ input {
 
 .card-label {
   float: left;
-  width: 120px;
+  text-align: left;
+  width: 140px;
 }
 </style>

@@ -1,0 +1,29 @@
+{
+  "name": "@deshartman/payclient",
+  "version": "1.0.7",
+  "description": "Simple Twilio Agent Assisted Payment library to capture credit cards for tokens",
+  "main": "AgentAssistPayClient.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deshartman/AgentPay.git"
+  },
+  "keywords": [
+    "Twilio",
+    "pay"
+  ],
+  "author": "Des Hartman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/deshartman/AgentPay/issues"
+  },
+  "homepage": "https://github.com/deshartman/AgentPay#readme",
+  "dependencies": {
+    "axios": "^0.21.4",
+    "events": "^3.3.0",
+    "twilio": "^3.68.0",
+    "twilio-sync": "^3.0.4-rc.7"
+  }
+}

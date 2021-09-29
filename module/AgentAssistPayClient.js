@@ -1,4 +1,4 @@
-//@ts-check
+
 
 // get the reference of EventEmitter class of events module
 import { EventEmitter } from 'events';
@@ -15,10 +15,10 @@ import axios from "axios";
  *      twilioAccountSid: String,
         twilioApiKey: String,
         twilioApiSecret: String,        
-        functionsURL: : String,         // The Twilio Functions URL where the call handlers are deployed
-        payConnector: : String,         // The name of the Twilio Pay connector configured
-        paySyncServiceSid: : String,    // Sync ServiceSid. All maps will be created
-        captureOrder: [,
+        functionsURL: String,         // The Twilio Functions URL where the call handlers are deployed
+        payConnector: String,         // The name of the Twilio Pay connector configured
+        paySyncServiceSid: String,    // Sync ServiceSid. All maps will be created
+        captureOrder: [
             "payment-card-number",
             "security-code",
             "expiration-date",
