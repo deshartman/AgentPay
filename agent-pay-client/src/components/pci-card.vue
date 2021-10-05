@@ -14,6 +14,7 @@
         >
         <div class="inputpair">
           <input
+            class="card_input"
             type="text"
             placeholder="card number"
             readonly
@@ -255,9 +256,28 @@ export default {
   text-align: center;
 }
 
-.tempSID {
-  border-style: solid;
+.card_capture {
+  /* margin: 0 auto 0 auto; */
 }
+
+.capture_line {
+  margin: 3px;
+}
+
+.card-label {
+  text-align: left;
+  float: left;
+  width: 140px;
+}
+
+.inputpair {
+  display: inline;
+}
+
+.card_input {
+  display: inline;
+}
+
 button {
   background-color: red;
   color: white;
@@ -273,35 +293,5 @@ button {
   background-color: grey;
   padding: 0px 10px;
   margin: 0px;
-}
-
-/* */
-
-label {
-  float: left;
-}
-
-.inputpair {
-  /* float: right; */
-  width: 100%;
-}
-
-input {
-  /* width: 80%; */
-}
-
-.card_capture {
-  width: 100%;
-  margin: 0 auto 0 auto;
-}
-
-.capture_line {
-  margin: 2px;
-}
-
-.card-label {
-  float: left;
-  text-align: left;
-  width: 140px;
 }
 </style>
