@@ -257,7 +257,7 @@ export default {
 }
 
 .card_capture {
-  /* margin: 0 auto 0 auto; */
+  margin: 0 auto 0 auto;
 }
 
 .capture_line {
