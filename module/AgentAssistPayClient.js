@@ -52,13 +52,13 @@ import axios from "axios";
  */
 export default class AgentAssistPayClient extends EventEmitter {
 
-    constructor(merchantServerUrl = null, identity = "unknown", callSid = null) {
+    constructor(merchantServerUrl = null, identity = "unknown") {
         super();
 
         this._version = "v0.2";
         this.merchantServerUrl = merchantServerUrl;
         this.identity = identity;
-        this.callSID = callSid;
+        this.callSID = null;
 
         // Axios setup for Twilio API calls directly from the client
         this._twilioAPI = null;
@@ -87,8 +87,6 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._captureOrderTemplate = [];
         this._payConnector = '';
         this._paySyncServiceSid = '';
-
-        this.initialize();
     }
 
     async _getConfig(url) {
@@ -200,7 +198,8 @@ export default class AgentAssistPayClient extends EventEmitter {
      * The Merchant server will provide the parameters in the following object format:
      *
      */
-    async initialize() {
+    async attachPay(callSid = null) {
+        this.callSID = callSid;
 
         try {
             await this._getConfig(this.merchantServerUrl + '/getConfig');

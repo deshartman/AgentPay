@@ -142,12 +142,12 @@ export default {
   mounted() {
     // Set the Internal Merchant Server URL for config and Access Tokens
     let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
-    // This value needs to be provided by contact centre CTI, when calling this page
-    let callSid = "";
+    // // This value needs to be provided by contact centre CTI, when calling this page
+    // let callSid = "";
 
     try {
-      this.payClient = new PayClient(merchantServerUrl, "SomeUser", callSid);
-      //console.log(`after new payClient`);
+      this.payClient = new PayClient(merchantServerUrl, "SomeUser");
+      console.log(`payClient started: ${this.payClient}`);
 
       //Establish the listeners
       this.payClient.on("callConnected", () => {
@@ -244,6 +244,9 @@ export default {
         }
         //console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
       });
+
+      this.payClient.attachPay();
+      console.log(`payClient started: ${this.payClient}`);
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
     }
