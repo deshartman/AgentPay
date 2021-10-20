@@ -1,6 +1,6 @@
 {
   "name": "@deshartman/payclient",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Simple Twilio Agent Assisted Payment library to capture credit cards for tokens",
   "main": "AgentAssistPayClient.js",
   "scripts": {
