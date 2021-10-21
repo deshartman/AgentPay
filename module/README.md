@@ -8,13 +8,13 @@ Visit the official site for more details: [https://www.twilio.com/pay](https://w
 ### via NPM
 
 ```
-npm install --save @deshartman/payclient
+npm install --save @deshartman/payclient_functions
 ```
 
 Using this method, you can use payclient.js like so:
 
 ```
-import PayClient from "@deshartman/payclient";
+import PayClient from "@deshartman/payclient_functions";
 const payClient = new PayClient(merchantURL, identity);
 payclient.attachPay(callSid);
 ```
@@ -87,7 +87,9 @@ Note: If a mistake was made entering digits, call the resetXXX() methods to rese
 
 ## Server Setup
 
-To use the library, you need to provide config back to the client via a server url, where the configuration can be pulled from in the below format.
+To use the library, you need to provide config back to the client via a server url, where the configuration can be pulled from in the below format. This version uses Twilio Functions to host all the required middleware server functions the NPM will use. Please clone the https://github.com/deshartman/AgentPay repo "client_server" branch and deploy to your Twilio Functions environment.
+
+_NB: DO NOT USE THE main BRANCH._
 
 ```
     const config = {

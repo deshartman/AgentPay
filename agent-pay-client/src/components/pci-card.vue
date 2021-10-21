@@ -74,7 +74,7 @@
 
 <script>
 //import PayClient from "../sdk/AgentAssistPayClient";
-import PayClient from "@deshartman/payclient";
+import PayClient from "@deshartman/payclient_functions";
 
 export default {
   data() {
@@ -146,8 +146,8 @@ export default {
     // let callSid = "";
 
     try {
-      this.payClient = new PayClient(merchantServerUrl, "SomeUser");
-      console.log(`payClient started: ${this.payClient}`);
+      this.payClient = new PayClient(merchantServerUrl, "Alice");
+      //console.log(`payClient started: ${this.payClient}`);
 
       //Establish the listeners
       this.payClient.on("callConnected", () => {
@@ -164,27 +164,27 @@ export default {
         this.capturingCard = true;
         this.capturingSecurityCode = false;
         this.capturingDate = false;
-        console.log(
-          `capturingCard: this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
-        );
+        // console.log(
+        //   `capturingCard: this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
+        // );
       });
 
       this.payClient.on("capturingSecurityCode", () => {
         this.capturingSecurityCode = true;
         this.capturingCard = false;
         this.capturingDate = false;
-        console.log(
-          `capturingSecurityCode: this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingCard ${this.capturingCard} this.capturingDate ${this.capturingDate}`
-        );
+        // console.log(
+        //   `capturingSecurityCode: this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingCard ${this.capturingCard} this.capturingDate ${this.capturingDate}`
+        // );
       });
 
       this.payClient.on("capturingDate", () => {
         this.capturingDate = true;
         this.capturingCard = false;
         this.capturingSecurityCode = false;
-        console.log(
-          `capturingDate: this.capturingDate ${this.capturingDate} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} `
-        );
+        // console.log(
+        //   `capturingDate: this.capturingDate ${this.capturingDate} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} `
+        // );
       });
 
       this.payClient.on("cardReset", () => {
@@ -206,9 +206,9 @@ export default {
 
       this.payClient.on("captureComplete", () => {
         this.captureComplete = true;
-        console.log(
-          `captureComplete: this.captureComplete ${this.captureComplete}`
-        );
+        // console.log(
+        //   `captureComplete: this.captureComplete ${this.captureComplete}`
+        // );
       });
 
       this.payClient.on("cancelledCapture", () => {
@@ -227,9 +227,9 @@ export default {
         this.capturingCard = false;
         this.capturingSecurityCode = false;
         this.capturingDate = false;
-        console.log(
-          `submitComplete: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
-        );
+        // console.log(
+        //   `submitComplete: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate}`
+        // );
       });
 
       this.payClient.on("cardUpdate", (data) => {
@@ -246,7 +246,7 @@ export default {
       });
 
       this.payClient.attachPay();
-      console.log(`payClient started: ${this.payClient}`);
+      //console.log(`payClient started: ${this.payClient}`);
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
     }

@@ -2,7 +2,7 @@
 module.exports = {
     // options...
     devServer: {
-        proxy: 'https://agent-pay-server-7862-dev.twil.io',
+        proxy: 'https://agent-pay-server-9075-dev.twil.io',
 
     }
 }

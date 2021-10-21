@@ -2,7 +2,6 @@
 
 // get the reference of EventEmitter class of events module
 import { EventEmitter } from 'events';
-import AccessToken from "twilio/lib/jwt/AccessToken";
 import SyncClient from "twilio-sync";
 import axios from "axios";
 
@@ -16,7 +15,7 @@ import axios from "axios";
         twilioApiKey: String,
         twilioApiSecret: String,        
         functionsURL: String,         // The Twilio Functions URL where the call handlers are deployed
-        payConnector: String,         // The name of the Twilio Pay connector configured
+        paymentConnector: String,         // The name of the Twilio Pay connector configured
         paySyncServiceSid: String,    // Sync ServiceSid. All maps will be created
         captureOrder: [
             "payment-card-number",
@@ -58,7 +57,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._version = "v0.2";
         this.merchantServerUrl = merchantServerUrl;
         this.identity = identity;
-        this.callSID = null;
+        this.callSid = null;
 
         // Axios setup for Twilio API calls directly from the client
         this._twilioAPI = null;
@@ -67,7 +66,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         // Sync variables
         this._syncClient = null;
         this._payMap = null;
-        this._paySID = "";
+        this._paySid = "";
         this._syncToken = "";
 
         // Payment Variables
@@ -85,67 +84,11 @@ export default class AgentAssistPayClient extends EventEmitter {
 
         this._captureOrder = [];
         this._captureOrderTemplate = [];
-        this._payConnector = '';
+        this._paymentConnector = '';
         this._paySyncServiceSid = '';
     }
 
-    async _getConfig(url) {
-        // Grab config from the Merchant Server
-        try {
-            const config = await axios.get(url);
-            //console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
-
-            this._twilioAPI = axios.create({
-                baseURL:
-                    'https://api.twilio.com/2010-04-01/Accounts/' + config.data.twilioAccountSid, //This allows us to change the rest of the URL
-                auth: {
-                    // Basic Auth using API key
-                    username: config.data.twilioApiKey,
-                    password: config.data.twilioApiSecret
-                },
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded", // _Required for Twilio API
-                },
-                timeout: 5000,
-            });
-
-            try {
-                //console.log(`Getting sync-token`);
-                const SyncGrant = AccessToken.SyncGrant;
-                const syncGrant = new SyncGrant({
-                    serviceSid: config.data.paySyncServiceSid
-                });
-
-                // Create an access token which we will sign and return to the client,
-                // containing the grant we just created
-                const accessToken = new AccessToken(
-                    config.data.twilioAccountSid,
-                    config.data.twilioApiKey,
-                    config.data.twilioApiSecret,
-                    { identity: this.identity }
-                );
-
-                accessToken.addGrant(syncGrant);
-                this._syncToken = accessToken.toJwt();
-                //console.log(`sync-token: ${this._syncToken}`);
-
-                this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
-                this._payConnector = config.data.payConnector;
-                this._paySyncServiceSid = config.data.paySyncServiceSid;        // TODO: Where is this used?
-                this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value
-                this._captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
-                this._currency = config.data.currency;
-                this._tokenType = config.data.tokenType;
-
-            } catch (error) {
-                console.error(`Error getting sync token: ${error}`);
-            }
-        } catch (error) {
-            console.error(`Error getting config from Merchant Server: ${error}`);
-        }
-    };
-
-    _checkPayProgress() {
+    _checkPayProgress() {   // OK
         if (this._capture) {
             if (this._required.includes(this._captureOrder[0])) {
                 // continue _capture
@@ -161,8 +104,6 @@ export default class AgentAssistPayClient extends EventEmitter {
                     // Stop capture
                     console.log(`Stopping Capture`);
                     this.emit('captureComplete');
-
-                    //this.submitCapture();
                 }
             }
         } else {
@@ -170,26 +111,50 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
-    async _changeSession(changeType) {
-        //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this.callSID}/Payments/{Sid}.json
-        let theUrl = '/Calls/' + this.callSID + '/Payments/' + this._paySID + '.json';
-
+    async _changeSession(changeType) {  // OK - test
         console.log(`_changeSession ChangeType: ${changeType}`);
 
         // Reset the Capture Order
         this._captureOrder = this._captureOrderTemplate.slice(); // copy by value to reset the order array
 
-        // URL Encode the POST body data
-        const urlEncodedData = new URLSearchParams();
-        urlEncodedData.append('Status', changeType);
-        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
-        urlEncodedData.append('StatusCallback', this._statusCallback);
+        // POST body data
+        const data =
+        {
+            'callSid': this.callSid,
+            'paySid': this._paySid,
+            'Status': changeType,
+            'IdempotencyKey': this.identity + Date.now().toString(),
+            'StatusCallback': this._statusCallback,
+        }
+        //console.log(`_changeSession: data = ${JSON.stringify(data, null, 4)} `);
 
         try {
-            const response = await this._twilioAPI.post(theUrl, urlEncodedData);
+            const response = await axios.post(this.merchantServerUrl + '/changeSession', data);
             //console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
+        }
+    };
+
+    async _getConfig(url) { // OK
+        // Grab config from the Merchant Server
+        try {
+            const config = await axios.get(url, { params: { identity: this.identity } });
+            //console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
+
+            this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
+            this._paymentConnector = config.data.paymentConnector;
+            this._paySyncServiceSid = config.data.paySyncServiceSid;        // TODO: Where is this used?
+            this._syncToken = config.data.paySyncToken;
+            this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value
+            this._captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
+            this._currency = config.data.currency;
+            this._tokenType = config.data.tokenType;
+
+            //console.log(`sync-token: ${this._syncToken}`);
+
+        } catch (error) {
+            console.error(`Error getting config from Server: ${error}`);
         }
     };
 
@@ -198,24 +163,23 @@ export default class AgentAssistPayClient extends EventEmitter {
      * The Merchant server will provide the parameters in the following object format:
      *
      */
-    async attachPay(callSid = null) {
-        this.callSID = callSid;
+    async attachPay(callSid = null) {   // OK
+        this.callSid = callSid;
 
         try {
             await this._getConfig(this.merchantServerUrl + '/getConfig');
 
             this._syncClient = new SyncClient(this._syncToken, {});
+            //console.log(`SyncClient created with token: ${this._syncToken}`);
             this._payMap = await this._syncClient.map('payMap');
+            //console.log('payMap created');
 
             // If a Call SID was passed in, CTI has the call already and now opening view
-            if (this.callSID) {
-                console.log(`Initialize with a CTI callSid: ${this.callSID} `);
+            if (this.callSid) {
+                console.log(`Initialize with a CTI callSid: ${this.callSid} `);
 
                 // Update View element events
-                this.emit('callConnected', this.callSID);
-
-                // Now start the capture
-                //this.startCapture();
+                this.emit('callConnected', this.callSid);
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID.Please place a call or initiate the app with a call SID`);
@@ -226,13 +190,11 @@ export default class AgentAssistPayClient extends EventEmitter {
                 guidMap.on('itemAdded', (args) => {
 
                     // Update View element events
-                    this.callSID = args.item.data.SID;
-                    console.log(`SYNC itemAdded: Call SID is = ${this.callSID} `);
-                    this.emit('callConnected', this.callSID);
+                    this.callSid = args.item.data.SID;
+                    console.log(`SYNC itemAdded: Call SID is = ${this.callSid} `);
+                    this.emit('callConnected', this.callSid);
 
                     //console.log(`Initialise.TEMP HACK`);
-                    // Now initialise the capture
-                    //this.startCapture();
                 });
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
@@ -241,7 +203,7 @@ export default class AgentAssistPayClient extends EventEmitter {
             this._payMap.on('itemUpdated', (args) => {
                 //console.log(`_payMap item ${ JSON.stringify(args, null, 4) } was UPDATED`);
                 // Update the local variables
-                this._paySID = args.item.key;
+                this._paySid = args.item.key;
                 this.paymentCardNumber = args.item.data.PaymentCardNumber;
                 this.securityCode = args.item.data.SecurityCode;
                 this.expirationDate = args.item.data.ExpirationDate;
@@ -268,51 +230,61 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
-
-    async startCapture() {
-        //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this.callSID}/Payments.json
-        let theUrl = '/Calls/' + this.callSID + '/Payments.json';
-        //console.log(`startCapture url: [${ theUrl }]`);
+    async startCapture() {  // OK - test
         this._captureOrder = this._captureOrderTemplate.slice(); // Copy value
 
-        // URL Encode the POST body data
-        const urlEncodedData = new URLSearchParams();
-        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
-        urlEncodedData.append('StatusCallback', this._statusCallback);
-        urlEncodedData.append('ChargeAmount', '0');
-        urlEncodedData.append('TokenType', this._tokenType);
-        urlEncodedData.append('Currency', this._currency);
-        urlEncodedData.append('PaymentConnector', this._payConnector);
-        urlEncodedData.append('SecurityCode', this._captureOrder.includes('security-code')); // set flag based on contents of _captureOrder array
-        urlEncodedData.append('PostalCode', this._captureOrder.includes('postal-code')); // set flag based on contents of _captureOrder array
+        // POST body data
+        const data =
+        {
+            'callSid': this.callSid,
+            'IdempotencyKey': this.identity + Date.now().toString(),
+            'StatusCallback': this._statusCallback,
+            'ChargeAmount': 0,
+            'TokenType': this._tokenType,
+            'Currency': this._currency,
+            'PaymentConnector': this._paymentConnector,
+            'SecurityCode': this._captureOrder.includes('security-code'), // set flag based on contents of _captureOrder array
+            'PostalCode': this._captureOrder.includes('postal-code'), // set flag based on contents of _captureOrder array
+        }
+        //console.log(`startCapture: data = ${ data } `);
 
-        //console.log(`startCapture: urlEncoded data = ${ urlEncodedData } `);
         try {
-            const response = await this._twilioAPI.post(theUrl, urlEncodedData);
-            this._paySID = response.data.sid;
-            //console.log(`StartCapture: paySID: ${ this._paySID } `);
+            const response = await axios.post(this.merchantServerUrl + '/startCapture', data);
+
+            //console.log(`StartCapture: paySid: ${response.data} `);
+            this._paySid = response.data;
+            //console.log(`StartCapture: paySid: ${this._paySid} `);
+
             // Update View element events
             console.log(`startCapture: Starting capture`);
             this.emit('capturing');
+
             await this._updateCaptureType(this._captureOrder[0]);
+
         } catch (error) {
             console.error(`Error with Capture Token: ${error} `);
         }
     };
 
-    async _updateCaptureType(captureType) {
-        //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this.callSID}/Payments/{Sid}.json
-        let theUrl = '/Calls/' + this.callSID + '/Payments/' + this._paySID + '.json';
+    async _updateCaptureType(captureType) { // OK - test
 
-        // URL Encode the POST body data
-        const urlEncodedData = new URLSearchParams();
-        urlEncodedData.append('Capture', captureType);
-        urlEncodedData.append('IdempotencyKey', this.identity + Date.now().toString());
-        urlEncodedData.append('StatusCallback', this._statusCallback);
+        //console.log(`paySid: ${this._paySid}`);
+
+        // POST body data
+        const data =
+        {
+            'callSid': this.callSid,
+            'paySid': this._paySid,
+            'captureType': captureType,
+            'IdempotencyKey': this.identity + Date.now().toString(),
+            'StatusCallback': this._statusCallback,
+        }
+        //console.log(`Update Capture: data = ${JSON.stringify(data, null, 4)}`);
 
         try {
-            const response = await this._twilioAPI.post(theUrl, urlEncodedData);
+            const response = await axios.post(this.merchantServerUrl + '/updateCaptureType', data);
             console.log(`Capturing ${captureType} now..............`);
+
             switch (captureType) {
                 case "payment-card-number":
                     // Update View element events
@@ -330,16 +302,12 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
-
-    updateCallSid(callSid) {
-        this.callSID = callSid;
-        this.emit('callConnected', this.callSID);
+    updateCallSid(callSid) {    // OK
+        this.callSid = callSid;
+        this.emit('callConnected', this.callSid);
     };
 
-    /**
-     * Reset the card Number captured.
-     */
-    resetCard() {
+    resetCard() {   // OK
         if (this._captureOrder[0] === "payment-card-number") {
             // already capturing
         } else {
@@ -350,10 +318,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._updateCaptureType(this._captureOrder[0]);
     };
 
-    /**
-     * Reset the card SecurityCode captured.
-     */
-    resetSecurityCode() {
+    resetSecurityCode() {   // OK
         if (this._captureOrder[0] === "security-code") {
             // already capturing
         } else {
@@ -364,10 +329,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._updateCaptureType(this._captureOrder[0]);
     };
 
-    /**
-     * Reset the card Exp. Date captured.
-     */
-    resetDate() {
+    resetDate() {   // OK
         if (this._captureOrder[0] === "expiration-date") {
             // already capturing
         } else {
@@ -378,22 +340,22 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._updateCaptureType(this._captureOrder[0]);
     };
 
-    async cancelCapture() {
+    async cancelCapture() { // OK
         // Cancel the payment
         await this._changeSession("cancel");
-        //console.log(`Pay cancelled paySID key: ${ this._paySID } `);
+        //console.log(`Pay cancelled paySid key: ${ this._paySid } `);
 
         // Remove the syncMapItem to avoid visual issues
         try {
-            await this._payMap.remove(this._paySID);
-            //console.log(`payMapItem removed with key: ${ this._paySID } `);
+            await this._payMap.remove(this._paySid);
+            //console.log(`payMapItem removed with key: ${ this._paySid } `);
             this.emit('cancelledCapture');
         } catch (error) {
             console.log(`Error deleting cancelled payMapItem with error: ${error} `);
         }
     };
 
-    async submitCapture() {
+    async submitCapture() { // OK
         await this._changeSession("complete");
         this.emit('submitComplete');
     };

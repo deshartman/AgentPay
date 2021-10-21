@@ -1,7 +1,7 @@
 {
-  "name": "@deshartman/payclient",
-  "version": "1.0.8",
-  "description": "Simple Twilio Agent Assisted Payment library to capture credit cards for tokens",
+  "name": "@deshartman/payclient_functions",
+  "version": "2.0.2",
+  "description": "Simple Twilio Agent Assisted Payment library to capture credit cards for tokens using Twilio Functions",
   "main": "AgentAssistPayClient.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,7 +12,8 @@
   },
   "keywords": [
     "Twilio",
-    "pay"
+    "Twilio Pay",
+    "Twilio Functions"
   ],
   "author": "Des Hartman",
   "license": "ISC",
