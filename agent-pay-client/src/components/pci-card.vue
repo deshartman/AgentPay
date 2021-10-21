@@ -143,13 +143,13 @@ export default {
     // Set the Internal Merchant Server URL for config and Access Tokens
     let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
     // // This value needs to be provided by contact centre CTI, when calling this page
-    // let callSid = "";
+    let callSid = null;
 
     try {
-      this.payClient = new PayClient(merchantServerUrl, "Alice");
-      //console.log(`payClient started: ${this.payClient}`);
+      this.payClient = new PayClient("Alice");
+      this.payClient.attachPay(merchantServerUrl, callSid);
 
-      //Establish the listeners
+      // Now hook in all the event listeners for GUI.
       this.payClient.on("callConnected", () => {
         this.callConnected = true;
         console.log(`callConnected: this.callConnected ${this.callConnected}`);
@@ -244,9 +244,6 @@ export default {
         }
         //console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
       });
-
-      this.payClient.attachPay();
-      //console.log(`payClient started: ${this.payClient}`);
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
     }

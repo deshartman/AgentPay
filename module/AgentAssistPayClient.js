@@ -51,11 +51,11 @@ import axios from "axios";
  */
 export default class AgentAssistPayClient extends EventEmitter {
 
-    constructor(merchantServerUrl = null, identity = "unknown") {
+    constructor(identity = "unknown") {
         super();
 
         this._version = "v0.2";
-        this.merchantServerUrl = merchantServerUrl;
+        this._functionsURL = null;
         this.identity = identity;
         this.callSid = null;
 
@@ -85,7 +85,6 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._captureOrder = [];
         this._captureOrderTemplate = [];
         this._paymentConnector = '';
-        this._paySyncServiceSid = '';
     }
 
     _checkPayProgress() {   // OK
@@ -129,22 +128,23 @@ export default class AgentAssistPayClient extends EventEmitter {
         //console.log(`_changeSession: data = ${JSON.stringify(data, null, 4)} `);
 
         try {
-            const response = await axios.post(this.merchantServerUrl + '/changeSession', data);
+            const response = await axios.post(this._functionsURL + '/changeSession', data);
             //console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
         } catch (error) {
             console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
         }
     };
 
-    async _getConfig(url) { // OK
+    async _getConfig(merchantServerUrl) { // OK
         // Grab config from the Merchant Server
         try {
-            const config = await axios.get(url, { params: { identity: this.identity } });
-            //console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
+            const config = await axios.get(merchantServerUrl, { params: { identity: this.identity } });
+            console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
 
+            this._functionsURL = config.data._functionsURL
+            //this._functionsURL = 'http://localhost:8080';
             this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
             this._paymentConnector = config.data.paymentConnector;
-            this._paySyncServiceSid = config.data.paySyncServiceSid;        // TODO: Where is this used?
             this._syncToken = config.data.paySyncToken;
             this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value
             this._captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
@@ -163,11 +163,11 @@ export default class AgentAssistPayClient extends EventEmitter {
      * The Merchant server will provide the parameters in the following object format:
      *
      */
-    async attachPay(callSid = null) {   // OK
+    async attachPay(merchantServerUrl, callSid = null) {   // OK
         this.callSid = callSid;
 
         try {
-            await this._getConfig(this.merchantServerUrl + '/getConfig');
+            await this._getConfig(merchantServerUrl + '/getConfig');
 
             this._syncClient = new SyncClient(this._syncToken, {});
             //console.log(`SyncClient created with token: ${this._syncToken}`);
@@ -249,7 +249,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         //console.log(`startCapture: data = ${ data } `);
 
         try {
-            const response = await axios.post(this.merchantServerUrl + '/startCapture', data);
+            const response = await axios.post(this._functionsURL + '/startCapture', data);
 
             //console.log(`StartCapture: paySid: ${response.data} `);
             this._paySid = response.data;
@@ -282,7 +282,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         //console.log(`Update Capture: data = ${JSON.stringify(data, null, 4)}`);
 
         try {
-            const response = await axios.post(this.merchantServerUrl + '/updateCaptureType', data);
+            const response = await axios.post(this._functionsURL + '/updateCaptureType', data);
             console.log(`Capturing ${captureType} now..............`);
 
             switch (captureType) {
