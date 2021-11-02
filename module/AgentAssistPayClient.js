@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import SyncClient from "twilio-sync";
+import { SyncClient } from "twilio-sync";
 import axios from "axios";
 
 /**
