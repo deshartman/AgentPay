@@ -9,7 +9,6 @@ exports.handler = async function (context, event, callback) {
 
     console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
-
     // 
     // This is the most critical part of your backend code, as you must identify the user and (possibly)
     // challenge them with some authentication scheme. To determine the identity, you might use:

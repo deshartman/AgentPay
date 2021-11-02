@@ -7,6 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@deshartman/payclient_functions": "^2.0.3",
     "core-js": "^3.6.5",
     "vue": "^3.0.0"
   },

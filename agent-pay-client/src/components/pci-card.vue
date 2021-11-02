@@ -73,8 +73,7 @@
 </template>
 
 <script>
-import PayClient from "./AgentAssistPayClient";
-//import PayClient from "@deshartman/payclient_functions";
+import PayClient from "@deshartman/payclient_functions";
 
 export default {
   data() {
@@ -146,8 +145,8 @@ export default {
     let callSid = null;
 
     try {
-      this.payClient = new PayClient("Alice");
-      this.payClient.attachPay(merchantServerUrl, callSid);
+      this.payClient = new PayClient(merchantServerUrl, "Alice");
+      this.payClient.attachPay(callSid);
 
       // Now hook in all the event listeners for GUI.
       this.payClient.on("callConnected", () => {
