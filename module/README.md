@@ -20,8 +20,8 @@ payclient.attachPay(callSid);
 ```
 
 - "identity" is the Agent identity used for tracking purposes.
-- "merchantURL" - See [Server Setup](#sever-setup)
-- "callSid" - See [Methods](methods)
+- "merchantURL" - Any location returning the config. See [Server Setup](#sever-setup) for suggested Functions option
+- "callSid" - The callSID to attach Pay to. See [Methods](methods)
 
 ## Usage
 
@@ -69,7 +69,7 @@ The client has multiple events that fire and can be used to drive a User interfa
 ```
 
 7. Make a call via Twilio and extract the PSTN side call SID. This is provided to payClient as the call SID. This can be done
-   at initiation or after the fact by updating the call Sid
+   at initiation or after the fact by updating the call Sid.
 
 ```
     payclient.updateCallSid(callSid);
@@ -87,15 +87,13 @@ Note: If a mistake was made entering digits, call the resetXXX() methods to rese
 
 ## Server Setup
 
-To use the library, you need to provide config back to the client via a server url, where the configuration can be pulled from in the below format. This version uses Twilio Functions to host all the required middleware server functions the NPM will use. Please clone the https://github.com/deshartman/AgentPay repo "client_server" branch and deploy to your Twilio Functions environment.
-
-_NB: DO NOT USE THE main BRANCH._
+To use the library, you need to provide the middleware services and specifically the config back to the client via a merchant server url, where the configuration can be pulled from in the below format. This version uses Twilio Functions to host all the required middleware server functions the NPM will use.
 
 ```
     const config = {
         functionsURL: 'https://' + context.DOMAIN_NAME,     // The Twilio Functions URL. Server where "paySyncUpdate" is deployed (See server below)
-        payConnector: context.PAY_CONNECTOR,                // The name of the Twilio Pay connector configured
-        paySyncServiceSid: context.PAY_SYNC_SERVICE_SID,    // Sync ServiceSid. All maps will be created
+        payConnector: String,                               // The name of the Twilio Pay connector configured
+        paySyncToken: String,                               // Sync JWT token based on Identity
         captureOrder: [                                     // example order of keywords.
             "payment-card-number",
             "security-code",
@@ -108,12 +106,15 @@ _NB: DO NOT USE THE main BRANCH._
 
 This can be done with any server, or for convenience, deploy the server using twilio Functions, pasting the code below into Functions and setting the Environment variables.
 
+The middleware server functions can be found here: https://github.com/deshartman/AgentPay as a reference.
+
 ### Server: Using Twilio Functions
 
-1. Create an API Key/secret to use with the services. Update the server "agent-pay-server/.env" with details.
+1. Create an API Key/Secret to use with the services. Update the server "agent-pay-server/.env" with details.
 
 2. Create a Twilio Sync Service and update PAY_SYNC_SERVICE_SID in "agent-pay-server/.env"
 
 3. Create a new Pay connector and note the name of the connector. Update PAY_CONNECTOR in "agent-pay-server/.env"
 
-4. Deploy the Server side with "twilio serverless:deploy". Use the Functions URL for the Merchant Server URL in PayClient.
+4. Deploy the Server side with "twilio serverless:deploy". Use the Functions base URL for the Merchant Server URL in PayClient.
+   Typically MerchantServerUrl = 'https://' + context.DOMAIN_NAME + 'getConfig'
