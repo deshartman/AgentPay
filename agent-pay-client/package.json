@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "Vue serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "@deshartman/payclient_functions": "^2.0.3",
+    "@deshartman/payclient_functions": "^2.0.4",
     "core-js": "^3.6.5",
     "vue": "^3.0.0"
   },
