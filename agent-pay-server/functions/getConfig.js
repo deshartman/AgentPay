@@ -43,7 +43,6 @@ exports.handler = async function (context, event, callback) {
     const config = {
         functionsURL: 'https://' + context.DOMAIN_NAME, //context.FUNCTIONS_URL,     // The Twilio Functions URL where the call handlers are deployed 
         paymentConnector: context.PAY_CONNECTOR,         // The name of the Twilio Pay connector configured
-        //paySyncServiceSid: context.PAY_SYNC_SERVICE_SID,
         paySyncToken: getSyncToken(event.identity),
 
         // These are Merchant specific config, each Agent will use each time

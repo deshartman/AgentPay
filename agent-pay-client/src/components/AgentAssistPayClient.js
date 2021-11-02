@@ -153,6 +153,7 @@ export default class AgentAssistPayClient extends EventEmitter {
             this._tokenType = config.data.tokenType;
 
             //console.log(`sync-token: ${this._syncToken}`);
+            console.log(`_getConfig: URL: ${this._functionsURL}`);
 
         } catch (error) {
             console.error(`Error getting config from Server: ${error}`);
@@ -170,6 +171,8 @@ export default class AgentAssistPayClient extends EventEmitter {
         try {
             await this._getConfig(merchantServerUrl + '/getConfig');
 
+            console.log(`attachPay: URL: ${this._functionsURL}`);
+
             this._syncClient = new SyncClient(this._syncToken, {});
             //console.log(`SyncClient created with token: ${this._syncToken}`);
             this._payMap = await this._syncClient.map('payMap');
@@ -184,6 +187,7 @@ export default class AgentAssistPayClient extends EventEmitter {
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID.Please place a call or initiate the app with a call SID`);
+                console.log(`attachPay: URL: ${this._functionsURL}`);
 
                 ////////////////////////////////////////////// REMOVE WHEN USING CTI ///////////////////////////////////////////////////
                 //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI or Flex ///////////
@@ -247,7 +251,7 @@ export default class AgentAssistPayClient extends EventEmitter {
             'SecurityCode': this._captureOrder.includes('security-code'), // set flag based on contents of _captureOrder array
             'PostalCode': this._captureOrder.includes('postal-code'), // set flag based on contents of _captureOrder array
         }
-        //console.log(`startCapture: data = ${ data } `);
+        console.log(`startCapture: URL: ${this._functionsURL} and data = ${data} `);
 
         try {
             const response = await axios.post(this._functionsURL + '/startCapture', data);
