@@ -42,6 +42,15 @@
 exports.handler = async function (context, event, callback) {
   //console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
+  function sendResponse(data) {
+    const response = new Twilio.Response();
+    response.appendHeader("Access-Control-Allow-Origin", "*");
+    response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+    response.appendHeader("Content-Type", "application/json");
+    response.setBody(data);
+    return response;
+  }
+
   const restClient = context.getTwilioClient();
 
   console.log(`paySyncUpdate event: ${JSON.stringify(event, null, 4)}`);
@@ -73,7 +82,7 @@ exports.handler = async function (context, event, callback) {
           ttl: 43200  // 12 hours
         });
     }
-    callback(null, event.Sid);
+    callback(null, sendResponse(event.Sid));
   } catch (error) {
     callback(error, null);
   }

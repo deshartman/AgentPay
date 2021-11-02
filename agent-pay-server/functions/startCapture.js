@@ -3,6 +3,15 @@ const axios = require('axios');
 exports.handler = async function (context, event, callback) {
     console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
+    function sendResponse(data) {
+        const response = new Twilio.Response();
+        response.appendHeader("Access-Control-Allow-Origin", "*");
+        response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+        response.appendHeader("Content-Type", "application/json");
+        response.setBody(data);
+        return response;
+    }
+
     const restClient = context.getTwilioClient();
 
     const twilioAPI = axios.create({

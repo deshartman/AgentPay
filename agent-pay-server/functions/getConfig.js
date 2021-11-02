@@ -9,6 +9,14 @@ exports.handler = async function (context, event, callback) {
 
     console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
+    function sendResponse(data) {
+        const response = new Twilio.Response();
+        response.appendHeader("Access-Control-Allow-Origin", "*");
+        response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+        response.appendHeader("Content-Type", "application/json");
+        response.setBody(data);
+        return response;
+    }
 
     // 
     // This is the most critical part of your backend code, as you must identify the user and (possibly)
@@ -57,6 +65,6 @@ exports.handler = async function (context, event, callback) {
 
     console.log(`Pay Connector: ${config.paymentConnector}`);
 
-    callback(null, config);
+    callback(null, sendResponse(config));
 
 };

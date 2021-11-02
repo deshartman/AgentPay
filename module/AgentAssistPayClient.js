@@ -1,9 +1,5 @@
-
-
-
-// get the reference of EventEmitter class of events module
 import { EventEmitter } from 'events';
-import SyncClient from "twilio-sync";
+import { SyncClient } from "twilio-sync";
 import axios from "axios";
 
 /**
@@ -12,19 +8,18 @@ import axios from "axios";
  * 
  * The Merchant Server has to pass in the following data to configure the SDK:
  * 
- *      twilioAccountSid: String,
-        twilioApiKey: String,
-        twilioApiSecret: String,        
-        functionsURL: String,         // The Twilio Functions URL where the call handlers are deployed
-        paymentConnector: String,         // The name of the Twilio Pay connector configured
-        paySyncServiceSid: String,    // Sync ServiceSid. All maps will be created
-        captureOrder: [
+    const config = {
+        functionsURL: 'https://' + context.DOMAIN_NAME,     // The Twilio Functions URL. Server where "paySyncUpdate" is deployed (See server below)
+        payConnector: String,                               // The name of the Twilio Pay connector configured
+        paySyncToken: String,                               // Sync JWT token based on Identity
+        captureOrder: [                                     // example order of keywords.
             "payment-card-number",
             "security-code",
             "expiration-date",
         ],
-        currency: String,
-        tokenType: String,
+        currency: 'AUD',                                    // USD is default
+        tokenType: 'reusable',                              // one-time || reusable
+    };
  * 
  * 
  * The class will emit the following events when data changes:
@@ -52,10 +47,11 @@ import axios from "axios";
  */
 export default class AgentAssistPayClient extends EventEmitter {
 
-    constructor(identity = "unknown") {
+    constructor(merchantServerUrl = "", identity = "unknown") {
         super();
 
-        this._version = "v0.2";
+        this._version = "v2.0.3";
+        this._merchantServerUrl = merchantServerUrl;
         this._functionsURL = null;
         this.identity = identity;
         this.callSid = null;
@@ -136,14 +132,14 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
-    async _getConfig(merchantServerUrl) { // OK
+    async _getConfig() { // OK
         // Grab config from the Merchant Server
         try {
-            const config = await axios.get(merchantServerUrl, { params: { identity: this.identity } });
+            const config = await axios.get(this._merchantServerUrl, { params: { identity: this.identity } });
             console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
 
             this._functionsURL = config.data.functionsURL
-            //this._functionsURL = 'http://localhost:8080';
+            //this._functionsURL = 'http://localhost:8080'; // For local testing ONLY
             this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
             this._paymentConnector = config.data.paymentConnector;
             this._syncToken = config.data.paySyncToken;
@@ -164,11 +160,11 @@ export default class AgentAssistPayClient extends EventEmitter {
      * The Merchant server will provide the parameters in the following object format:
      *
      */
-    async attachPay(merchantServerUrl, callSid = null) {   // OK
+    async attachPay(callSid = null) {   // OK
         this.callSid = callSid;
 
         try {
-            await this._getConfig(merchantServerUrl + '/getConfig');
+            await this._getConfig();
 
             this._syncClient = new SyncClient(this._syncToken, {});
             //console.log(`SyncClient created with token: ${this._syncToken}`);
