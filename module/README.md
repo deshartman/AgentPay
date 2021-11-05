@@ -17,6 +17,9 @@ Using this method, you can use payclient.js like so:
 import PayClient from "@deshartman/payclient_functions";
 const payClient = new PayClient(merchantURL, identity);
 payclient.attachPay(callSid);
+
+// When done clean up using:
+payclient.detachPay();
 ```
 
 - "identity" is the Agent identity used for tracking purposes.

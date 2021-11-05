@@ -356,4 +356,18 @@ export default class AgentAssistPayClient extends EventEmitter {
         await this._changeSession("complete");
         this.emit('submitComplete');
     };
+
+    async detachPay() {
+        try {
+            // Remove Event Listener
+            this._payMap.removeAllListeners(['itemUpdated']);
+            // Close the map
+            this._payMap.close();
+
+            this.emit('stopCapturing');
+            console.log(`endCapture success`);
+        } catch (error) {
+            console.log(`endCapture error: ${error}`);
+        }
+    }
 }
