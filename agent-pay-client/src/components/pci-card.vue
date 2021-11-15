@@ -143,9 +143,12 @@ export default {
     let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
     // // This value needs to be provided by contact centre CTI, when calling this page
     let callSid = null;
+    let writeKey = process.env.VUE_APP_SEGMENT_WRITEKEY;
 
     try {
-      this.payClient = new PayClient(merchantServerUrl, "Alice");
+      console.log(`Vue: writeKey: ${writeKey}`);
+
+      this.payClient = new PayClient(merchantServerUrl, "Alice", writeKey);
       this.payClient.attachPay(callSid);
 
       // Now hook in all the event listeners for GUI.

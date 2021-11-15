@@ -2,9 +2,19 @@ import { EventEmitter } from 'events';
 import { SyncClient } from "twilio-sync";
 import axios from "axios";
 
+// Segment Anayltics (Optional)
+import Analytics from 'analytics'
+import segmentPlugin from '@analytics/segment'
+
 /**
  * This is the main calls for the Pay SDK. It takes care of all the connectivity to the Voice <Pay> API
  * as well as synchronizing the data via Sync.
+ * 
+ * Constructor:
+ * @param {string} merchantServerUrl - The URL where the config is to be fetched from.
+ * @param {string} identity - The identity of the user calling the PayClient
+ * @param {string} writeKey - OPTIONAL: The write key for Twilio Segment service. Leave blank to ignore
+ * 
  * 
  * The Merchant Server has to pass in the following data to configure the SDK:
  * 
@@ -45,9 +55,10 @@ import axios from "axios";
     'submitComplete'
  * 
  */
+
 export default class AgentAssistPayClient extends EventEmitter {
 
-    constructor(merchantServerUrl = "", identity = "unknown") {
+    constructor(merchantServerUrl = "", identity = "unknown", writeKey = null) {
         super();
 
         this._version = "v2.0.3";
@@ -55,6 +66,19 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._functionsURL = null;
         this.identity = identity;
         this.callSid = null;
+
+        // Segment added if Write Key exists
+        if (writeKey) {
+            //console.log(`Logging to Segment`);
+            this.analytics = Analytics({
+                app: 'agent-assisted-pay',
+                plugins: [
+                    segmentPlugin({
+                        writeKey: writeKey
+                    })
+                ]
+            })
+        }
 
         // Axios setup for Twilio API calls directly from the client
         this._twilioAPI = null;
@@ -150,6 +174,13 @@ export default class AgentAssistPayClient extends EventEmitter {
 
             //console.log(`sync-token: ${this._syncToken}`);
 
+            /* Segment Action  */
+            if (this.analytics) {
+                this.analytics.track('getConfig', {
+                    identity: this.identity,
+                });
+            }
+
         } catch (error) {
             console.error(`Error getting config from Server: ${error}`);
         }
@@ -177,6 +208,16 @@ export default class AgentAssistPayClient extends EventEmitter {
 
                 // Update View element events
                 this.emit('callConnected', this.callSid);
+
+                /* Segment Action  */
+                if (this.analytics) {
+                    //console.log(`Logging attachPay to Segment`);
+                    this.analytics.track('attachPay', {
+                        identity: this.identity,
+                        callSID: this.callSid,
+                        timeStamp: Date.now(),
+                    });
+                }
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID.Please place a call or initiate the app with a call SID`);
@@ -191,7 +232,17 @@ export default class AgentAssistPayClient extends EventEmitter {
                     console.log(`SYNC itemAdded: Call SID is = ${this.callSid} `);
                     this.emit('callConnected', this.callSid);
 
-                    //console.log(`Initialise.TEMP HACK`);
+                    /* Segment Action  */
+                    if (this.analytics) {
+                        //console.log(`Logging attachPay to Segment`);
+                        this.analytics.track('attachPay', {
+                            identity: this.identity,
+                            callSID: this.callSid,
+                            timeStamp: Date.now(),
+                        });
+                    }
+
+                    console.log(`Initialise.TEMP HACK`);
                 });
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
@@ -222,6 +273,7 @@ export default class AgentAssistPayClient extends EventEmitter {
                 // Check if we need to move to next capture item
                 this._checkPayProgress();
             });
+
         } catch (error) {
             console.error(`Could not Initialize.Error setting up Pay Session with Error: ${error} `);
         }
@@ -248,15 +300,25 @@ export default class AgentAssistPayClient extends EventEmitter {
         try {
             const response = await axios.post(this._functionsURL + '/startCapture', data);
 
-            //console.log(`StartCapture: paySid: ${response.data} `);
+            console.log(`StartCapture: paySid: ${response.data} `);
             this._paySid = response.data;
-            //console.log(`StartCapture: paySid: ${this._paySid} `);
+            console.log(`StartCapture: paySid: ${this._paySid} `);
 
             // Update View element events
             console.log(`startCapture: Starting capture`);
             this.emit('capturing');
 
             await this._updateCaptureType(this._captureOrder[0]);
+
+            /* Segment Action  */
+            if (this.analytics) {
+                //console.log(`Logging startCapture to Segment`);
+                this.analytics.track('startCapture', {
+                    identity: this.identity,
+                    callSID: this.callSid,
+                    timeStamp: Date.now(),
+                });
+            }
 
         } catch (error) {
             console.error(`Error with Capture Token: ${error} `);
@@ -294,6 +356,16 @@ export default class AgentAssistPayClient extends EventEmitter {
                     this.emit('capturingDate');
                     break;
             }
+
+            /* Segment Action  */
+            if (this.analytics) {
+                this.analytics.track('_updateCaptureType', {
+                    identity: this.identity,
+                    callSID: this.callSid,
+                    captureType: captureType,
+                    timeStamp: Date.now(),
+                });
+            }
         } catch (error) {
             console.error(`Could not update CaptureType to ${captureType} with Error: ${error} `);
         }
@@ -312,6 +384,16 @@ export default class AgentAssistPayClient extends EventEmitter {
             this._captureOrder.unshift("payment-card-number");
             this.emit('cardReset');
         }
+
+        /* Segment Action  */
+        if (this.analytics) {
+            this.analytics.track('resetCard', {
+                identity: this.identity,
+                callSID: this.callSid,
+                timeStamp: Date.now(),
+            });
+        }
+
         this._updateCaptureType(this._captureOrder[0]);
     };
 
@@ -323,6 +405,16 @@ export default class AgentAssistPayClient extends EventEmitter {
             this._captureOrder.unshift("security-code");
             this.emit('securityCodeReset');
         }
+
+        /* Segment Action  */
+        if (this.analytics) {
+            this.analytics.track('resetSecurityCode', {
+                identity: this.identity,
+                callSID: this.callSid,
+                timeStamp: Date.now(),
+            });
+        }
+
         this._updateCaptureType(this._captureOrder[0]);
     };
 
@@ -334,6 +426,16 @@ export default class AgentAssistPayClient extends EventEmitter {
             this._captureOrder.unshift("expiration-date");
             this.emit('dateReset');
         }
+
+        /* Segment Action  */
+        if (this.analytics) {
+            this.analytics.track('resetDate', {
+                identity: this.identity,
+                callSID: this.callSid,
+                timeStamp: Date.now(),
+            });
+        }
+
         this._updateCaptureType(this._captureOrder[0]);
     };
 
@@ -347,6 +449,15 @@ export default class AgentAssistPayClient extends EventEmitter {
             await this._payMap.remove(this._paySid);
             //console.log(`payMapItem removed with key: ${ this._paySid } `);
             this.emit('cancelledCapture');
+
+            /* Segment Action  */
+            if (this.analytics) {
+                this.analytics.track('cancelCapture', {
+                    identity: this.identity,
+                    callSID: this.callSid,
+                    timeStamp: Date.now(),
+                });
+            }
         } catch (error) {
             console.log(`Error deleting cancelled payMapItem with error: ${error} `);
         }
@@ -355,6 +466,15 @@ export default class AgentAssistPayClient extends EventEmitter {
     async submitCapture() { // OK
         await this._changeSession("complete");
         this.emit('submitComplete');
+
+        /* Segment Action  */
+        if (this.analytics) {
+            this.analytics.track('submitCapture', {
+                identity: this.identity,
+                callSID: this.callSid,
+                timeStamp: Date.now(),
+            });
+        }
     };
 
     async detachPay() {
@@ -366,6 +486,17 @@ export default class AgentAssistPayClient extends EventEmitter {
 
             this.emit('stopCapturing');
             console.log(`endCapture success`);
+
+
+            /* Segment Action  */
+            if (this.analytics) {
+                this.analytics.track('detachPay', {
+                    identity: this.identity,
+                    callSID: this.callSid,
+                    timeStamp: Date.now(),
+                });
+            }
+
         } catch (error) {
             console.log(`endCapture error: ${error}`);
         }

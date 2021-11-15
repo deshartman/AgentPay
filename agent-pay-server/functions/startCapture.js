@@ -55,7 +55,7 @@ exports.handler = async function (context, event, callback) {
 
         console.log(`StartCapture: paySID: ${_paySid} `);
 
-        callback(null, _paySid);
+        callback(null, sendResponse(_paySid));
     } catch (error) {
         console.error(`Error with StartCapture: ${error} `);
         callback(error, null);

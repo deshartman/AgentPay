@@ -1,2 +1,5 @@
 # Merchant server details. This is the Merchant's own server.
 VUE_APP_MERCHANT_SERVER_URL=https://agent-pay-server-xxxxx.twil.io
+
+# Optional Segment WriteKey
+# VUE_APP_SEGMENT_WRITEKEY=

@@ -121,3 +121,14 @@ The middleware server functions can be found here: https://github.com/deshartman
 
 4. Deploy the Server side with "twilio serverless:deploy". Use the Functions base URL for the Merchant Server URL in PayClient.
    Typically MerchantServerUrl = 'https://' + context.DOMAIN_NAME + 'getConfig'
+
+## Segment Setup
+
+We have also strapped in Segment with this NPM to report on all events as they happen in the NPM. To set this up, sign up for a segment account at www.segment.com.
+NOTE: This is completely optional and will function without this config.
+
+1. Add a "Javascript website" Source Connector in Segment
+2. Copy the Write Key under settings and set VUE_APP_SEGMENT_WRITEKEY in the client side .env file.
+3. To stop logging, simply remove the key
+
+Events will now be logged to Segment and can be processed.
