@@ -15,15 +15,16 @@ Using this method, you can use payclient.js like so:
 
 ```
 import PayClient from "@deshartman/payclient_functions";
-const payClient = new PayClient(merchantURL, identity);
+const payClient = new PayClient(merchantURL, identity, writeKey);
 payclient.attachPay(callSid);
 
 // When done clean up using:
 payclient.detachPay();
 ```
 
-- "identity" is the Agent identity used for tracking purposes.
 - "merchantURL" - Any location returning the config. See [Server Setup](#sever-setup) for suggested Functions option
+- "identity" is the Agent identity used for tracking purposes.
+- "writeKey" is an optional Segment key, that when supplied will write events into a Segment Javascript source
 - "callSid" - The callSID to attach Pay to. See [Methods](methods)
 
 ## Usage
