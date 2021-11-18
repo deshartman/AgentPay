@@ -9,11 +9,15 @@ VUE_APP_MERCHANT_SERVER_URL=https://agent-pay-server-xxxxx.twil.io
 
 # The Twilio Functions URL where the call handlers are deployed 
 VUE_APP_FUNCTIONS_URL=https://XXXX.twil.io
+
 # Name of the Pay Connector configured on Twilio
-VUE_APP_PAY_CONNECTOR=
+VUE_APP_PAYMENT_CONNECTOR=
+
 # Order of payment capture as a comma separated string
 VUE_APP_CAPTURE_ORDER="payment-card-number, security-code, expiration-date"
+
 # Payment currency (ISO)
 VUE_APP_CURRENCY=
+
 # Token type
 VUE_APP_TOKEN_TYPE=
