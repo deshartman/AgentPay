@@ -11,29 +11,15 @@ import segmentPlugin from '@analytics/segment'
  * as well as synchronizing the data via Sync.
  * 
  * Constructor:
- * @param {string} merchantServerUrl - The URL where the config is to be fetched from.
+ * @param {string} functionsURL - The Twilio Functions URL where the call handlers are deployed.
  * @param {string} identity - The identity of the user calling the PayClient
+ * @param {string} paymentConnector - The name of the Twilio Pay connector configured.
+ * @param {string} captureOrder - These are Merchant specific config, each Agent will use each time
+ * @param {string} currency - The currency to use for the transaction. USD is default
+ * @param {string} tokenType - The token type to use for the transaction one-time || reusable
  * @param {string} writeKey - OPTIONAL: The write key for Twilio Segment service. Leave blank to ignore
- * 
- * 
- * The Merchant Server has to pass in the following data to configure the SDK:
- * 
-    const config = {
-        functionsURL: 'https://' + context.DOMAIN_NAME,     // The Twilio Functions URL. Server where "paySyncUpdate" is deployed (See server below)
-        payConnector: String,                               // The name of the Twilio Pay connector configured
-        paySyncToken: String,                               // Sync JWT token based on Identity
-        captureOrder: [                                     // example order of keywords.
-            "payment-card-number",
-            "security-code",
-            "expiration-date",
-        ],
-        currency: 'AUD',                                    // USD is default
-        tokenType: 'reusable',                              // one-time || reusable
-    };
- * 
- * 
+ *
  * The class will emit the following events when data changes:
- * 
  * 
     'callConnected', callSid: String
     'cardUpdate', {
@@ -55,17 +41,25 @@ import segmentPlugin from '@analytics/segment'
     'submitComplete'
  * 
  */
-
 export default class AgentAssistPayClient extends EventEmitter {
 
-    constructor(merchantServerUrl = "", identity = "unknown", writeKey = null) {
+    constructor(functionsURL, identity, paymentConnector,
+        captureOrder = ["payment-card-number, security-code, expiration-date"],
+        currency = "USD",
+        tokenType = "reusable",
+        writeKey = null
+    ) {
+
         super();
 
-        this._version = "v2.0.3";
-        this._merchantServerUrl = merchantServerUrl;
-        this._functionsURL = null;
+        this._version = "v3.0.1";
+
+        this.functionsURL = functionsURL;
         this.identity = identity;
-        this.callSid = null;
+        this.paymentConnector = paymentConnector;
+        console.log(`SDK paymentConnector: ${this.paymentConnector}`);
+        this.currency = currency;
+        this.tokenType = tokenType;
 
         // Segment added if Write Key exists
         if (writeKey) {
@@ -78,9 +72,14 @@ export default class AgentAssistPayClient extends EventEmitter {
                     })
                 ]
             })
-        }
+        };
 
-        // Axios setup for Twilio API calls directly from the client
+        // Call variables
+        this.callSid = null;
+
+        /** 
+         * Internal Module variables, not exposed
+         */
         this._twilioAPI = null;
         this._statusCallback = '';
 
@@ -90,115 +89,40 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._paySid = "";
         this._syncToken = "";
 
-        // Payment Variables
-
-        this.paymentCardNumber = "";
-        this.securityCode = "";
-        this.expirationDate = "";
-        this.paymentToken = "";
-        this.paymentCardType = "";
-
         // Payment state
         this._capture = "";
         this._partialResult = true;
         this._required = "";
 
-        this._captureOrder = [];
-        this._captureOrderTemplate = [];
-        this._paymentConnector = '';
-    }
-
-    _checkPayProgress() {   // OK
-        if (this._capture) {
-            if (this._required.includes(this._captureOrder[0])) {
-                // continue _capture
-                console.log(`Capturing: [${this._captureOrder[0]}]`);
-            } else {
-                // move to next Capture Type in the list
-                if (this._required.length > 0) {
-                    // Remove the current (first) item in capture Order Array
-                    this._captureOrder.shift();
-                    console.log(`Changing to: ${this._captureOrder[0]}`);
-                    this._updateCaptureType(this._captureOrder[0]);
-                } else {
-                    // Stop capture
-                    console.log(`Stopping Capture`);
-                    this.emit('captureComplete');
-                }
-            }
-        } else {
-            console.log(`Not in _capture mode`);
-        }
-    };
-
-    async _changeSession(changeType) {  // OK - test
-        console.log(`_changeSession ChangeType: ${changeType}`);
-
-        // Reset the Capture Order
-        this._captureOrder = this._captureOrderTemplate.slice(); // copy by value to reset the order array
-
-        // POST body data
-        const data =
-        {
-            'callSid': this.callSid,
-            'paySid': this._paySid,
-            'Status': changeType,
-            'IdempotencyKey': this.identity + Date.now().toString(),
-            'StatusCallback': this._statusCallback,
-        }
-        //console.log(`_changeSession: data = ${JSON.stringify(data, null, 4)} `);
-
-        try {
-            const response = await axios.post(this._functionsURL + '/changeSession', data);
-            //console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
-        } catch (error) {
-            console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
-        }
-    };
-
-    async _getConfig() { // OK
-        // Grab config from the Merchant Server
-        try {
-            const config = await axios.get(this._merchantServerUrl, { params: { identity: this.identity } });
-            console.log(`the config: ${JSON.stringify(config.data, null, 4)}`);
-
-            this._functionsURL = config.data.functionsURL
-            //this._functionsURL = 'http://localhost:8080'; // For local testing ONLY
-            this._statusCallback = config.data.functionsURL + '/paySyncUpdate';
-            this._paymentConnector = config.data.paymentConnector;
-            this._syncToken = config.data.paySyncToken;
-            this._captureOrderTemplate = config.data.captureOrder.slice(); // copy by value
-            this._captureOrder = config.data.captureOrder.slice(); // copy by value TODO: Can probably remove this, since CaptureToken sets it anyway
-            this._currency = config.data.currency;
-            this._tokenType = config.data.tokenType;
-
-            //console.log(`sync-token: ${this._syncToken}`);
-
-            /* Segment Action  */
-            if (this.analytics) {
-                this.analytics.track('getConfig', {
-                    identity: this.identity,
-                });
-            }
-
-        } catch (error) {
-            console.error(`Error getting config from Server: ${error}`);
-        }
+        // Convert Capture Order string to an Array, removing whitespace
+        this._captureOrder = captureOrder.split(",").map(item => item.trim());
+        this._captureOrderTemplate = this._captureOrder.slice();
     };
 
     /**
-     * Initialise the Agent Assisted Pay Session by getting the configuration parameters from the Merchant server
-     * The Merchant server will provide the parameters in the following object format:
-     *
+     * Initialize the Agent Assisted Pay Session for a call (SID)
+     * 
+     * @param {*} callSid 
      */
-    async attachPay(callSid = null) {   // OK
+    async attachPay(callSid = null) {   //
         this.callSid = callSid;
 
-        try {
-            await this._getConfig();
+        this._statusCallback = this.functionsURL + '/paySyncUpdate';
+        //this._captureOrder = this._captureOrderTemplate.slice(); // copy by value
 
-            this._syncClient = new SyncClient(this._syncToken, {});
-            //console.log(`SyncClient created with token: ${this._syncToken}`);
+        /* Segment Action  */
+        if (this.analytics) {
+            this.analytics.track('attachPay', {
+                identity: this.identity,
+            });
+        }
+
+        try {
+            // Get Sync Token
+            const syncToken = await axios.get(this.functionsURL + "/getSyncToken", { params: { identity: this.identity } });
+            console.log(`Sync Token: ${syncToken.data}`);
+
+            this._syncClient = new SyncClient(syncToken.data, {});
             this._payMap = await this._syncClient.map('payMap');
             //console.log('payMap created');
 
@@ -229,7 +153,7 @@ export default class AgentAssistPayClient extends EventEmitter {
 
                     // Update View element events
                     this.callSid = args.item.data.SID;
-                    console.log(`SYNC itemAdded: Call SID is = ${this.callSid} `);
+                    console.log(`SYNC guidMap.on('itemAdded'): Call SID: ${this.callSid} `);
                     this.emit('callConnected', this.callSid);
 
                     /* Segment Action  */
@@ -242,21 +166,17 @@ export default class AgentAssistPayClient extends EventEmitter {
                         });
                     }
 
-                    console.log(`Initialise.TEMP HACK`);
+                    console.log(`Initialised. TEMP HACK`);
                 });
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
 
             // Add Event Listener for data changes. Update the card data
             this._payMap.on('itemUpdated', (args) => {
-                //console.log(`_payMap item ${ JSON.stringify(args, null, 4) } was UPDATED`);
+                // console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);\
+
                 // Update the local variables
                 this._paySid = args.item.key;
-                this.paymentCardNumber = args.item.data.PaymentCardNumber;
-                this.securityCode = args.item.data.SecurityCode;
-                this.expirationDate = args.item.data.ExpirationDate;
-                this.paymentToken = args.item.data.PaymentToken;
-                this.paymentCardType = args.item.data.PaymentCardType;
                 this._capture = args.item.data.Capture;
                 this._partialResult = args.item.data.PartialResult;
                 this._required = args.item.data.Required;
@@ -275,12 +195,71 @@ export default class AgentAssistPayClient extends EventEmitter {
             });
 
         } catch (error) {
-            console.error(`Could not Initialize.Error setting up Pay Session with Error: ${error} `);
+            console.error(`Could not Initialize. Error setting up Pay Session with Error: ${error} `);
         }
     };
 
-    async startCapture() {  // OK - test
-        this._captureOrder = this._captureOrderTemplate.slice(); // Copy value
+    /*
+    * Operate on the capture order array, removing items from the front of the array
+    * and moving to the next item in the array, updating the capture type.
+    * If the array is complete, stop capturing
+    */
+    _checkPayProgress() {   // OK
+        if (this._capture) {
+            if (this._required.includes(this._captureOrder[0])) {
+                // continue _capture
+                console.log(`Capturing: [${this._captureOrder[0]}]`);
+            } else {
+                // move to next Capture Type in the list
+                if (this._required.length > 0) {
+                    // Remove the current (first) item in capture Order Array
+                    this._captureOrder.shift();
+                    console.log(`Changing to: ${this._captureOrder[0]}`);
+                    this._updateCaptureType(this._captureOrder[0]);
+                } else {
+                    // Stop capture
+                    this.emit('captureComplete');
+                    console.log(`Stopping Capture`);
+                }
+            }
+        } else {
+            console.log(`Not in _capture mode`);
+        }
+    };
+
+    /*
+    * 
+    */
+    async _changeSession(changeType) {  // OK - test
+        //console.log(`_changeSession ChangeType: ${changeType}`);
+
+        // Reset the Capture Order
+        this._captureOrder = this._captureOrderTemplate.slice(); // copy by value to reset the order array
+
+        // POST body data
+        const data =
+        {
+            'callSid': this.callSid,
+            'paySid': this._paySid,
+            'Status': changeType,
+            'IdempotencyKey': this.identity + Date.now().toString(),
+            'StatusCallback': this._statusCallback,
+        }
+        console.log(`_changeSession: data = ${JSON.stringify(data, null, 4)} `);
+
+        try {
+            const response = await axios.post(this.functionsURL + '/changeSession', data);
+            //console.log(`_changeSession Response data: ${JSON.stringify(response.data)}`);
+        } catch (error) {
+            console.error(`Could not change Session Status to ${changeType} with Error: ${error}`);
+        }
+    };
+
+    /**
+    * This kicks off the capture process.
+    */
+    async startCapture() {  // 
+        this._captureOrder = this._captureOrderTemplate.slice(); // Copy values
 
         // POST body data
         const data =
@@ -289,23 +268,20 @@ export default class AgentAssistPayClient extends EventEmitter {
             'IdempotencyKey': this.identity + Date.now().toString(),
             'StatusCallback': this._statusCallback,
             'ChargeAmount': 0,
-            'TokenType': this._tokenType,
-            'Currency': this._currency,
-            'PaymentConnector': this._paymentConnector,
+            'TokenType': this.tokenType,
+            'Currency': this.currency,
+            'PaymentConnector': this.paymentConnector,
             'SecurityCode': this._captureOrder.includes('security-code'), // set flag based on contents of _captureOrder array
             'PostalCode': this._captureOrder.includes('postal-code'), // set flag based on contents of _captureOrder array
         }
         //console.log(`startCapture: data = ${ data } `);
 
         try {
-            const response = await axios.post(this._functionsURL + '/startCapture', data);
-
-            console.log(`StartCapture: paySid: ${response.data} `);
+            const response = await axios.post(this.functionsURL + '/startCapture', data);
             this._paySid = response.data;
             console.log(`StartCapture: paySid: ${this._paySid} `);
 
             // Update View element events
-            console.log(`startCapture: Starting capture`);
             this.emit('capturing');
 
             await this._updateCaptureType(this._captureOrder[0]);
@@ -325,8 +301,11 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
-    async _updateCaptureType(captureType) { // OK - test
-
+    /*
+     * Cycle through the different capture Types in the API, based on the current capture Order Array passed in
+     * @param {*} captureType 
+     */
+    async _updateCaptureType(captureType) { // 
         //console.log(`paySid: ${this._paySid}`);
 
         // POST body data
@@ -341,7 +320,7 @@ export default class AgentAssistPayClient extends EventEmitter {
         //console.log(`Update Capture: data = ${JSON.stringify(data, null, 4)}`);
 
         try {
-            const response = await axios.post(this._functionsURL + '/updateCaptureType', data);
+            const response = await axios.post(this.functionsURL + '/updateCaptureType', data);
             console.log(`Capturing ${captureType} now..............`);
 
             switch (captureType) {
@@ -355,7 +334,7 @@ export default class AgentAssistPayClient extends EventEmitter {
                 case "expiration-date":
                     this.emit('capturingDate');
                     break;
-            }
+            };
 
             /* Segment Action  */
             if (this.analytics) {
@@ -371,6 +350,10 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
+    /**
+     * Update the call Sid for this payClient Session
+     * @param {String} callSid 
+     */
     updateCallSid(callSid) {    // OK
         this.callSid = callSid;
         this.emit('callConnected', this.callSid);
@@ -439,6 +422,9 @@ export default class AgentAssistPayClient extends EventEmitter {
         this._updateCaptureType(this._captureOrder[0]);
     };
 
+    /**
+     * Cancel the current capture process
+     */
     async cancelCapture() { // OK
         // Cancel the payment
         await this._changeSession("cancel");
@@ -463,6 +449,9 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
+    /**
+     * Submit the current capture process
+     */
     async submitCapture() { // OK
         await this._changeSession("complete");
         this.emit('submitComplete');
@@ -477,6 +466,11 @@ export default class AgentAssistPayClient extends EventEmitter {
         }
     };
 
+    /**
+     * Complete the session and detach the payment.
+     * 
+     * Remove all event listeners
+     */
     async detachPay() {
         try {
             // Remove Event Listener

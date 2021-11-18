@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import PayClient from "@deshartman/payclient_functions";
+import PayClient from "../../../module/AgentAssistPayClient"; //"@deshartman/payclient_functions";
 
 export default {
   data() {
@@ -139,16 +139,31 @@ export default {
   },
 
   mounted() {
-    // Set the Internal Merchant Server URL for config and Access Tokens
-    let merchantServerUrl = process.env.VUE_APP_MERCHANT_SERVER_URL;
+    // Set the Agent variable. These are passed to the Agent screen, so this is a temp POC
+    let functionsURL = process.env.VUE_APP_FUNCTIONS_URL;
+    let identity = "Alice";
+    let paymentConnector = process.env.VUE_APP_PAYMENT_CONNECTOR;
+    let captureOrder = process.env.VUE_APP_CAPTURE_ORDER;
+    let currency = process.env.VUE_APP_CURRENCY;
+    let tokenType = process.env.VUE_APP_TOKEN_TYPE;
+    let writeKey = process.env.VUE_APP_SEGMENT_WRITEKEY;
+
     // // This value needs to be provided by contact centre CTI, when calling this page
     let callSid = null;
-    let writeKey = process.env.VUE_APP_SEGMENT_WRITEKEY;
 
     try {
       console.log(`Vue: writeKey: ${writeKey}`);
 
-      this.payClient = new PayClient(merchantServerUrl, "Alice", writeKey);
+      this.payClient = new PayClient(
+        functionsURL,
+        identity,
+        paymentConnector,
+        captureOrder,
+        currency,
+        tokenType,
+        writeKey
+      );
+
       this.payClient.attachPay(callSid);
 
       // Now hook in all the event listeners for GUI.
