@@ -265,6 +265,23 @@ export default {
       console.error(`'Mounted Error: ${error})`);
     }
   },
+  unmounted() {
+    this.payClient.detachPay();
+    this.payClient.removeAllListeners([
+      "callConnected",
+      "capturing",
+      "capturingCard",
+      "capturingSecurityCode",
+      "capturingDate",
+      "cardReset",
+      "securityCodeReset",
+      "dateReset",
+      "captureComplete",
+      "cancelledCapture",
+      "submitComplete",
+      "cardUpdate",
+    ]);
+  },
 };
 </script>
 
