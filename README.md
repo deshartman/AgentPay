@@ -47,44 +47,65 @@ The Merchant can now query with the UUI to find the CallSID and use that to init
 
 # Project setup
 
-1. Clone the repository.
+Clone the repository.
 
-2. Set up the Server
+## Set up the Server
 
 ```
 cd agent-pay-server
 npm install
 ```
 
-3. Set up the client
+1. Create an API Key/secret to use with the services. Update the server "agent-pay-server/.env" with details.
+
+2. Create a Twilio Sync Service named "AgentAssistedPaySync" and update PAY_SYNC_SERVICE_SID in "agent-pay-server/.env"
+
+3. Configure a SIP Domain and registered SIP users as required and update SIP_DOMAIN in "agent-pay-server/.env"
+
+4. Deploy the Server side with "twilio serverless:deploy"
+
+5. Configure your inbound Twilio number to call Functions/agent-pay-server/inboundHandler
+
+6. Configure your Voice SIP Domains Call Control to point to https://agent-pay-server-XXXX-YYY.twil.io/outboundHandler
+
+## Set up the Client
 
 ```
 cd agent-pay-client
 npm install
 ```
 
-4. Create an API Key/secret to use with the services. Update the server "agent-pay-server/.env" with details.
-
-5. Create a Twilio Sync Service and update PAY_SYNC_SERVICE_SID in "agent-pay-server/.env"
-
-6. Create a new Pay connector and note the name of the connector. Update PAY_CONNECTOR in "agent-pay-server/.env"
-
-7. Configure a SIP Domain and registered SIP users as required and update SIP_DOMAIN in "agent-pay-server/.env"
-
-8. Deploy the Server side with "twilio serverless:deploy"
+1. Using the Domain from the above Server deploy, update the VUE_APP_FUNCTIONS_URL in "agent-pay-client/.env"
 
 - For Dev mode update vue.config.js with the URL
-- For production update VUE_APP_MERCHANT_SERVER_URL in "agent-pay-client/.env"
+- For production update VUE_APP_FUNCTIONS_URL in "agent-pay-client/.env"
 
-9. Configure your inbound Twilio number to call Functions/agent-pay-server/inboundHandler
+2. Create a new Pay connector and update VUE_APP_PAYMENT_CONNECTOR in "agent-pay-client/.env"
 
-10. Configure your Voice SIP Domains Call Control to point to https://agent-pay-server-XXXX-YYY.twil.io/outboundHandler
+3. Define the capture order and update VUE_APP_CAPTURE_ORDER in "agent-pay-client/.env". Default is "payment-card-number,security-code,expiration-date"
+
+4. Define the currency and update VUE_APP_CURRENCY in "agent-pay-client/.env". Default is "USD"
+
+5. Define the token type and update VUE_APP_TOKEN_TYPE in "agent-pay-client/.env". Default is "reusable"
+
+6. Optionally add a Segment WriteKey
+
+### Segment Setup
+
+We have also strapped in Segment to report on all events as they happen in the NPM. To set this up, sign up for a segment account at www.segment.com.
+NOTE: This is completely optional and will function without this config.
+
+1. Add a "Javascript website" Source Connector in Segment
+2. Copy the Write Key under settings and set VUE_APP_SEGMENT_WRITEKEY in the client side .env file.
+3. To stop logging, simply remove the key
+
+Events will now be logged to Segment and can be processed.
 
 ## Testing & Use
 
 ### Inbound Voice Calls
 
-- make an inbound test call to make sure the SIP endpoint receives the call.
+- Make an inbound test call to make sure the SIP endpoint receives the call.
 - Check the Sync service map "guidMap" to make sure a Call SID was written
 
 ### Outbound Voice Calls

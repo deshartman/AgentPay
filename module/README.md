@@ -11,23 +11,36 @@ Visit the official site for more details: [https://www.twilio.com/pay](https://w
 npm install --save @deshartman/payclient_functions
 ```
 
-Using this method, you can use payclient.js like so:
+## Usage
+
+Using this method, you can use payclient like so:
 
 ```
 import PayClient from "@deshartman/payclient_functions";
-const payClient = new PayClient(merchantURL, identity, writeKey);
+
+const payClient = new PayClient(functionsURL,
+        identity,
+        paymentConnector,
+        captureOrder,
+        currency,
+        tokenType,
+        writeKey);
+
+// When ready to capture payments
 payclient.attachPay(callSid);
 
 // When done clean up using:
 payclient.detachPay();
 ```
 
-- "merchantURL" - Any location returning the config. See [Server Setup](#sever-setup) for suggested Functions option
-- "identity" is the Agent identity used for tracking purposes.
-- "writeKey" is an optional Segment key, that when supplied will write events into a Segment Javascript source
+- "functionsURL" - The Twilio Functions URL where the call handlers are deployed. See [Server Setup](#sever-setup) for suggested Functions option
+- "identity" - is the Agent identity used for tracking purposes.
+- "paymentConnector" - The name of the Twilio Pay connector configured.
+- "captureOrder" - These are Merchant specific config, each Agent will use each time
+- "currency" - The currency to use for the transaction. USD is default
+- "tokenType" - The token type to use for the transaction one-time || reusable
+- "writeKey" - OPTIONAL: The write key for Twilio Segment service, that when supplied will write events into a Segment Javascript source. Leave blank to ignore
 - "callSid" - The callSID to attach Pay to. See [Methods](methods)
-
-## Usage
 
 ### Methods
 
@@ -72,14 +85,16 @@ The client has multiple events that fire and can be used to drive a User interfa
     payClient.on('submitComplete', () => { });
 ```
 
-7. Make a call via Twilio and extract the PSTN side call SID. This is provided to payClient as the call SID. This can be done
+### Calls & Payments
+
+1. Make a call via Twilio and extract the PSTN side call SID. This is provided to payClient as the call SID. This can be done
    at initiation or after the fact by updating the call Sid.
 
 ```
     payclient.updateCallSid(callSid);
 ```
 
-8. On the PSTN calling handset (customer) now enter the card details using the keypad:
+2. On the PSTN calling handset (customer) now enter the card details using the keypad:
 
 - Enter a test credit card e.g. 4444 3333 2222 1111
 - enter a cvc e.g. 123
@@ -87,30 +102,11 @@ The client has multiple events that fire and can be used to drive a User interfa
 
 Note: If a mistake was made entering digits, call the resetXXX() methods to reset the entry.
 
-9. When all data has been entered, "Submit" the transaction and wait for a returned token in the 'cardUpdate' event paymentToken.
+3. When all data has been entered, "Submit" the transaction and wait for a returned token in the 'cardUpdate' event paymentToken.
 
 ## Server Setup
 
-To use the library, you need to provide the middleware services and specifically the config back to the client via a merchant server url, where the configuration can be pulled from in the below format. This version uses Twilio Functions to host all the required middleware server functions the NPM will use.
-
-```
-    const config = {
-        functionsURL: 'https://' + context.DOMAIN_NAME,     // The Twilio Functions URL. Server where "paySyncUpdate" is deployed (See server below)
-        payConnector: String,                               // The name of the Twilio Pay connector configured
-        paySyncToken: String,                               // Sync JWT token based on Identity
-        captureOrder: [                                     // example order of keywords.
-            "payment-card-number",
-            "security-code",
-            "expiration-date",
-        ],
-        currency: 'AUD',                                    // USD is default
-        tokenType: 'reusable',                              // one-time || reusable
-    };
-```
-
-This can be done with any server, or for convenience, deploy the server using twilio Functions, pasting the code below into Functions and setting the Environment variables.
-
-The middleware server functions can be found here: https://github.com/deshartman/AgentPay as a reference.
+To use the library, you need to provide the middleware services and specifically a sync token based on a Sync service. These functions are provided as part of the AgentPay library https://github.com/deshartman/AgentPay/tree/master/agent-pay-server. This version uses Twilio Functions to host all the required middleware server functions the NPM will use.
 
 ### Server: Using Twilio Functions
 
@@ -118,10 +114,7 @@ The middleware server functions can be found here: https://github.com/deshartman
 
 2. Create a Twilio Sync Service and update PAY_SYNC_SERVICE_SID in "agent-pay-server/.env"
 
-3. Create a new Pay connector and note the name of the connector. Update PAY_CONNECTOR in "agent-pay-server/.env"
-
-4. Deploy the Server side with "twilio serverless:deploy". Use the Functions base URL for the Merchant Server URL in PayClient.
-   Typically MerchantServerUrl = 'https://' + context.DOMAIN_NAME + 'getConfig'
+3. Deploy the Server side with "twilio serverless:deploy". Use the Functions base URL in the PayClient constructor.
 
 ## Segment Setup
 
