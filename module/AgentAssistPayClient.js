@@ -245,7 +245,7 @@ export default class AgentAssistPayClient extends EventEmitter {
             'IdempotencyKey': this.identity + Date.now().toString(),
             'StatusCallback': this._statusCallback,
         }
-        console.log(`_changeSession: data = ${JSON.stringify(data, null, 4)} `);
+        //console.log(`_changeSession: data = ${JSON.stringify(data, null, 4)} `);
 
         try {
             const response = await axios.post(this.functionsURL + '/changeSession', data);
