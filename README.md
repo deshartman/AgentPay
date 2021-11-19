@@ -5,6 +5,8 @@ There are two parts to this project:
 - agent-pay-client
 - agent-pay-server
 
+NOTE: Version 3.0.1 of the NPM has breaking changes. Please ensure you have the new version after update
+
 ## Client
 
 The Client is a Vue frontend to show what could be built. This cab be ANY implementation and not just Vue. The main use is to use
