@@ -1,32 +1,22 @@
-# agent-pay: Client and Server
+# Pay Client: Client and Server
 
 There are two parts to this project:
 
-- agent-pay-client
-- agent-pay-server
-
-NOTE: Version 3.0.1 of the NPM has breaking changes. Please ensure you have the new version after update
+- payclient-server
+- payclient
 
 ## Client
 
-The Client is a Vue frontend to show what could be built. This cab be ANY implementation and not just Vue. The main use is to use
-the small pay SDK JS file "PayClient", which does all the heavy lifting for Pay and Sync.
+The Client is a any frontend you chose using the payclient/AgentAssistedPayClient module. The module does all the heavy lifting for Pay and Sync, so the client implementation only has to deal with the visual components of the implementation. There are various implementations, all contained in their own branches. Switch the relevant branch to use the implementation:
 
-In addition to the client, there is also an example Merchant server. The intention is that the Merchant server is where the Agent
-currently gets their user interface from and thus would serve the pay component as an asset. The Merchant server is used to
-set up configuration details for Pay, including the API Keys.
-
-The VUE_APP_MERCHANT_SERVER_URL tells the Merchant server where to get Config and Sync updates from, using the same Sync Service SID
-as for the server. In this release we are using a Functions URL to provide the config. Merchant can change this to provide the config
-to the client.
-
-Note: Even though we still use API_Key and Secret, they are presented via the Merchant server and not directly in the Client code. Once
-a Pay Token service is created, this need is removed.
+- Master: This is a Demo branch. Functions handling SIP calls to a registered SIP endpoint. Demo Vue frontend code
+- UUI: Functions with User-to-User SIP parameter handling for outbound calls. Demo Vue frontend
+- CallRef: Functions with Twilio Gather on Agent leg for calls. Demo Vue frontend
+- Flex: Functions into Flex implementation calling and Twilio Flex plugin frontend code
 
 ## Server
 
-The server uses Twilio Sync to keep track of calls and payment progression, to which thee Client subscribes. The functions are used
-to handle inbound and outbound calls to a SIP PBX or registered Twilio SIP endpoint.
+The server uses Twilio Sync to keep track of calls and payment progression, to which the Client subscribes for updates. The functions are used to handle inbound and outbound calls to a SIP PBX and/or registered Twilio SIP endpoint, depending on the branch selected.
 
 ### Inbound
 
@@ -139,7 +129,3 @@ Note: Click the "x" next to the item if a mistake was made entering to reset the
 6. When all data has been entered, click "Submit" button and a token should be returned.
 
 ---
-
-Below is an overall architecture diagram of the setup, showing an inbound call
-
-![Agent Assisted Payment - PBX](https://user-images.githubusercontent.com/47675451/131450481-76f83636-35a8-4558-adf4-ce9679c72465.png)
