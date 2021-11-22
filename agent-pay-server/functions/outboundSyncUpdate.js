@@ -32,13 +32,13 @@ exports.handler = async function (context, event, callback) {
       // Write the CallSid into Sync
       try {
         await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-          .syncMaps('guidMap')
+          .syncMaps('uuiMap')
           .syncMapItems
           .create({
             key: uui,
             data: {
-              "UUI": uui,    //Check param. Might be URLEncoded
-              "SID": event.CallSid
+              "uui": uui,    //Check param. Might be URLEncoded
+              "pstn-sid": event.CallSid
             },
             ttl: 86400
           });

@@ -9,7 +9,7 @@ exports.handler = async function (context, event, callback) {
 
   try {
     const syncMapItem = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-      .syncMaps('guidMap')
+      .syncMaps('uuiMap')
       .syncMapItems(event.uui)
       .fetch();
 

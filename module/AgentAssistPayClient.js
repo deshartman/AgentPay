@@ -148,12 +148,12 @@ export default class AgentAssistPayClient extends EventEmitter {
 
                 ////////////////////////////////////////////// REMOVE WHEN USING CTI ///////////////////////////////////////////////////
                 //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI or Flex ///////////
-                const guidMap = await this._syncClient.map('guidMap');
-                guidMap.on('itemAdded', (args) => {
+                const uuiMap = await this._syncClient.map('uuiMap');
+                uuiMap.on('itemAdded', (args) => {
 
                     // Update View element events
                     this.callSid = args.item.data.SID;
-                    console.log(`SYNC guidMap.on('itemAdded'): Call SID: ${this.callSid} `);
+                    console.log(`SYNC uuiMap.on('itemAdded'): Call SID: ${this.callSid} `);
                     this.emit('callConnected', this.callSid);
 
                     /* Segment Action  */
