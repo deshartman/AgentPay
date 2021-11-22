@@ -1,23 +1,25 @@
 /**
  * This is the inbound from PSTN voice handler. Call PBX SIP number, adding callSID as the UUI
- * Nothing is written to the sync outboundCallMap, since the GUID is the callSID
+ * Nothing is written to the sync outboundCallMap, since the UUI is the callSID
  * 
  */
 exports.handler = async function (context, event, callback) {
 
     const restClient = context.getTwilioClient();
 
-    // Write the incoming PSTN call CallSID as the UUI into Sync
+    console.log(`Inbound handler. Service Sid: ${context.PAY_SYNC_SERVICE_SID} with Call Sid: ${event.CallSid} `);
+
+    // Write the incoming PSTN call's Call SID as the UUI into Sync
     try {
         // Write the callSID and UUI into outboundCall Map
         const syncMapItem = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-            .syncMaps('guidMap')
+            .syncMaps('uuiMap')
             .syncMapItems
             .create({
                 key: event.CallSid,
                 data: {
-                    "UUI": event.CallSid,
-                    "SID": event.CallSid
+                    "uui": event.CallSid,
+                    "pstn-sid": event.CallSid
                 },
                 ttl: 43200  // 12 hours
             });
