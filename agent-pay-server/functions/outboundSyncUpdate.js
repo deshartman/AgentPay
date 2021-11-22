@@ -13,6 +13,7 @@ exports.handler = async function (context, event, callback) {
   console.log(`Call SID: ${event.CallSid}`);
 
   const restClient = context.getTwilioClient();
+  let mapCreated = false;
 
   try {
     //console.log(`Use ParentCallSid to get UUI`);
@@ -50,18 +51,22 @@ exports.handler = async function (context, event, callback) {
           .create({ uniqueName: 'uuiMap' });
       }
       finally {
-        // Create the syncMapItem
-        await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-          .syncMaps('uuiMap')
-          .syncMapItems
-          .create({
-            key: uui,
-            data: {
-              "uui": uui,    //Check param. Might be URLEncoded
-              "pstn-sid": event.CallSid
-            },
-            ttl: 86400
-          });
+        // Do not want to execute the write again if the map was already created
+        if (mapCreated) {
+
+          // Create the syncMapItem
+          await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+            .syncMaps('uuiMap')
+            .syncMapItems
+            .create({
+              key: uui,
+              data: {
+                "uui": uui,    //Check param. Might be URLEncoded
+                "pstn-sid": event.CallSid
+              },
+              ttl: 86400
+            });
+        }
         //console.log(`Done with outboundSyncUpdate`);
         callback(null, uui);
       }
