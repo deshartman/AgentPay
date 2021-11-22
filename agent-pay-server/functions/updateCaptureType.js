@@ -1,7 +1,13 @@
 const axios = require('axios');
 
+/**
+ * Pay change Session type on the server: https://www.twilio.com/docs/voice/api/payment-resource#update-a-pay-session
+ * @param {*} context
+ * @param {*} event
+ * @param {*} callback
+ */
 exports.handler = async function (context, event, callback) {
-    console.log(`Update Capture event: ${JSON.stringify(event, null, 4)}`);
+    //console.log(`Update Capture event: ${JSON.stringify(event, null, 4)}`);
 
     function sendResponse(data) {
         const response = new Twilio.Response();

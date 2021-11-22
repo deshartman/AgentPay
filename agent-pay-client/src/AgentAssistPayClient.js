@@ -52,12 +52,11 @@ export default class AgentAssistPayClient extends EventEmitter {
 
         super();
 
-        this._version = "v3.0.1";
+        this._version = "v4.0.1";
 
         this.functionsURL = functionsURL;
         this.identity = identity;
         this.paymentConnector = paymentConnector;
-        console.log(`SDK paymentConnector: ${this.paymentConnector}`);
         this.currency = currency;
         this.tokenType = tokenType;
 
@@ -108,7 +107,6 @@ export default class AgentAssistPayClient extends EventEmitter {
         this.callSid = callSid;
 
         this._statusCallback = this.functionsURL + '/paySyncUpdate';
-        //this._captureOrder = this._captureOrderTemplate.slice(); // copy by value
 
         /* Segment Action  */
         if (this.analytics) {
@@ -145,30 +143,6 @@ export default class AgentAssistPayClient extends EventEmitter {
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID.Please place a call or initiate the app with a call SID`);
-
-                ////////////////////////////////////////////// REMOVE WHEN USING CTI ///////////////////////////////////////////////////
-                //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI or Flex ///////////
-                const guidMap = await this._syncClient.map('guidMap');
-                guidMap.on('itemAdded', (args) => {
-
-                    // Update View element events
-                    this.callSid = args.item.data.SID;
-                    console.log(`SYNC guidMap.on('itemAdded'): Call SID: ${this.callSid} `);
-                    this.emit('callConnected', this.callSid);
-
-                    /* Segment Action  */
-                    if (this.analytics) {
-                        //console.log(`Logging attachPay to Segment`);
-                        this.analytics.track('attachPay', {
-                            identity: this.identity,
-                            callSID: this.callSid,
-                            timeStamp: Date.now(),
-                        });
-                    }
-
-                    console.log(`Initialised. TEMP HACK`);
-                });
-                /////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
 
             // Add Event Listener for data changes. Update the card data

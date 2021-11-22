@@ -1,24 +1,25 @@
 /**
  * This is the Outbound call handler connecting the PBX call to the dialed number and using the assigned CLI.
+ * The PBX needs to provide an identifier (UUI) to the call. This UUI is then written in Sync, tying the call to the
+ * PSTN side SID for payments.
  * 
- * Once the call is connected, we call the StatusCallback to write the callSID in the GUID sync map.
+ * Once the call is connected, we call the StatusCallback to write the callSID in the UUI sync map.
  * 
  */
 exports.handler = function (context, event, callback) {
     const voiceResponse = new Twilio.twiml.VoiceResponse();
 
-    // console.log(`event: ${JSON.stringify(event, null, 4)}`)
     const sipTo = event.To;
     const sipFrom = event.From;
 
-    // Extract E164 numbers fro To and From
+    // Extract E164 numbers for To and From
     const toMatches = sipTo.match(/sip:([+]?[0-9]+)@/);
     const to = toMatches[1];
     const fromMatches = sipFrom.match(/sip:([+]?[0-9]+)@/);
     const from = fromMatches[1];
 
     if (to && from) {
-        console.log(`Dialing ${to} with Caller ID ${from} - Was to:${sipTo} from:${sipFrom}`);
+        //console.log(`Dialing ${to} with Caller ID ${from} - Was to:${sipTo} from:${sipFrom}`);
         const dial = voiceResponse.dial(
             {
                 callerId: from,
@@ -31,7 +32,6 @@ exports.handler = function (context, event, callback) {
                 statusCallbackMethod: 'POST'
             },
             to);
-
         callback(null, voiceResponse);
     } else {
         callback(error, null);

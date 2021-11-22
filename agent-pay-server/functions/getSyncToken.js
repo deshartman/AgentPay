@@ -1,7 +1,7 @@
 /**
  * @param {string} identity - The identity of the user
  * 
- * Returns Sync Token used in the PayClient.
+ * Returns Sync Token used in the AgentAssistedPayClient module
  */
 var AccessToken = require('twilio').jwt.AccessToken;
 var SyncGrant = AccessToken.SyncGrant;

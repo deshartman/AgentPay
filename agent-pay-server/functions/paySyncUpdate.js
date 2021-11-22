@@ -2,7 +2,7 @@
  * This is the StatusCallback URL for Pay.
  * Once we receive a status callback, we now update Sync with the data we received
  * 
- * NOTE: Initially, the data received, will be the Connector data and contain the PKxxx value.
+ * NOTE: Initially, the data received, will be the Connector data and contain the PKxxx value. e.g.,
  *
  * {
       "PaymentConnector": "PGP_MOCK",
@@ -22,9 +22,9 @@
   {
     "SecurityCode": "xxx",
     "PaymentCardType": "visa",
-    "Sid": "PK5967a7414bd0566b5fba68d7728e3923",
+    "Sid": "PK248a4899c8e3311dabc8edadfb9aa07e",
     "PaymentConfirmationCode": "ch_a9dc6297cd1a4fb095e61b1a9cf2dd1d",
-    "CallSid": "CAc99f75b7f210edd87b01577c84655b4a",
+    "CallSid": "CAfc8f6c8101fca0723d77312b81d8e79a",
     "Result": "success",
     "AccountSid": "AC75xxxxxx",
     "ProfileId": "",
@@ -53,7 +53,7 @@ exports.handler = async function (context, event, callback) {
 
   const restClient = context.getTwilioClient();
 
-  console.log(`paySyncUpdate event: ${JSON.stringify(event, null, 4)}`);
+  //console.log(`paySyncUpdate event: ${JSON.stringify(event, null, 4)}`);
 
   try {
     // create or update an existing pay SID with data
@@ -71,7 +71,7 @@ exports.handler = async function (context, event, callback) {
           data: event
         });
     } catch (error) {
-      // Does not exist, so create
+      // "payMap" Does not exist, so create the Sync Map
       console.log(`creating paySyncMapItem`);
       await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
         .syncMaps('payMap')

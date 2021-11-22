@@ -1,5 +1,11 @@
 const axios = require('axios');
 
+/**
+ * Pay change Session Status on the server: https://www.twilio.com/docs/voice/api/payment-resource#update-a-pay-session
+ * @param {*} context 
+ * @param {*} event 
+ * @param {*} callback 
+ */
 exports.handler = async function (context, event, callback) {
     console.log(`event: ${JSON.stringify(event, null, 4)}`);
 

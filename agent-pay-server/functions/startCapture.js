@@ -1,5 +1,12 @@
 const axios = require('axios');
 
+/**
+ * Start the pay session as per: https://www.twilio.com/docs/voice/api/payment-resource#starting-a-pay-session
+ * 
+ * @param {*} context 
+ * @param {*} event 
+ * @param {*} callback 
+ */
 exports.handler = async function (context, event, callback) {
     console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
