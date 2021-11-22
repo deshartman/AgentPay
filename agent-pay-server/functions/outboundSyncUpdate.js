@@ -30,6 +30,7 @@ exports.handler = async function (context, event, callback) {
 
     if (uui) {
       // Write the CallSid into Sync
+      // Since the uuiMap may not yet exist, we need to update it under a try/catch. If it does not exist, create and then add item
       try {
         await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
           .syncMaps('uuiMap')
@@ -42,15 +43,34 @@ exports.handler = async function (context, event, callback) {
             },
             ttl: 86400
           });
-        callback(null, uui);
       } catch (error) {
-        callback(error, null);
+        // SyncMap uuiMap does not exist, so create it
+        const uuiSyncMap = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+          .syncMaps({ uniqueName: 'uuiMap' })
+          .create();
+      }
+      finally {
+        // Create the syncMapItem
+        await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+          .syncMaps('uuiMap')
+          .syncMapItems
+          .create({
+            key: uui,
+            data: {
+              "uui": uui,    //Check param. Might be URLEncoded
+              "pstn-sid": event.CallSid
+            },
+            ttl: 86400
+          });
+        //console.log(`Done with outboundSyncUpdate`);
+        callback(null, uui);
       }
     } else {
       //console.error(`Cannot extract UUI from call, so cannot establish Pay ${error}`);
       callback('Cannot extract UUI from call, so cannot establish Pay', null);
     }
   } catch (error) {
+    // Some other error occurred
     callback(error, null);
   }
 };
