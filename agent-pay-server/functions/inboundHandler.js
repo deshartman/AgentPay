@@ -14,8 +14,8 @@ exports.handler = async function (context, event, callback) {
             .create({
                 key: event.CallSid,
                 data: {
-                    "UUI": event.CallSid,
-                    "SID": event.CallSid
+                    "uui": event.CallSid,
+                    "pstn-sid": event.CallSid
                 },
                 ttl: 43200  // 12 hours
             });

@@ -1,11 +1,10 @@
 ACCOUNT_SID=ACxxxx
-AUTH_TOKEN=
 API_KEY=SKxxx
-API_SECRET=
+API_SECRET=xxxx
 
 # Variables for Sync
 # PAY_SYNC_SERVICE_NAME=AgentAssistedPaySync
-PAY_SYNC_SERVICE_SID=ISa3c4639c1d63442b7796f7e1c1e0e7c9
+PAY_SYNC_SERVICE_SID=ISxxxx
 
 # Variables for SIP Voice. Call will be to/from -> sip:+nnnnnnn@yyyyy.sip.twilio.com
 # NB: Registered SIP endpoint MUST have "+" in username
