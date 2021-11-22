@@ -28,8 +28,8 @@ exports.handler = async function (context, event, callback) {
         } catch (error) {
             // SyncMap uuiMap does not exist, so create it
             const uuiSyncMap = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-                .syncMaps({ uniqueName: 'uuiMap' })
-                .create();
+                .syncMaps
+                .create({ uniqueName: 'uuiMap' });
         } finally {
             // Create the syncMapItem
             const syncMapItem = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
@@ -45,11 +45,11 @@ exports.handler = async function (context, event, callback) {
                 });
 
             /**
-         * Now make the call to the endpoint. Comment out what is not needed
-         * 1) Registered SIP user
-         * 2) Client endpoint
-         * 3) SIP Trunk with domain
-        */
+             * // Now make the call to the endpoint. Comment out what is not needed
+             * 1) Registered SIP user
+             * 2) Client endpoint
+             * 3) SIP Trunk with domain
+            */
             const voiceResponse = new Twilio.twiml.VoiceResponse();
 
             /**

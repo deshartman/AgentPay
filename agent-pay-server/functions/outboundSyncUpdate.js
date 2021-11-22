@@ -46,8 +46,8 @@ exports.handler = async function (context, event, callback) {
       } catch (error) {
         // SyncMap uuiMap does not exist, so create it
         const uuiSyncMap = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-          .syncMaps({ uniqueName: 'uuiMap' })
-          .create();
+          .syncMaps
+          .create({ uniqueName: 'uuiMap' });
       }
       finally {
         // Create the syncMapItem
