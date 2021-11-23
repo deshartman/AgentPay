@@ -54,7 +54,6 @@ exports.handler = async function (context, event, callback) {
 
         callback(null, sendResponse(response.data.sid));
     } catch (error) {
-        console.error(`Error with updateCapture: ${error} `);
         callback(error, null);
     }
 };

@@ -1,11 +1,5 @@
 const axios = require('axios');
 
-/**
- * Pay change Session Status on the server: https://www.twilio.com/docs/voice/api/payment-resource#update-a-pay-session
- * @param {*} context 
- * @param {*} event 
- * @param {*} callback 
- */
 exports.handler = async function (context, event, callback) {
     console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
@@ -54,7 +48,7 @@ exports.handler = async function (context, event, callback) {
 
         callback(null, sendResponse(response.data.sid));
     } catch (error) {
-        console.error(`Error with changeSession: ${error} `);
-        callback(error, null);
+        //console.error(`Error with changeSession: ${error} `);
+        callback(`Error with changeSession: ${error}`, null);
     }
 };

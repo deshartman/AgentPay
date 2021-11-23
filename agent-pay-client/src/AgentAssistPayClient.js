@@ -52,7 +52,7 @@ export default class AgentAssistPayClient extends EventEmitter {
 
         super();
 
-        this._version = "v4.0.1";
+        this._version = "v3.0.1";
 
         this.functionsURL = functionsURL;
         this.identity = identity;
@@ -122,7 +122,7 @@ export default class AgentAssistPayClient extends EventEmitter {
 
             this._syncClient = new SyncClient(syncToken.data, {});
             this._payMap = await this._syncClient.map('payMap');
-            //console.log('payMap created');
+            console.log('Client payMap created');
 
             // If a Call SID was passed in, CTI has the call already and now opening view
             if (this.callSid) {
@@ -143,6 +143,30 @@ export default class AgentAssistPayClient extends EventEmitter {
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID.Please place a call or initiate the app with a call SID`);
+
+                ////////////////////////////////////////////// REMOVE WHEN USING CTI ///////////////////////////////////////////////////
+                //////// TODO: Temporary hack to automatically grab the Call SID. This would normally be done by CTI or Flex ///////////
+                const uuiMap = await this._syncClient.map('uuiMap');
+                uuiMap.on('itemAdded', (args) => {
+
+                    // Update View element events
+                    this.callSid = args.item.data.pstnSid;
+                    console.log(`SYNC uuiMap.on('itemAdded'): Call SID: ${this.callSid} `);
+                    this.emit('callConnected', this.callSid);
+
+                    /* Segment Action  */
+                    if (this.analytics) {
+                        //console.log(`Logging attachPay to Segment`);
+                        this.analytics.track('attachPay', {
+                            identity: this.identity,
+                            callSID: this.callSid,
+                            timeStamp: Date.now(),
+                        });
+                    }
+
+                    //console.log(`Initialised. TEMP HACK`);
+                });
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
 
             // Add Event Listener for data changes. Update the card data
@@ -248,7 +272,7 @@ export default class AgentAssistPayClient extends EventEmitter {
             'SecurityCode': this._captureOrder.includes('security-code'), // set flag based on contents of _captureOrder array
             'PostalCode': this._captureOrder.includes('postal-code'), // set flag based on contents of _captureOrder array
         }
-        //console.log(`startCapture: data = ${ data } `);
+        //console.log(`startCapture: data = ${JSON.stringify(data, null, 4)} `);
 
         try {
             const response = await axios.post(this.functionsURL + '/startCapture', data);

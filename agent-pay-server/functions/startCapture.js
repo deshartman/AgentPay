@@ -1,12 +1,5 @@
 const axios = require('axios');
 
-/**
- * Start the pay session as per: https://www.twilio.com/docs/voice/api/payment-resource#starting-a-pay-session
- * 
- * @param {*} context 
- * @param {*} event 
- * @param {*} callback 
- */
 exports.handler = async function (context, event, callback) {
     console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
@@ -37,7 +30,7 @@ exports.handler = async function (context, event, callback) {
 
     //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this.callSID}/Payments.json
     let theUrl = '/Calls/' + event.callSid + '/Payments.json';
-    //console.log(`startCapture url: [${ theUrl }]`);
+    //console.log(`startCapture url: [${theUrl}]`);
     // this._captureOrder = this._captureOrderTemplate.slice(); // Copy value
 
     // URL Encode the POST body data
@@ -55,16 +48,10 @@ exports.handler = async function (context, event, callback) {
 
     try {
         const response = await twilioAPI.post(theUrl, urlEncodedData);
-
-        console.log(response);
-
         const _paySid = response.data.sid;
-
-        console.log(`StartCapture: paySID: ${_paySid} `);
-
+        // console.log(`StartCapture: paySID: ${_paySid} `);
         callback(null, sendResponse(_paySid));
     } catch (error) {
-        console.error(`Error with StartCapture: ${error} `);
-        callback(error, null);
+        callback(`Error with StartCapture: ${error}`, null);
     }
 };

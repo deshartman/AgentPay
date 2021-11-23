@@ -152,7 +152,7 @@ export default {
     let callSid = null;
 
     try {
-      console.log(`Vue: writeKey: ${writeKey}`);
+      //console.log(`Vue: writeKey: ${writeKey}`);
 
       this.payClient = new PayClient(
         functionsURL,
@@ -169,12 +169,12 @@ export default {
       // Now hook in all the event listeners for GUI.
       this.payClient.on("callConnected", () => {
         this.callConnected = true;
-        console.log(`callConnected: this.callConnected ${this.callConnected}`);
+        //console.log(`callConnected: this.callConnected ${this.callConnected}`);
       });
 
       this.payClient.on("capturing", () => {
         this.capturing = true;
-        console.log(`capturing: this.capturing ${this.capturing}`);
+        //console.log(`capturing: this.capturing ${this.capturing}`);
       });
 
       this.payClient.on("capturingCard", () => {
@@ -211,14 +211,14 @@ export default {
 
       this.payClient.on("securityCodeReset", () => {
         this.capturingSecurityCode = true;
-        console.log(
-          `securityCodeReset: this.capturingSecurityCode ${this.capturingSecurityCode}`
-        );
+        // console.log(
+        //   `securityCodeReset: this.capturingSecurityCode ${this.capturingSecurityCode}`
+        // );
       });
 
       this.payClient.on("dateReset", () => {
         this.capturingDate = true;
-        console.log(`dateReset: this.capturingDate ${this.capturingDate}`);
+        // console.log(`dateReset: this.capturingDate ${this.capturingDate}`);
       });
 
       this.payClient.on("captureComplete", () => {
@@ -234,9 +234,9 @@ export default {
         this.capturingSecurityCode = false;
         this.capturingDate = false;
         this.captureComplete = false;
-        console.log(
-          `cancelledCapture: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate} this.captureComplete ${this.captureComplete}`
-        );
+        // console.log(
+        //   `cancelledCapture: this.capturing ${this.capturing} this.capturingCard ${this.capturingCard} this.capturingSecurityCode ${this.capturingSecurityCode} this.capturingDate ${this.capturingDate} this.captureComplete ${this.captureComplete}`
+        // );
       });
 
       this.payClient.on("submitComplete", () => {
