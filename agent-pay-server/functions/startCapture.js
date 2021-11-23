@@ -30,7 +30,7 @@ exports.handler = async function (context, event, callback) {
 
     //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this.callSID}/Payments.json
     let theUrl = '/Calls/' + event.callSid + '/Payments.json';
-    //console.log(`startCapture url: [${ theUrl }]`);
+    //console.log(`startCapture url: [${theUrl}]`);
     // this._captureOrder = this._captureOrderTemplate.slice(); // Copy value
 
     // URL Encode the POST body data
@@ -57,7 +57,7 @@ exports.handler = async function (context, event, callback) {
 
         callback(null, sendResponse(_paySid));
     } catch (error) {
-        console.error(`Error with StartCapture: ${error} `);
-        callback(error, null);
+        //console.error(`Error with StartCapture: ${error} `);
+        callback(`Error with StartCapture: ${error}`, null);
     }
 };

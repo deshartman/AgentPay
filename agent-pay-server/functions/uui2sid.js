@@ -18,7 +18,7 @@ exports.handler = async function (context, event, callback) {
       dateExpires: syncMapItem.dateExpires
     });
   } catch (error) {
-    callback(error, null);
+    callback(`Error with uu2sid: ${error}`, null);
   }
 
 };

@@ -108,7 +108,6 @@ export default class AgentAssistPayClient extends EventEmitter {
         this.callSid = callSid;
 
         this._statusCallback = this.functionsURL + '/paySyncUpdate';
-        //this._captureOrder = this._captureOrderTemplate.slice(); // copy by value
 
         /* Segment Action  */
         if (this.analytics) {
@@ -124,7 +123,7 @@ export default class AgentAssistPayClient extends EventEmitter {
 
             this._syncClient = new SyncClient(syncToken.data, {});
             this._payMap = await this._syncClient.map('payMap');
-            //console.log('payMap created');
+            console.log('Client payMap created');
 
             // If a Call SID was passed in, CTI has the call already and now opening view
             if (this.callSid) {
@@ -152,7 +151,7 @@ export default class AgentAssistPayClient extends EventEmitter {
                 uuiMap.on('itemAdded', (args) => {
 
                     // Update View element events
-                    this.callSid = args.item.data.SID;
+                    this.callSid = args.item.data.pstnSid;
                     console.log(`SYNC uuiMap.on('itemAdded'): Call SID: ${this.callSid} `);
                     this.emit('callConnected', this.callSid);
 
@@ -166,7 +165,7 @@ export default class AgentAssistPayClient extends EventEmitter {
                         });
                     }
 
-                    console.log(`Initialised. TEMP HACK`);
+                    //console.log(`Initialised. TEMP HACK`);
                 });
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
@@ -274,7 +273,7 @@ export default class AgentAssistPayClient extends EventEmitter {
             'SecurityCode': this._captureOrder.includes('security-code'), // set flag based on contents of _captureOrder array
             'PostalCode': this._captureOrder.includes('postal-code'), // set flag based on contents of _captureOrder array
         }
-        //console.log(`startCapture: data = ${ data } `);
+        //console.log(`startCapture: data = ${JSON.stringify(data, null, 4)} `);
 
         try {
             const response = await axios.post(this.functionsURL + '/startCapture', data);

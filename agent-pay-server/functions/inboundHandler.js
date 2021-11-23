@@ -1,69 +1,58 @@
 /**
- * This is the inbound from PSTN voice handler. Call PBX SIP number, adding callSID as the UUI
- * Nothing is written to the sync outboundCallMap, since the UUI is the callSID
+ * This is the inbound from PSTN voice handler that routes the call to the Customer destination.
+ * This could be:
+ * 1) Registered SIP client
+ * 2) SIP Trunk domain (to PBX)
+ * 3) WebRTC client
+ * 
+ * The PSTN side call SID is written into a Sync map as reference, so Pay can be attached.
+ * 
+ * Process:
+ * 1) Assume uuiMap exists and create new mapItem with inbound call Sid as key and uui.
+ * 2) If it fails, SyncMap uuiMap does not exist, so create it and add new data.
+ * 3) Finally, create new call leg.
  * 
  */
 exports.handler = async function (context, event, callback) {
 
     const restClient = context.getTwilioClient();
-    let mapCreated = false;
 
-    console.log(`Inbound handler. Service Sid: ${context.PAY_SYNC_SERVICE_SID} with Call Sid: ${event.CallSid} `);
+    const createMapItem = async () => {
+        await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+            .syncMaps('uuiMap')
+            .syncMapItems
+            .create({
+                key: event.CallSid,
+                data: {
+                    "uui": event.CallSid,
+                    "pstnSid": event.CallSid
+                },
+                ttl: 43200  // 12 hours
+            });
+    }
 
     // Write the incoming PSTN call's Call SID as the UUI into Sync
     try {
         // Since the uuiMap may not yet exist, we need to update it under a try/catch. If it does not exist, create and then add item
-        console.log(`Inbound handler. first try`);
         try {
-            console.log(`Inbound handler. Second try`);
-            // Write the callSID and UUI into outboundCall Map
-            const syncMapItem = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-                .syncMaps('uuiMap')
-                .syncMapItems
-                .create({
-                    key: event.CallSid,
-                    data: {
-                        "uui": event.CallSid,
-                        "pstn-sid": event.CallSid
-                    },
-                    ttl: 43200  // 12 hours
-                });
-            console.log(`Inbound handler. syncMapItem: ${JSON.stringify(syncMapItem)}`);
+            // Write the callSID and UUI into Sync Map
+            await createMapItem();
         } catch (error) {
-            console.log(`Inbound handler. create map`);
             // SyncMap uuiMap does not exist, so create it
-            const uuiSyncMap = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+            await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
                 .syncMaps
                 .create({ uniqueName: 'uuiMap' });
 
-            // The map was created
-            mapCreated = true;
-            console.log(`Inbound handler. map created uuiSyncMap:`);
+            // Now write the callSID and UUI into Sync Map
+            await createMapItem();
         } finally {
-            // Do not want to execute the write again if the map was already created
-            if (mapCreated) {
-                console.log(`Inbound handler. finally`);
-                // Create the syncMapItem
-                const syncMapItem = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-                    .syncMaps('uuiMap')
-                    .syncMapItems
-                    .create({
-                        key: event.CallSid,
-                        data: {
-                            "uui": event.CallSid,
-                            "pstn-sid": event.CallSid
-                        },
-                        ttl: 43200  // 12 hours
-                    });
-                console.log(`Inbound handler. syncMapItem: ${JSON.stringify(syncMapItem)}`);
-            }
-
+            console.log("Finally");
             /**
-         * Now make the call to the endpoint. Comment out what is not needed
-         * 1) Registered SIP user
-         * 2) Client endpoint
-         * 3) SIP Trunk with domain
-        */
+             * Now make the call to the endpoint. Comment out what is not needed
+             * 1) Registered SIP user
+             * 2) Client endpoint
+             * 3) SIP Trunk with domain
+            */
             const voiceResponse = new Twilio.twiml.VoiceResponse();
 
             /**
@@ -91,7 +80,7 @@ exports.handler = async function (context, event, callback) {
         }
     } catch (error) {
         // Some other error occurred
-        callback(error, null);
+        callback(`Error with InboundHandler: ${error}`, null);
     }
 };
 

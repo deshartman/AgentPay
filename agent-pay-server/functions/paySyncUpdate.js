@@ -1,6 +1,6 @@
 /**
- * This is the StatusCallback URL for Pay.
- * Once we receive a status callback, we now update Sync with the data we received
+ * This is the StatusCallback URL for the Pay API. Once we receive a status callback, we now 
+ * update pay Sync map with the data we received.
  * 
  * NOTE: Initially, the data received, will be the Connector data and contain the PKxxx value.
  *
@@ -34,13 +34,12 @@
     "PaymentCardNumber": "xxxxxxxxxxxx1111",
     "ExpirationDate": "1225"
   }
- * 
- * statusCallBack receives the following:
- * 
- * 
+ * Process:
+ * 1) Assume payMap exists and update the mapItem with the new Pay data.
+ * 2) If it fails, SyncMap payMap does not exist, so create it and then add new data
+ * 3) Finally, send the Sid as a response
  */
 exports.handler = async function (context, event, callback) {
-  //console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
   function sendResponse(data) {
     const response = new Twilio.Response();
@@ -53,17 +52,21 @@ exports.handler = async function (context, event, callback) {
 
   const restClient = context.getTwilioClient();
 
-  console.log(`paySyncUpdate event: ${JSON.stringify(event, null, 4)}`);
+  const createMapItem = async () => {
+    await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+      .syncMaps('payMap')
+      .syncMapItems
+      .create({
+        key: event.Sid,
+        data: event,
+        ttl: 43200  // 12 hours
+      });
+  }
 
   try {
-    // create or update an existing pay SID with data
+    // Since the payMap may not yet exist, we need to update it under a try/catch. If it does not exist, create and then add item
     try {
-      const paySyncMapItem = await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-        .syncMaps('payMap')
-        .syncMapItems(event.Sid)
-        .fetch();
-
-
+      // create or update an existing pay SID with data
       await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
         .syncMaps('payMap')
         .syncMapItems(event.Sid)
@@ -71,19 +74,23 @@ exports.handler = async function (context, event, callback) {
           data: event
         });
     } catch (error) {
-      // Does not exist, so create
-      console.log(`creating paySyncMapItem`);
-      await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-        .syncMaps('payMap')
-        .syncMapItems
-        .create({
-          key: event.Sid,
-          data: event,
-          ttl: 43200  // 12 hours
-        });
+      // paySyncUpdate Map or Item does not exist, so create it
+      try {
+        console.log("Assume paySyncUpdate Map exists, but Item does not exist, so create it");
+        await createMapItem();
+      } catch (error) {
+        // console.log("paySyncUpdate Map does not exist, so create it");
+        await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+          .syncMaps
+          .create({ uniqueName: 'payMap' });
+        // console.log("Now Item does not exist, so create it");
+        await createMapItem();
+      }
+    } finally {
+      console.log("Finally");
+      callback(null, sendResponse(event.Sid));
     }
-    callback(null, sendResponse(event.Sid));
   } catch (error) {
-    callback(error, null);
+    callback(`Error with paySyncUpdate: ${error}`, null);
   }
 };
