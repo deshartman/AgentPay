@@ -41,6 +41,7 @@
  */
 exports.handler = async function (context, event, callback) {
 
+  // CORS handler. Remove on Deployment
   function sendResponse(data) {
     const response = new Twilio.Response();
     response.appendHeader("Access-Control-Allow-Origin", "*");
@@ -76,7 +77,7 @@ exports.handler = async function (context, event, callback) {
     } catch (error) {
       // paySyncUpdate Map or Item does not exist, so create it
       try {
-        console.log("Assume paySyncUpdate Map exists, but Item does not exist, so create it");
+        // console.log("Assume paySyncUpdate Map exists, but Item does not exist, so create it");
         await createMapItem();
       } catch (error) {
         // console.log("paySyncUpdate Map does not exist, so create it");
@@ -87,10 +88,9 @@ exports.handler = async function (context, event, callback) {
         await createMapItem();
       }
     } finally {
-      console.log("Finally");
       callback(null, sendResponse(event.Sid));
     }
   } catch (error) {
-    callback(`Error with paySyncUpdate: ${error}`, null);
+    callback(sendResponse(`Error with paySyncUpdate: ${error}`), null);
   }
 };

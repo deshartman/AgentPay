@@ -3,6 +3,7 @@ const axios = require('axios');
 exports.handler = async function (context, event, callback) {
     console.log(`Update Capture event: ${JSON.stringify(event, null, 4)}`);
 
+    // CORS handler. Remove on Deployment
     function sendResponse(data) {
         const response = new Twilio.Response();
         response.appendHeader("Access-Control-Allow-Origin", "*");
@@ -31,24 +32,16 @@ exports.handler = async function (context, event, callback) {
     //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this.callSID}/Payments/{Sid}.json
     let theUrl = '/Calls/' + event.callSid + '/Payments/' + event.paySid + '.json';
 
-    console.log(`Update Capture URL: [${theUrl}]`);
-
     // URL Encode the POST body data
     const urlEncodedData = new URLSearchParams();
     urlEncodedData.append('Capture', event.captureType);
     urlEncodedData.append('IdempotencyKey', event.IdempotencyKey);
     urlEncodedData.append('StatusCallback', event.StatusCallback);
 
-    console.log(`updateCaptureType: urlEncoded data = ${urlEncodedData} `);
-
     try {
         const response = await twilioAPI.post(theUrl, urlEncodedData);
-
-        console.log(response);
-
         callback(null, sendResponse(response.data.sid));
     } catch (error) {
-        //console.error(`Error with updateCapture: ${error} `);
-        callback(`Error with updateCapture: ${error}`, null);
+        callback(sendResponse(`Error with updateCapture: ${error}`), null);
     }
 };

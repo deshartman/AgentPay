@@ -1,8 +1,8 @@
 const axios = require('axios');
 
 exports.handler = async function (context, event, callback) {
-    console.log(`event: ${JSON.stringify(event, null, 4)}`);
 
+    // CORS handler. Remove on Deployment
     function sendResponse(data) {
         const response = new Twilio.Response();
         response.appendHeader("Access-Control-Allow-Origin", "*");
@@ -30,8 +30,6 @@ exports.handler = async function (context, event, callback) {
 
     //  https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Calls/{this.callSID}/Payments.json
     let theUrl = '/Calls/' + event.callSid + '/Payments.json';
-    //console.log(`startCapture url: [${theUrl}]`);
-    // this._captureOrder = this._captureOrderTemplate.slice(); // Copy value
 
     // URL Encode the POST body data
     const urlEncodedData = new URLSearchParams();
@@ -44,20 +42,11 @@ exports.handler = async function (context, event, callback) {
     urlEncodedData.append('SecurityCode', event.SecurityCode);
     urlEncodedData.append('PostalCode', event.PostalCode);
 
-    console.log(`startCapture: urlEncoded data = ${urlEncodedData} `);
-
     try {
         const response = await twilioAPI.post(theUrl, urlEncodedData);
-
-        console.log(response);
-
         const _paySid = response.data.sid;
-
-        console.log(`StartCapture: paySID: ${_paySid} `);
-
         callback(null, sendResponse(_paySid));
     } catch (error) {
-        //console.error(`Error with StartCapture: ${error} `);
-        callback(`Error with StartCapture: ${error}`, null);
+        callback(sendResponse(`Error with StartCapture: ${error}`), null);
     }
 };

@@ -25,11 +25,11 @@ exports.handler = async function (context, event, callback) {
                 key: event.CallSid,
                 data: {
                     "uui": event.CallSid,
-                    "pstnSid": event.CallSid
+                    "pstnSid": event.CallSid 
                 },
                 ttl: 43200  // 12 hours
             });
-    }
+    };
 
     // Write the incoming PSTN call's Call SID as the UUI into Sync
     try {
@@ -46,36 +46,13 @@ exports.handler = async function (context, event, callback) {
             // Now write the callSID and UUI into Sync Map
             await createMapItem();
         } finally {
-            console.log("Finally");
-            /**
-             * Now make the call to the endpoint. Comment out what is not needed
-             * 1) Registered SIP user
-             * 2) Client endpoint
-             * 3) SIP Trunk with domain
-            */
             const voiceResponse = new Twilio.twiml.VoiceResponse();
 
-            /**
-             * 1) Registered SIP endpoint:
-             * Convention is to use the twilio number as the username, including the "+", to register and the SIP domain as required
-             * This allows us to use the same code for registered users and SIP trunks
-             * 
-             * 3) SIP Trunk
-             * Send the call out to the configured domain as is.
-             * 
-             * -> +number@SIP_DOMAIN?User-to-User=CAxxxxx
-             */
             // Send to SIP user -> sip:+number@SIP_DOMAIN?User-to-User=CAxxxxx
             const sipTo = event.To + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
 
             // Dial SIP URL
-            console.log(`Dialing ${sipTo}`);
             voiceResponse.dial().sip(sipTo);
-
-            /**
-             * 2) WebRTC Client TODO: Add example code here
-             */
-
             callback(null, voiceResponse);
         }
     } catch (error) {

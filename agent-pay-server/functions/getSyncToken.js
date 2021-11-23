@@ -8,8 +8,7 @@ var SyncGrant = AccessToken.SyncGrant;
 
 exports.handler = async function (context, event, callback) {
 
-    console.log(`event: ${JSON.stringify(event, null, 4)}`);
-
+    // CORS handler. Remove on Deployment
     function sendResponse(data) {
         const response = new Twilio.Response();
         response.appendHeader("Access-Control-Allow-Origin", "*");
