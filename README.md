@@ -10,7 +10,6 @@ There are three parts and various branches to this project:
 
 - Master: This is the main and demo branch, using a registered SIP endpoint on a Twilio domain. Use this to test concepts. It has a demo Vue page
 - UUI: This branch uses a User-to-User header in the SIP message to determine, which agent behind a PBX has taken the call. This requires coding/CTI integration on the PBX. It has a demo Vue page
-- Flex: This branch replaces the client side call handling with Flex plug-in. Server side functions are reduced to Sync map handling. IT requires a Flex installation and provides a React demo page.
 - PIN: This branch (future) will use a API PIN to identify the agent call. TBD
 
 ## Client (agent-pay-client)
