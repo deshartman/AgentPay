@@ -18,8 +18,7 @@ The Client is a any frontend you chose using the payclient/AgentAssistedPayClien
 
 - Master: This is a Demo branch. Functions handling SIP calls to a registered SIP endpoint. Demo Vue frontend code
 - UUI: Functions with User-to-User SIP parameter handling for outbound calls. Demo Vue frontend. Delete agent-pay-client content to create own front-end
-- CallRef: Functions with Twilio Gather on Agent leg for calls. Demo Vue frontend. Delete agent-pay-client content to create own front-end
-- Flex: Functions into Flex implementation calling and Twilio Flex plugin frontend code
+- PIN: Functions with Twilio Gather on Agent leg for calls. Demo Vue frontend. Delete agent-pay-client content to create own front-end
 
 ## Server (agent-pay-server)
 
@@ -38,7 +37,7 @@ Note: When registering a Twilio SIP user, the username MUST include the "+", i.e
 ### Outbound
 
 As with inbound, the user and domain is derived from what is sent to us from the SIP PBX. The SIP PBX MUST also send a unique
-USer-To-User header "+E164@SIP_DOMAIN?User-to-User=XXXXXXXXXX". As with Inbound, the PSTN side UUI will be written into
+User-To-User header "+E164@SIP_DOMAIN?User-to-User=XXXXXXXXXX". As with Inbound, the PSTN side UUI will be written into
 a Sync Map along with the CallSID, but only once the call has been answered.
 
 Note: When the SIP PBX sends the call, they MUST configure the +E.164@domain as the Twilio +E.164 number. This will be extracted
