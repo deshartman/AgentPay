@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build --dest ../agent-pay-server/assets"
   },
   "dependencies": {
-    "@deshartman/payclient_functions": "^3.0.1",
+    "@analytics/segment": "^1.1.2",
+    "analytics": "^0.7.18",
+    "axios": "^0.24.0",
     "core-js": "^3.6.5",
+    "twilio-sync": "^3.0.6",
     "vue": "^3.0.0"
   },
   "devDependencies": {

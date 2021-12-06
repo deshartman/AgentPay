@@ -73,8 +73,7 @@
 </template>
 
 <script>
-//import PayClient from "@deshartman/payclient_functions";
-import PayClient from "../../../module/AgentAssistPayClient";
+import PayClient from "./AgentAssistPayClient";
 
 export default {
   data() {
