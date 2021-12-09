@@ -181,15 +181,18 @@ export default class AgentAssistPayClient extends EventEmitter {
                 this._required = args.item.data.Required;
 
                 /** 
-                 * STRIPE specific workaround.
+                 * STRIPE & Possibly other PG specific workaround.
                  * Stripe returns a ProfileId instead of a token, when token type is reusable, so have to copy the value into paymentToken
                 */
-                let paymentToken = args.item.data.PaymentToken;
+                // if (this.tokenType === "reusable" && args.item.data.ProfileId.length > 0) {
+                //     paymentToken = args.item.data.ProfileId;
+                //     console.log(`Using Profile ID instead of Token: ${paymentToken}`);
+                // }
 
-                if (this.tokenType === "reusable") {
-                    paymentToken = args.item.data.ProfileId;
-                    console.log(`Stripe reusable token logic added`);
-                }
+                // Concatenate args.item.data.PaymentToken and args.item.data.ProfileId
+                let paymentToken = args.item.data.PaymentToken + args.item.data.ProfileId;
+
+                //console.log(`token stuff: paymentToken: ${args.item.data.PaymentToken} ProfileId: ${+ args.item.data.ProfileId} paymentToken: [${paymentToken}]`);
 
                 // View update event
                 this.emit('cardUpdate', {
