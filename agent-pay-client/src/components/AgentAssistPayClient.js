@@ -188,6 +188,7 @@ export default class AgentAssistPayClient extends EventEmitter {
 
                 if (this.tokenType === "reusable") {
                     paymentToken = args.item.data.ProfileId;
+                    console.log(`Stripe reusable token logic added`);
                 }
 
                 // View update event

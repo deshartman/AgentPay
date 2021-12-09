@@ -146,6 +146,7 @@ export default {
     let captureOrder = process.env.VUE_APP_CAPTURE_ORDER;
     let currency = process.env.VUE_APP_CURRENCY;
     let tokenType = process.env.VUE_APP_TOKEN_TYPE;
+    console.log(`tokentype = ${tokenType}`);
     let writeKey = process.env.VUE_APP_SEGMENT_WRITEKEY;
 
     // // This value needs to be provided by contact centre CTI, when calling this page
