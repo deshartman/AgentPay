@@ -67,6 +67,8 @@
       <button @click="cancel()" v-show="capturing || captureComplete">
         Cancel
       </button>
+      <p>ProfileId: {{ cardData.profileId }}</p>
+      <br />
       <p>Token: {{ cardData.paymentToken }}</p>
     </div>
   </div>
@@ -92,6 +94,7 @@ export default {
         securityCode: "",
         expirationDate: "",
         paymentToken: "",
+        profileId: "",
       },
     };
   },
@@ -250,17 +253,38 @@ export default {
         // );
       });
 
+      /**
+       * This is the event that is fired when the user has entered the card details.
+       * This is the object returned from the PayClient, with some fields being transient.
+       * {
+            "SecurityCode": "xxx",
+            "PaymentCardType": "visa",
+            "Sid": "PK450203affba21dd1e155cd7a8905dae3",
+            "PaymentConfirmationCode": "",
+            "CallSid": "CAd40633c3d082edaf62987f940aa641f4",
+            "Result": "success",
+            "AccountSid": "AC75ca6789a296a3f86c54367a0dc5a11a",
+            "ProfileId": "7e6a1fc3-4456-4141-8658-378297a06476",
+            "DateUpdated": "2021-12-15T23:18:05.064Z",
+            "PaymentToken": "hgyvy76",
+            "PaymentMethod": "credit-card",
+            "PaymentCardNumber": "xxxxxxxxxxxx1111",
+            "ExpirationDate": "1225"
+          }
+       */
       this.payClient.on("cardUpdate", (data) => {
+        // console.log(`Vue cardUpdate: data ${JSON.stringify(data, null, 4)}`);
+
         if (this.captureComplete) {
-          this.cardData.paymentToken = data.paymentToken;
+          this.cardData.paymentToken = data.PaymentToken;
+          this.cardData.profileId = data.ProfileId;
           this.captureComplete = false;
         } else {
-          this.cardData.paymentCardNumber = data.paymentCardNumber;
-          this.cardData.paymentCardType = data.paymentCardType;
-          this.cardData.securityCode = data.securityCode;
-          this.cardData.expirationDate = data.expirationDate;
+          this.cardData.paymentCardNumber = data.PaymentCardNumber;
+          this.cardData.paymentCardType = data.PaymentCardType;
+          this.cardData.securityCode = data.SecurityCode;
+          this.cardData.expirationDate = data.ExpirationDate;
         }
-        //console.log(`cardUpdate: this.captureComplete ${this.captureComplete}`);
       });
     } catch (error) {
       console.error(`'Mounted Error: ${error})`);
