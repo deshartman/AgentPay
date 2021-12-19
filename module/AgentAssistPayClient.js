@@ -172,7 +172,7 @@ export default class AgentAssistPayClient extends EventEmitter {
 
             // Add Event Listener for data changes. Update the card data
             this._payMap.on('itemUpdated', (args) => {
-                // console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);\
+                //console.log(`_payMap item ${JSON.stringify(args, null, 4)} was UPDATED`);
 
                 // Update the local variables
                 this._paySid = args.item.key;
@@ -180,14 +180,8 @@ export default class AgentAssistPayClient extends EventEmitter {
                 this._partialResult = args.item.data.PartialResult;
                 this._required = args.item.data.Required;
 
-                // View update event
-                this.emit('cardUpdate', {
-                    "paymentCardNumber": args.item.data.PaymentCardNumber,
-                    "securityCode": args.item.data.SecurityCode,
-                    "expirationDate": args.item.data.ExpirationDate,
-                    "paymentToken": args.item.data.PaymentToken,
-                    "paymentCardType": args.item.data.PaymentCardType,
-                });
+                // View update event. Send the raw object to the view.
+                this.emit('cardUpdate', args.item.data);
 
                 // Check if we need to move to next capture item
                 this._checkPayProgress();
