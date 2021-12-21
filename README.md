@@ -85,7 +85,7 @@ npm install
 - For Dev mode update vue.config.js with the URL
 - For production update VUE_APP_FUNCTIONS_URL in "agent-pay-client/.env"
 
-2. Create a new Pay connector and update VUE_APP_PAYMENT_CONNECTOR in "agent-pay-client/.env"
+2. Create a new Pay connector and update VUE_APP_PAYMENT_CONNECTOR in "agent-pay-client/.env". Default is a single connector, but can be multiple as comma separated list.
 
 3. Define the capture order and update VUE_APP_CAPTURE_ORDER in "agent-pay-client/.env". Default is "payment-card-number,security-code,expiration-date"
 
