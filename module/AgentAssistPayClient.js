@@ -22,14 +22,8 @@ import segmentPlugin from '@analytics/segment'
  * The class will emit the following events when data changes:
  * 
     'callConnected', callSid: String
-    'cardUpdate', {
-        "paymentCardNumber": String,
-        "paymentCardType":String,
-        "securityCode":String,
-        "expirationDate":String,
-        "paymentToken":String,
-    }
-    'capturing'
+    'cardUpdate', Object: PayObject
+    'capturing',
     'capturingCard'
     'capturingSecurityCode'
     'capturingDate'
