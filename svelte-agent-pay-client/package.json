@@ -1,0 +1,23 @@
+{
+  "name": "svelte-agent-pay-client",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "svelte-kit dev",
+    "build": "svelte-kit build",
+    "package": "svelte-kit package",
+    "preview": "svelte-kit preview"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "next",
+    "@sveltejs/kit": "next",
+    "svelte": "^3.44.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@analytics/segment": "^1.1.3",
+    "analytics": "^0.7.21",
+    "axios": "^0.24.0",
+    "events": "^3.3.0",
+    "twilio-sync": "^3.0.6"
+  }
+}
