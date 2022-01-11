@@ -107,6 +107,8 @@ export default class AgentAssistPayClient extends EventEmitter {
         if (this.analytics) {
             this.analytics.track('attachPay', {
                 identity: this.identity,
+                callSID: this.callSid,
+                timeStamp: Date.now(),
             });
         }
 
@@ -126,15 +128,6 @@ export default class AgentAssistPayClient extends EventEmitter {
                 // Update View element events
                 this.emit('callConnected', this.callSid);
 
-                /* Segment Action  */
-                if (this.analytics) {
-                    //console.log(`Logging attachPay to Segment`);
-                    this.analytics.track('attachPay', {
-                        identity: this.identity,
-                        callSID: this.callSid,
-                        timeStamp: Date.now(),
-                    });
-                }
             } else {
                 // View opened with no call, so cannot determine the Call SID
                 console.log(`Cannot determine the Call SID.Please place a call or initiate the app with a call SID`);
@@ -148,16 +141,6 @@ export default class AgentAssistPayClient extends EventEmitter {
                     this.callSid = args.item.data.pstnSid;
                     console.log(`SYNC uuiMap.on('itemAdded'): Call SID: ${this.callSid} `);
                     this.emit('callConnected', this.callSid);
-
-                    /* Segment Action  */
-                    if (this.analytics) {
-                        //console.log(`Logging attachPay to Segment`);
-                        this.analytics.track('attachPay', {
-                            identity: this.identity,
-                            callSID: this.callSid,
-                            timeStamp: Date.now(),
-                        });
-                    }
 
                     //console.log(`Initialised. TEMP HACK`);
                 });
