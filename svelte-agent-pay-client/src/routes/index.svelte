@@ -36,12 +36,7 @@
   // --------------------------------------------------
   // Reactive Variables
   // --------------------------------------------------
-  $: formattedDate =
-    "" |
-    // This is to handle the bug VPAY-832
-    (cardData.expirationDate.substring(0, 2) +
-      "/" +
-      cardData.expirationDate.substring(2, 4));
+  $: formattedDate = cardData.expirationDate.substring(0, 2) + "/" + cardData.expirationDate.substring(2, 4) || "YY"; // This is to handle the bug VPAY-832
 
   // --------------------------------------------------
   // Methods
@@ -84,15 +79,7 @@
     try {
       //console.log(`Vue: writeKey: ${writeKey}`);
 
-      payClient = new PayClient(
-        functionsURL,
-        identity,
-        paymentConnector,
-        captureOrder,
-        currency,
-        tokenType,
-        writeKey
-      );
+      payClient = new PayClient(functionsURL, identity, paymentConnector, captureOrder, currency, tokenType, writeKey);
 
       payClient.attachPay(callSid);
 
@@ -221,6 +208,8 @@
   // UnMounting
   // --------------------------------------------------
   onDestroy(() => {
+    console.log("Unmounting");
+
     if (payClient) {
       payClient.detachPay();
       payClient.removeAllListeners([
@@ -242,86 +231,66 @@
 </script>
 
 <main>
-  <div class="main-window">
-    <h1>Twilio Demo</h1>
-    <h2>Agent Assisted Pay</h2>
+  <h1>Twilio Demo</h1>
+  <h2>Agent Assisted Pay</h2>
 
-    {#if callConnected && !capturing}
-      <button on:click={startCapture}> Start Pay Session </button>
+  <!-- <button on:click={startCapture} disabled={!callConnected && !capturing}> Start Pay Session </button> -->
+
+  {#if callConnected && !capturing}
+    <button on:click={startCapture}>Start Pay Session</button>
+  {/if}
+
+  <br />
+  <br />
+  <div class="card_capture">
+    <div class="capture_line">
+      <label class="card-label">Card Number: ({cardData.paymentCardType})</label>
+      <div class="inputpair">
+        <input
+          class="card_input"
+          type="text"
+          placeholder="card number"
+          readonly
+          bind:value={cardData.paymentCardNumber}
+        />
+
+        <button class="reset" on:click={resetCard} disabled={!capturingCard}>x</button>
+      </div>
+    </div>
+    <div class="capture_line">
+      <label class="card-label">Security Code:</label>
+      <div class="inputpair">
+        <input type="text" placeholder="Security Code" bind:value={cardData.securityCode} readonly />
+
+        <button class="reset" on:click={resetSecurityCode} disabled={!capturingSecurityCode}>x</button>
+      </div>
+    </div>
+    <div class="capture_line">
+      <label class="card-label">Expiry Date</label>
+      <div class="inputpair">
+        <input type="text" placeholder="MM/YY" bind:value={formattedDate} readonly />
+
+        <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
+      </div>
+    </div>
+  </div>
+  <br />
+  <br />
+  <div>
+    {#if captureComplete}
+      <button on:click={submit}>Submit</button>
     {/if}
-
+    {#if capturing || captureComplete}
+      <button on:click={cancel}>Cancel</button>
+    {/if}
+    <p>ProfileId: {cardData.profileId}</p>
     <br />
-    <br />
-    <div class="card_capture">
-      <div class="capture_line">
-        <label class="card-label"
-          >Card Number: ({cardData.paymentCardType})</label
-        >
-        <div class="inputpair">
-          <input
-            class="card_input"
-            type="text"
-            placeholder="card number"
-            readonly
-            bind:value={cardData.paymentCardNumber}
-          />
-
-          <button class="reset" on:click={resetCard} disabled={!capturingCard}
-            >x</button
-          >
-        </div>
-      </div>
-      <div class="capture_line">
-        <label class="card-label">Security Code:</label>
-        <div class="inputpair">
-          <input
-            type="text"
-            placeholder="Security Code"
-            bind:value={cardData.securityCode}
-            readonly
-          />
-
-          <button
-            class="reset"
-            on:click={resetSecurityCode}
-            disabled={!capturingSecurityCode}>x</button
-          >
-        </div>
-      </div>
-      <div class="capture_line">
-        <label class="card-label">Expiry Date</label>
-        <div class="inputpair">
-          <input
-            type="text"
-            placeholder="MM/YY"
-            bind:value={formattedDate}
-            readonly
-          />
-
-          <button class="reset" on:click={resetDate} disabled={!capturingDate}
-            >x</button
-          >
-        </div>
-      </div>
-    </div>
-    <br />
-    <br />
-    <div>
-      {#if captureComplete}
-        <button class="reset" on:click={submit}>Submit</button>
-      {/if}
-      {#if capturing || captureComplete}
-        <button class="reset" on:click={cancel}>Cancel</button>
-      {/if}
-      <p>ProfileId: {cardData.profileId}</p>
-      <br />
-      <p>Token: {cardData.paymentToken}</p>
-    </div>
+    <p>Token: {cardData.paymentToken}</p>
   </div>
 </main>
 
 <style>
-  .main-window {
+  main {
     text-align: center;
   }
 
