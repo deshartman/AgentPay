@@ -8,17 +8,9 @@
 exports.handler = function (context, event, callback) {
 
     const voiceResponse = new Twilio.twiml.VoiceResponse();
-    const sipTo = event.To;
-    const sipFrom = event.From;
 
-    // Extract E164 numbers for To and From
-    const toMatches = sipTo.match(/sip:([+]?[0-9]+)@/);
-    const to = toMatches[1];
-    const fromMatches = sipFrom.match(/sip:([+]?[0-9]+)@/);
-    const from = fromMatches[1];
-
-    if (to && from) {
-        // console.log(`Dialing ${to} with Caller ID ${from} - Was to:${sipTo} from:${sipFrom}`);
+    try {
+        // console.log(`Dialing ${to} with Caller ID ${from} - Was to:${event.To} from:${event.From}`);
         const dial = voiceResponse.dial({ callerId: from });
         dial.number(
             {
@@ -30,7 +22,7 @@ exports.handler = function (context, event, callback) {
             to);
 
         callback(null, voiceResponse);
-    } else {
+    } catch (error) {
         callback(`Error with OutboundHandler: ${error}`, null);
     }
 };

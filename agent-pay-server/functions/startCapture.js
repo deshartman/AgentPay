@@ -3,14 +3,13 @@ const axios = require('axios');
 exports.handler = async function (context, event, callback) {
 
     // CORS handler. Remove on Deployment
-    function sendResponse(data) {
-        const response = new Twilio.Response();
-        response.appendHeader("Access-Control-Allow-Origin", "*");
-        response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-        response.appendHeader("Content-Type", "application/json");
-        response.setBody(data);
-        return response;
-    }
+    const response = new Twilio.Response();
+    const headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST,OPTIONS",
+        "Content-Type": "application/json",
+    };
+    response.setHeaders(headers);
 
     const restClient = context.getTwilioClient();
 
@@ -45,8 +44,8 @@ exports.handler = async function (context, event, callback) {
     try {
         const response = await twilioAPI.post(theUrl, urlEncodedData);
         const _paySid = response.data.sid;
-        callback(null, sendResponse(_paySid));
+        callback(null, _paySid);
     } catch (error) {
-        callback(sendResponse(`Error with StartCapture: ${error}`), null);
+        callback(`Error with StartCapture: ${error}`, null);
     }
 };
