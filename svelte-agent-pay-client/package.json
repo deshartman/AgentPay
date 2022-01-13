@@ -18,6 +18,7 @@
     "analytics": "^0.7.21",
     "axios": "^0.24.0",
     "events": "^3.3.0",
+    "sveltestrap": "^5.7.0",
     "twilio-sync": "^3.0.6"
   }
 }

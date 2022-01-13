@@ -3,6 +3,8 @@
   //import { variables } from "$lib/variables";
   import PayClient from "@deshartman/agent-pay";
   import SessionStore from "../stores/SessionStore";
+  import { Styles } from "sveltestrap";
+  import { InputGroup, Button } from "sveltestrap";
 
   // Set the Agent variable. These are passed to the Agent screen, so this is a temp POC
   let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
@@ -243,6 +245,7 @@
 </script>
 
 <main>
+  <Styles />
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
 
