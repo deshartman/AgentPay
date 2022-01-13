@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   //import { variables } from "$lib/variables";
-  import PayClient from "$lib/AgentAssistPayClient";
+  import PayClient from "@deshartman/agent-pay";
 
   // Set the Agent variable. These are passed to the Agent screen, so this is a temp POC
   let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
