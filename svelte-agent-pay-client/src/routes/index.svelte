@@ -36,21 +36,18 @@
     const syncToken = await response.json();
 
     if (response.ok) {
-      console.log(`Sync Token: ${syncToken}`);
+      //console.log(`Sync Token: ${syncToken}`);
+      // update the Store
+      $SessionStore = {
+        identity: identity,
+        password: password,
+        bearer: syncToken,
+      };
+
+      goto("/pay");
     } else {
       throw new Error(`Failed to get sync token: ${response.status} ${response.statusText}`);
     }
-
-    // update the Store
-    $SessionStore = {
-      identity: identity,
-      password: password,
-      bearer: syncToken,
-    };
-
-    console.log("store value now: ", identity, password);
-
-    goto("/pay");
   };
 </script>
 

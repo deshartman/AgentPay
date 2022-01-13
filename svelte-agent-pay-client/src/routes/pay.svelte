@@ -256,7 +256,7 @@
   <br />
   <div class="card_capture">
     <div class="capture_line">
-      <label class="card-label">Card Number: ({cardData.paymentCardType})</label>
+      <p class="card-label">Card Number:</p>
       <div class="inputpair">
         <input
           class="card_input"
@@ -268,9 +268,10 @@
 
         <button class="reset" on:click={resetCard} disabled={!capturingCard}>x</button>
       </div>
+      <p class="card-type">({cardData.paymentCardType})</p>
     </div>
     <div class="capture_line">
-      <label class="card-label">Security Code:</label>
+      <p class="card-label">Security Code:</p>
       <div class="inputpair">
         <input type="text" placeholder="Security Code" bind:value={cardData.securityCode} readonly />
 
@@ -278,7 +279,7 @@
       </div>
     </div>
     <div class="capture_line">
-      <label class="card-label">Expiry Date</label>
+      <p class="card-label">Expiry Date</p>
       <div class="inputpair">
         <input type="text" placeholder="MM/YY" bind:value={formattedDate} readonly />
 
@@ -307,25 +308,23 @@
   }
 
   .card_capture {
-    margin: 0 auto 0 auto;
+    /* margin: 0 auto 0 auto; */
   }
 
   .capture_line {
-    margin: 3px;
+    /* margin: 3px; */
   }
 
   .card-label {
-    text-align: left;
-    float: left;
-    width: 140px;
+    display: inline-block;
   }
 
   .inputpair {
-    display: inline;
+    display: inline-block;
   }
 
   .card_input {
-    display: inline;
+    /* display: inline; */
   }
 
   button {
@@ -343,5 +342,13 @@
     background-color: grey;
     padding: 0px 10px;
     margin: 0px;
+  }
+
+  .card-type {
+    display: inline-block;
+  }
+
+  p {
+    margin: 5px;
   }
 </style>
