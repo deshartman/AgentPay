@@ -80,7 +80,7 @@
   // --------------------------------------------------
   onMount(async () => {
     try {
-      //console.log(`Vue: writeKey: ${writeKey}`);
+      console.log(`onMount: ${bearer}`);
 
       payClient = new PayClient(
         functionsURL,

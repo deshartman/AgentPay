@@ -1,40 +1,51 @@
 <script context="module">
-  let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
+  // let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
 
-  // Generate the JWT token based on the identity
-  export async function load(context) {
-    const res = await context.fetch(functionsURL + "/getSyncToken?" + new URLSearchParams({ identity: "Alice" }));
-    const syncToken = await res.json();
+  // // Generate the JWT token based on the identity
+  // export async function load(context) {
+  //   const res = await context.fetch(functionsURL + "/getSyncToken?" + new URLSearchParams({ identity: "Alice" }));
+  //   const syncToken = await res.json();
 
-    if (res.ok) {
-      console.log(`Sync Token: ${syncToken}`);
-      return {
-        props: { syncToken: syncToken.data },
-      };
-    }
+  //   if (res.ok) {
+  //     console.log(`Sync Token: ${syncToken}`);
+  //     return {
+  //       props: { syncToken: syncToken.data },
+  //     };
+  //   }
 
-    return {
-      status: res.status,
-      error: new Error(`Failed to get sync token: ${res.status} ${res.statusText}`),
-    };
-  }
+  //   return {
+  //     status: res.status,
+  //     error: new Error(`Failed to get sync token: ${res.status} ${res.statusText}`),
+  //   };
+  // }
 </script>
 
 <script>
   import { goto } from "$app/navigation";
   import SessionStore from "../stores/SessionStore";
 
+  let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
   let identity;
   let password;
   let bearer;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log(identity, password);
+
+    const response = await fetch(functionsURL + "/getSyncToken?" + new URLSearchParams({ identity: identity }));
+    const syncToken = await response.json();
+
+    if (response.ok) {
+      console.log(`Sync Token: ${syncToken}`);
+    } else {
+      throw new Error(`Failed to get sync token: ${response.status} ${response.statusText}`);
+    }
+
     // update the Store
     $SessionStore = {
       identity: identity,
       password: password,
-      bearer: "TESTTOKEN",
+      bearer: syncToken,
     };
 
     console.log("store value now: ", identity, password);
