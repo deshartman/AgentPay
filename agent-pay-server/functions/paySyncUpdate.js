@@ -50,18 +50,27 @@ exports.handler = async function (context, event, callback) {
   };
   response.setHeaders(headers);
 
+  function sendResponse(data) {
+    const response = new Twilio.Response();
+    response.appendHeader("Access-Control-Allow-Origin", "*");
+    response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+    response.appendHeader("Content-Type", "application/json");
+    response.setBody(data);
+    return response;
+  }
+
   const restClient = context.getTwilioClient();
 
-  const createMapItem = async () => {
-    await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-      .syncMaps('payMap')
-      .syncMapItems
-      .create({
-        key: event.Sid,
-        data: event,
-        ttl: 43200  // 12 hours
-      });
-  }
+  // const createMapItem = async () => {
+  //   await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+  //     .syncMaps('payMap')
+  //     .syncMapItems
+  //     .create({
+  //       key: event.Sid,
+  //       data: event,
+  //       ttl: 43200  // 12 hours
+  //     });
+  // }
 
   try {
     // Since the payMap may not yet exist, we need to update it under a try/catch. If it does not exist, create and then add item

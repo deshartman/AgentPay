@@ -12,13 +12,14 @@ var password = "AAPP@55w0rd!";      // Temp hack for username/password
 exports.handler = async function (context, event, callback) {
 
     // CORS handler. Remove on Deployment
-    const response = new Twilio.Response();
-    const headers = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST,OPTIONS",
-        "Content-Type": "application/json",
-    };
-    response.setHeaders(headers);
+    function sendResponse(data) {
+        const response = new Twilio.Response();
+        response.appendHeader("Access-Control-Allow-Origin", "*");
+        response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+        response.appendHeader("Content-Type", "application/json");
+        response.setBody(data);
+        return response;
+    }
 
     var authheader = event.request.headers.authorization;
     console.log(event.request.headers);
@@ -43,7 +44,7 @@ exports.handler = async function (context, event, callback) {
         token.identity = event.username;
 
         // Serialize the token to a JWT string and include it in a JSON response
-        callback(null, token.toJwt());
+        callback(null, sendResponse(token.toJwt()));
 
     };
 };

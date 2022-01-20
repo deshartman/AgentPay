@@ -11,6 +11,15 @@ exports.handler = async function (context, event, callback) {
     };
     response.setHeaders(headers);
 
+    // function sendResponse(data) {
+    //     const response = new Twilio.Response();
+    //     response.appendHeader("Access-Control-Allow-Origin", "*");
+    //     response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+    //     response.appendHeader("Content-Type", "application/json");
+    //     response.setBody(data);
+    //     return response;
+    // }
+
 
     const restClient = context.getTwilioClient();
 

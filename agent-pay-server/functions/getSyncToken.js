@@ -9,13 +9,15 @@ var SyncGrant = AccessToken.SyncGrant;
 exports.handler = async function (context, event, callback) {
 
     // CORS handler. Remove on Deployment
-    const response = new Twilio.Response();
-    const headers = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST,OPTIONS",
-        "Content-Type": "application/json",
-    };
-    response.setHeaders(headers);
+    function sendResponse(data) {
+        const response = new Twilio.Response();
+        response.appendHeader("Access-Control-Allow-Origin", "*");
+        response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+        response.appendHeader("Content-Type", "application/json");
+        response.setBody(data);
+        return response;
+    }
+
 
     // Create a "grant" identifying the Sync service instance for this app.
     var syncGrant = new SyncGrant({
@@ -34,6 +36,6 @@ exports.handler = async function (context, event, callback) {
     token.identity = event.identity;
 
     // Serialize the token to a JWT string and include it in a JSON response
-    callback(null, token.toJwt());
+    callback(null, sendResponse(token.toJwt()));
 
 };
