@@ -14,6 +14,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@deshartman/agent-pay": "^4.0.1"
+    "@deshartman/agent-pay": "^4.2.0"
   }
 }

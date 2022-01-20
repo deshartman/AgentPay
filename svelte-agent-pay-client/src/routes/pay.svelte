@@ -97,6 +97,14 @@
 
       payClient.attachPay(callSid);
 
+      //------------------------------------------------------
+      // Get the call SID from Sync - TEMP Hack for Demo
+      //------------------------------------------------------
+      payClient.on("UUIItemAdded", (callSid) => {
+        callConnected = true;
+        console.log(`UUIItemAdded: Call SID: ${callSid} `);
+      });
+
       // Now hook in all the event listeners for GUI.
       payClient.on("callConnected", () => {
         callConnected = true;
