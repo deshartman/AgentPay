@@ -42,14 +42,6 @@
 exports.handler = async function (context, event, callback) {
 
   // CORS handler. Remove on Deployment
-  const response = new Twilio.Response();
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST,OPTIONS",
-    "Content-Type": "application/json",
-  };
-  response.setHeaders(headers);
-
   function sendResponse(data) {
     const response = new Twilio.Response();
     response.appendHeader("Access-Control-Allow-Origin", "*");
@@ -61,16 +53,16 @@ exports.handler = async function (context, event, callback) {
 
   const restClient = context.getTwilioClient();
 
-  // const createMapItem = async () => {
-  //   await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
-  //     .syncMaps('payMap')
-  //     .syncMapItems
-  //     .create({
-  //       key: event.Sid,
-  //       data: event,
-  //       ttl: 43200  // 12 hours
-  //     });
-  // }
+  const createMapItem = async () => {
+    await restClient.sync.services(context.PAY_SYNC_SERVICE_SID)
+      .syncMaps('payMap')
+      .syncMapItems
+      .create({
+        key: event.Sid,
+        data: event,
+        ttl: 43200  // 12 hours
+      });
+  }
 
   try {
     // Since the payMap may not yet exist, we need to update it under a try/catch. If it does not exist, create and then add item
@@ -96,9 +88,9 @@ exports.handler = async function (context, event, callback) {
         await createMapItem();
       }
     } finally {
-      callback(null, event.Sid);
+      callback(null, sendResponse(event.Sid));
     }
   } catch (error) {
-    callback(`Error with paySyncUpdate: ${error}`, null);
+    callback(sendResponse(`Error with paySyncUpdate: ${error}`), null);
   }
 };
