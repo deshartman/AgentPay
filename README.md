@@ -4,7 +4,6 @@ There are three parts and various branches to this project:
 
 - agent-pay-server
 - agent-pay-client
-- module
 
 ## Branches
 
@@ -45,13 +44,12 @@ and used as the CLI.
 
 The Merchant can now query with the UUI to find the CallSID and use that to initiate the Pay components.
 
-## Module
+## NPM Module
 
-This is the main Agent Assisted code, that gets used by the client. It uses Twilio Sync as a way to keep track of Twilio Pay changes in real time on the client side. In the mater branch, this is set up to be an NPM module, while in all other branches, it is just a JS file with dependencies.
+The main Agent Assisted code, which is now an NPM module, that gets used by the client. It uses Twilio Sync as a way to keep track of Twilio Pay changes in real time on the client side. https://www.npmjs.com/package/@deshartman/agent-pay
 
 # Project setup
 
-- Select the required branch
 - Clone the repository.
 
 ## Set up the Server
@@ -80,20 +78,20 @@ cd agent-pay-client
 npm install
 ```
 
-1. Using the Domain from the above Server deploy, update the VUE_APP_FUNCTIONS_URL in "agent-pay-client/.env"
+1. Using the Domain from the above Server deploy, update the VITE__FUNCTIONS_URL in "agent-pay-client/.env"
 
 - For Dev mode update vue.config.js with the URL
-- For production update VUE_APP_FUNCTIONS_URL in "agent-pay-client/.env"
+- For production update VITE__FUNCTIONS_URL in "agent-pay-client/.env"
 
-2. Create a new Pay connector and update VUE_APP_PAYMENT_CONNECTOR in "agent-pay-client/.env". Default is a single connector, but can be multiple as comma separated list.
+2. Create a new Pay connector and update VITE__PAYMENT_CONNECTOR in "agent-pay-client/.env". Default is a single connector, but can be multiple as comma separated list.
 
-3. Define the capture order and update VUE_APP_CAPTURE_ORDER in "agent-pay-client/.env". Default is "payment-card-number,security-code,expiration-date"
+3. Define the capture order and update VITE__CAPTURE_ORDER in "agent-pay-client/.env". Default is "payment-card-number,security-code,expiration-date"
 
-4. Define the currency and update VUE_APP_CURRENCY in "agent-pay-client/.env". Default is "USD"
+4. Define the currency and update VITE__CURRENCY in "agent-pay-client/.env". Default is "USD"
 
-5. Define the token type and update VUE_APP_TOKEN_TYPE in "agent-pay-client/.env". Default is "reusable"
+5. Define the token type and update VITE__TOKEN_TYPE in "agent-pay-client/.env". Default is "reusable"
 
-6. Optionally add a Segment WriteKey and update VUE_APP_SEGMENT_WRITEKEY in "agent-pay-client/.env".
+6. Optionally add a Segment WriteKey and update VITE__SEGMENT_WRITEKEY in "agent-pay-client/.env".
 
 ### OPTIONAL Segment Setup
 
@@ -101,7 +99,7 @@ We have also strapped in Segment to report on all events as they happen in the N
 NOTE: This is completely optional and will function without this config.
 
 1. Add a "Javascript website" Source Connector in Segment
-2. Copy the Write Key under settings and set VUE_APP_SEGMENT_WRITEKEY in the client side .env file.
+2. Copy the Write Key under settings and set VITE__SEGMENT_WRITEKEY in the client side .env file.
 3. To stop logging, simply remove the key
 
 Events will now be logged to Segment and can be processed.
@@ -123,15 +121,17 @@ Events will now be logged to Segment and can be processed.
 
 1. Start the client via NPM script
 
-- "Vue serve"
+- "npm run dev"
 
 2. Go to the client URL
 
-3. Make a call to the SIP user or PBX from a PSTN number
+3. Log in to get a Sync token (Any username and password)
 
-4. Once answered, click the "Start Pay Session" button.
+4. Make a call to the SIP user or PBX from a PSTN number
 
-5. On the calling handset now enter the card details using the keypad:
+5. Once answered, click the "Start Pay Session" button.
+
+6. On the calling handset now enter the card details using the keypad:
 
 - Enter a test credit card e.g. 4444 3333 2222 1111
 - enter a cvc e.g. 123
@@ -139,6 +139,6 @@ Events will now be logged to Segment and can be processed.
 
 Note: Click the "x" next to the item if a mistake was made entering to reset the entry.
 
-6. When all data has been entered, click "Submit" button and a token should be returned.
+7. When all data has been entered, click "Submit" button and a token should be returned.
 
 ---

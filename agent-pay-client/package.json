@@ -1,5 +1,5 @@
 {
-  "name": "svelte-agent-pay-client",
+  "name": "agent-pay-client",
   "version": "0.0.1",
   "scripts": {
     "dev": "svelte-kit dev",

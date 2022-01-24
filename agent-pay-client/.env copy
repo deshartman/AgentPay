@@ -4,24 +4,24 @@
 
 # The Twilio Functions URL where the call handlers are deployed
 
-VITE_APP_FUNCTIONS_URL=https://XXXX.twil.io
+VITE_FUNCTIONS_URL=https://XXXX.twil.io
 
 # Name of the Pay Connector configured on Twilio
 
-VITE_APP_PAYMENT_CONNECTOR=
+VITE_PAYMENT_CONNECTOR=
 
 # Order of payment capture as a comma separated string
 
-VITE_APP_CAPTURE_ORDER="payment-card-number, security-code, expiration-date"
+VITE_CAPTURE_ORDER="payment-card-number, security-code, expiration-date"
 
 # Payment currency (ISO)
 
-VITE_APP_CURRENCY=
+VITE_CURRENCY=
 
 # Token type
 
-VITE_APP_TOKEN_TYPE=
+VITE_TOKEN_TYPE=
 
 # Optional Segment WriteKey
 
-# VITE_APP_SEGMENT_WRITEKEY=
+# VITE_SEGMENT_WRITEKEY=
