@@ -21,18 +21,21 @@
 </script>
 
 <script>
-  import { goto } from "$app/navigation";
+  import { goto, prefetch } from "$app/navigation";
   import SessionStore from "../stores/SessionStore";
 
   let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
   let identity;
   let password;
   let bearer;
+  let response;
+  let waiting = false;
 
   const handleSubmit = async () => {
     console.log(identity, password);
+    waiting = true;
 
-    const response = await fetch(functionsURL + "/getSyncToken?" + new URLSearchParams({ identity: identity }));
+    response = await fetch(functionsURL + "/getSyncToken?" + new URLSearchParams({ identity: identity }));
     const syncToken = await response.json();
 
     if (response.ok) {
@@ -54,6 +57,10 @@
 <main>
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
+
+  {#if waiting}
+    <h3>Logging in....</h3>
+  {/if}
 
   <form on:submit|preventDefault={handleSubmit}>
     <input type="text" placeholder="identity" bind:value={identity} />

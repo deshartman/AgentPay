@@ -307,9 +307,9 @@
     text-align: center;
   }
 
-  .card_capture {
-    /* margin: 0 auto 0 auto; */
-  }
+  /* .card_capture {
+     margin: 0 auto 0 auto;
+  } */
 
   .capture_line {
     margin: 5px;
