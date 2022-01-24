@@ -257,8 +257,6 @@
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
 
-  <!-- <button on:click={startCapture} disabled={!callConnected && !capturing}> Start Pay Session </button> -->
-
   {#if callConnected && !capturing}
     <button on:click={startCapture}>Start Pay Session</button>
   {/if}
@@ -267,33 +265,24 @@
   <br />
   <div class="card_capture">
     <div class="capture_line">
-      <p class="card-label">Card Number:</p>
+      <span class="card-label">Card Number:</span>
       <div class="inputpair">
-        <input
-          class="card_input"
-          type="text"
-          placeholder="card number"
-          readonly
-          bind:value={cardData.paymentCardNumber}
-        />
-
+        <input type="text" placeholder="card number" readonly bind:value={cardData.paymentCardNumber} />
         <button class="reset" on:click={resetCard} disabled={!capturingCard}>x</button>
       </div>
       <p class="card-type">({cardData.paymentCardType})</p>
     </div>
     <div class="capture_line">
-      <p class="card-label">Security Code:</p>
+      <span class="card-label">Security Code:</span>
       <div class="inputpair">
         <input type="text" placeholder="Security Code" bind:value={cardData.securityCode} readonly />
-
         <button class="reset" on:click={resetSecurityCode} disabled={!capturingSecurityCode}>x</button>
       </div>
     </div>
     <div class="capture_line">
-      <p class="card-label">Expiry Date</p>
+      <span class="card-label">Expiry Date:</span>
       <div class="inputpair">
         <input type="text" placeholder="MM/YY" bind:value={formattedDate} readonly />
-
         <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
       </div>
     </div>
@@ -323,11 +312,13 @@
   }
 
   .capture_line {
-    /* margin: 3px; */
+    margin: 5px;
   }
 
   .card-label {
     display: inline-block;
+    width: 150px;
+    text-align: right;
   }
 
   .inputpair {

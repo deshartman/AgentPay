@@ -60,7 +60,7 @@
     <input type="text" placeholder="password" bind:value={password} />
     <button>Login</button>
   </form>
-  <p>Log in with any identity and password (No spaces or special characters like "@")</p>
+  <p>Log in with any identity and password</p>
 </main>
 
 <style>
