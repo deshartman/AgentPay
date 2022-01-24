@@ -19,7 +19,7 @@
  * 
  * The next update will be the capture data, replacing the connector data, so use that as the data
  * 
-  {
+  { 
     "SecurityCode": "xxx",
     "PaymentCardType": "visa",
     "Sid": "PK5967a7414bd0566b5fba68d7728e3923",

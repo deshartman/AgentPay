@@ -18,6 +18,7 @@ exports.handler = async function (context, event, callback) {
         return response;
     }
 
+
     // Create a "grant" identifying the Sync service instance for this app.
     var syncGrant = new SyncGrant({
         serviceSid: context.PAY_SYNC_SERVICE_SID,

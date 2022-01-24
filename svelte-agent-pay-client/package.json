@@ -9,15 +9,12 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "next",
+    "@sveltejs/adapter-static": "^1.0.0-next.26",
     "@sveltejs/kit": "next",
     "svelte": "^3.44.0"
   },
   "type": "module",
   "dependencies": {
-    "@analytics/segment": "^1.1.3",
-    "analytics": "^0.7.21",
-    "axios": "^0.24.0",
-    "events": "^3.3.0",
-    "twilio-sync": "^3.0.6"
+    "@deshartman/agent-pay": "^4.2.0"
   }
 }

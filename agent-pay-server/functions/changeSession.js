@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 exports.handler = async function (context, event, callback) {
-    
+
     // CORS handler. Remove on Deployment
     function sendResponse(data) {
         const response = new Twilio.Response();
@@ -11,6 +11,7 @@ exports.handler = async function (context, event, callback) {
         response.setBody(data);
         return response;
     }
+
 
     const restClient = context.getTwilioClient();
 
