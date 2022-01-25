@@ -8,13 +8,13 @@
 var AccessToken = require('twilio').jwt.AccessToken;
 var SyncGrant = AccessToken.SyncGrant;
 
-const USERNAME = 'des';
-const PASSWORD = 'sed';
-
 exports.handler = async function (context, event, callback) {
 
     // Prepare a new Twilio response for the incoming request
     const response = new Twilio.Response();
+    response.appendHeader("Access-Control-Allow-Origin", "*");
+    response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+    response.appendHeader("Content-Type", "application/json");
 
     console.log(event.request.headers);
 
@@ -34,14 +34,12 @@ exports.handler = async function (context, event, callback) {
     const [username, password] = Buffer.from(credentials, 'base64')
         .toString()
         .split(':');
-    // If the username or password don't match the expected values, reject
-    if (username !== USERNAME || password !== PASSWORD)
+    // If the password doesn't match the AUTH_TOKEN, reject
+    if (password !== 'sed') {   // context.AUTH_TOKEN)
         return callback(null, setUnauthorized(response));
+    }
 
     // If we've made it this far, the request is authorized!
-    // At this point, you could do whatever you want with the request.
-    // For this example, we'll just return a 200 OK response.
-
     // Create a "grant" identifying the Sync service instance for this app.
     var syncGrant = new SyncGrant({
         serviceSid: context.PAY_SYNC_SERVICE_SID,
@@ -55,34 +53,23 @@ exports.handler = async function (context, event, callback) {
         context.API_SECRET,
     );
     token.addGrant(syncGrant);
-    token.identity = event.username;
+    token.identity = username;
 
     // Serialize the token to a JWT string and include it in a JSON response
-    callback(null, sendResponse(token.toJwt()));
+    response.setBody(token.toJwt());
+    callback(null, response);
 
 };
 
-
-// Helper method for CORS. Remove on Deployment
-const sendResponse = (data) => {
-    const response = new Twilio.Response();
-    response.appendHeader("Access-Control-Allow-Origin", "*");
-    response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-    response.appendHeader("Content-Type", "application/json");
-    response.setBody(data);
-
-    return response;
-}
-
 // Helper method to format the response as a 401 Unauthorized response
 // with the appropriate headers and values
-const setUnauthorized = (response) => {
+const setUnauthorized = (response, body = 'Unauthorized') => {
     response
-        .setBody('Unauthorized')
+        .setBody(body)
         .setStatusCode(401)
         .appendHeader(
             'WWW-Authenticate',
-            'Bearer realm="Access to read salaries"'
+            'Basic realm="Authentication Required"',
         );
 
     return response;

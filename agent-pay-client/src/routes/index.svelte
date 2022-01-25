@@ -30,16 +30,34 @@
   let bearer;
   let response;
   let waiting = false;
+  let unauthorised = false;
 
   const handleSubmit = async () => {
     console.log(identity, password);
     waiting = true;
+    unauthorised = false;
 
-    response = await fetch(functionsURL + "/getSyncToken?" + new URLSearchParams({ identity: identity }));
+    // New Authorization Header for username and password
+    const headers = new Headers({
+      method: "POST",
+      Authorization: "Basic " + btoa(identity + ":" + password),
+    });
+    //console.log(`headers: ${JSON.stringify(headers, null, 4)}`);
+
+    response = await fetch(functionsURL + "/loginMock", {
+      headers: headers,
+    });
+
     const syncToken = await response.json();
 
+    console.log("Response.json");
+    console.log(response);
+    waiting = false;
+
     if (response.ok) {
-      //console.log(`Sync Token: ${syncToken}`);
+      console.log(`Response is OK, status: ${response.status}`);
+      console.log(`Response is OK, statusCode: ${syncToken.statusCode}`);
+
       // update the Store
       $SessionStore = {
         identity: identity,
@@ -49,7 +67,16 @@
 
       goto("/pay");
     } else {
-      throw new Error(`Failed to get sync token: ${response.status} ${response.statusText}`);
+      unauthorised = true;
+      console.log(`Response is NOT ok, status: ${response.status}`);
+      console.log(`Response is NOT ok, statusCode: ${syncToken.statusCode}`);
+
+      if ([401, 403].includes(response.status)) {
+        console.error("NOT authorized");
+
+        //history.pushState("/index");
+        throw new Error(`Failed to get sync token: ${response.status} ${response.statusText}`);
+      }
     }
   };
 </script>
@@ -60,6 +87,10 @@
 
   {#if waiting}
     <h3>Logging in....</h3>
+  {/if}
+
+  {#if unauthorised}
+    <h3>Unauthorised. Please try again....</h3>
   {/if}
 
   <form on:submit|preventDefault={handleSubmit}>
