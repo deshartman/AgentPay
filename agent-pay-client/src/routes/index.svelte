@@ -61,7 +61,6 @@
       // update the Store
       $SessionStore = {
         identity: identity,
-        password: password,
         bearer: syncToken,
       };
 
