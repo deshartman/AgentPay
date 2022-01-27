@@ -11,23 +11,23 @@ var SyncGrant = AccessToken.SyncGrant;
 exports.handler = async function (context, event, callback) {
 
     // Prepare a new Twilio response for the incoming request
-    const response = new Twilio.Response();
-    response.appendHeader("Access-Control-Allow-Origin", "*");
-    response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-    response.appendHeader("Content-Type", "application/json");
-
+    const twilioResponse = new Twilio.Response();
+    // Add CORS handling headers
+    twilioResponse.appendHeader("Access-Control-Allow-Origin", "*");
+    twilioResponse.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+    twilioResponse.appendHeader("Content-Type", "application/json");
     console.log(event.request.headers);
 
     var authHeader = event.request.headers.authorization;
 
     // Reject requests that don't have an Authorization header
-    if (!authHeader) return callback(null, setUnauthorized(response));
+    if (!authHeader) return callback(null, setUnauthorized(twilioResponse));
 
     // The auth type and credentials are separated by a space, split them
     const [authType, credentials] = authHeader.split(' ');
     // If the auth type doesn't match Basic, reject the request
     if (authType.toLowerCase() !== 'basic')
-        return callback(null, setUnauthorized(response));
+        return callback(null, setUnauthorized(twilioResponse));
 
     // The credentials are a base64 encoded string of 'username:password',
     // decode and split them back into the username and password
@@ -36,7 +36,7 @@ exports.handler = async function (context, event, callback) {
         .split(':');
     // If the password doesn't match the AUTH_TOKEN, reject
     if (password !== 'sed') {   // context.AUTH_TOKEN)
-        return callback(null, setUnauthorized(response));
+        return callback(null, setUnauthorized(twilioResponse));
     }
 
     // If we've made it this far, the request is authorized!
@@ -56,15 +56,15 @@ exports.handler = async function (context, event, callback) {
     token.identity = username;
 
     // Serialize the token to a JWT string and include it in a JSON response
-    response.setBody(token.toJwt());
-    callback(null, response);
+    twilioResponse.setBody(token.toJwt());
+    callback(null, twilioResponse);
 
 };
 
 // Helper method to format the response as a 401 Unauthorized response
 // with the appropriate headers and values
-const setUnauthorized = (response, body = 'Unauthorized') => {
-    response
+const setUnauthorized = (twilioResponse, body = 'Unauthorized') => {
+    twilioResponse
         .setBody(body)
         .setStatusCode(401)
         .appendHeader(
@@ -72,5 +72,5 @@ const setUnauthorized = (response, body = 'Unauthorized') => {
             'Basic realm="Authentication Required"',
         );
 
-    return response;
+    return twilioResponse;
 };
