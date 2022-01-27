@@ -5,19 +5,12 @@ There are three parts and various branches to this project:
 - agent-pay-server
 - agent-pay-client
 
-## Branches
-
-- Master: This is the main and demo branch, using a registered SIP endpoint on a Twilio domain. Use this to test concepts. It has a demo Vue page
-- UUI: This branch uses a User-to-User header in the SIP message to determine, which agent behind a PBX has taken the call. This requires coding/CTI integration on the PBX. It has a demo Vue page
-- PIN: This branch (future) will use a API PIN to identify the agent call. TBD
-
+Using a registered SIP endpoint on a Twilio domain. Use this to test concepts. uses a User-to-User header in the SIP message to determine, which agent behind a PBX has taken the call. This requires coding/CTI integration on the PBX. It has a demo Svelte page.
 ## Client (agent-pay-client)
 
-The Client is a any frontend you chose using the payclient/AgentAssistedPayClient module. The module does all the heavy lifting for Pay and Sync, so the client implementation only has to deal with the visual components of the implementation. There are various implementations, all contained in their own branches. Switch the relevant branch to use the implementation:
+The Client is a any frontend you chose using the payclient/AgentAssistedPayClient NPM. The NPM does all the heavy lifting for Pay and Sync, so the client implementation only has to deal with the visual components of the implementation. Functions handling SIP calls to a registered SIP endpoint. Demo Svelte frontend code.
 
-- Master: This is a Demo branch. Functions handling SIP calls to a registered SIP endpoint. Demo Vue frontend code
-- UUI: Functions with User-to-User SIP parameter handling for outbound calls. Demo Vue frontend. Delete agent-pay-client content to create own front-end
-- PIN: Functions with Twilio Gather on Agent leg for calls. Demo Vue frontend. Delete agent-pay-client content to create own front-end
+The login page is just a mock and needs to be replaced for proper login and to obtain the sync token (bearer). To log in, you need to  use the Twilio Auth Token.
 
 ## Server (agent-pay-server)
 
@@ -46,7 +39,10 @@ The Merchant can now query with the UUI to find the CallSID and use that to init
 
 ## NPM Module
 
-The main Agent Assisted code, which is now an NPM module, that gets used by the client. It uses Twilio Sync as a way to keep track of Twilio Pay changes in real time on the client side. https://www.npmjs.com/package/@deshartman/agent-pay
+The main Agent Assisted code, which is now an NPM module (https://www.npmjs.com/package/@deshartman/agent-pay) , that gets used by the client. It uses Twilio Sync as a way to keep track of Twilio Pay changes in real time on the client side. The source is at https://github.com/deshartman/AgentPay.
+
+NOTE: It uses the sync token as a bearer authorisation for all subsequent calls. The bearer is verified using the API Key secret on the server side, so it is not possible to call the server side functions without a sync token used as a bearer
+
 
 # Project setup
 
@@ -78,20 +74,17 @@ cd agent-pay-client
 npm install
 ```
 
-1. Using the Domain from the above Server deploy, update the VITE__FUNCTIONS_URL in "agent-pay-client/.env"
+1. Using the Domain from the above Server deploy, update the VITE_FUNCTIONS_URL in "agent-pay-client/.env"
 
-- For Dev mode update vue.config.js with the URL
-- For production update VITE__FUNCTIONS_URL in "agent-pay-client/.env"
+2. Create a new Pay connector and update VITE_PAYMENT_CONNECTOR in "agent-pay-client/.env". Default is a single connector, but can be multiple as comma separated list.
 
-2. Create a new Pay connector and update VITE__PAYMENT_CONNECTOR in "agent-pay-client/.env". Default is a single connector, but can be multiple as comma separated list.
+3. Define the capture order and update VITE_CAPTURE_ORDER in "agent-pay-client/.env". Default is "payment-card-number,security-code,expiration-date"
 
-3. Define the capture order and update VITE__CAPTURE_ORDER in "agent-pay-client/.env". Default is "payment-card-number,security-code,expiration-date"
+4. Define the currency and update VITE_CURRENCY in "agent-pay-client/.env". Default is "USD"
 
-4. Define the currency and update VITE__CURRENCY in "agent-pay-client/.env". Default is "USD"
+5. Define the token type and update VITE_TOKEN_TYPE in "agent-pay-client/.env". Default is "reusable"
 
-5. Define the token type and update VITE__TOKEN_TYPE in "agent-pay-client/.env". Default is "reusable"
-
-6. Optionally add a Segment WriteKey and update VITE__SEGMENT_WRITEKEY in "agent-pay-client/.env".
+6. Optionally add a Segment WriteKey and update VITE_SEGMENT_WRITEKEY in "agent-pay-client/.env".
 
 ### OPTIONAL Segment Setup
 
@@ -99,7 +92,7 @@ We have also strapped in Segment to report on all events as they happen in the N
 NOTE: This is completely optional and will function without this config.
 
 1. Add a "Javascript website" Source Connector in Segment
-2. Copy the Write Key under settings and set VITE__SEGMENT_WRITEKEY in the client side .env file.
+2. Copy the Write Key under settings and set VITE_SEGMENT_WRITEKEY in the client side .env file.
 3. To stop logging, simply remove the key
 
 Events will now be logged to Segment and can be processed.

@@ -56,7 +56,6 @@
 
     if (response.ok) {
       console.log(`Response is OK, status: ${response.status}`);
-      console.log(`Response is OK, statusCode: ${syncToken.statusCode}`);
 
       // update the Store
       $SessionStore = {
@@ -68,13 +67,12 @@
     } else {
       unauthorised = true;
       console.log(`Response is NOT ok, status: ${response.status}`);
-      console.log(`Response is NOT ok, statusCode: ${syncToken.statusCode}`);
 
       if ([401, 403].includes(response.status)) {
         console.error("NOT authorized");
 
         //history.pushState("/index");
-        throw new Error(`Failed to get sync token: ${response.status} ${response.statusText}`);
+        //throw new Error(`Failed to get sync token: ${response.status} ${response.statusText}`);
       }
     }
   };
@@ -94,7 +92,7 @@
 
   <form on:submit|preventDefault={handleSubmit}>
     <input type="text" placeholder="identity" bind:value={identity} />
-    <input type="text" placeholder="password" bind:value={password} />
+    <input type="password" placeholder="password" bind:value={password} />
     <button>Login</button>
   </form>
   <p>Log in with any identity and password = Twilio Auth Token</p>
