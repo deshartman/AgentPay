@@ -5,9 +5,10 @@ exports.handler = async function (context, event, callback) {
 
     const authorized = checkBearer(event.request.headers, context.API_SECRET);
     //console.log(`StartCapture authorized: ${JSON.stringify(authorized, null, 4)}`);
+    const twilioResponse = new Twilio.Response();
 
     if (authorized.valid) {
-        const twilioResponse = new Twilio.Response();
+
         // Add CORS handling headers
         twilioResponse.appendHeader("Access-Control-Allow-Origin", "*");
         twilioResponse.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
