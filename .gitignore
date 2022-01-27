@@ -148,3 +148,5 @@ agent-pay-client/vue.config.js
 
 # ignore any build assests in Functions
 assets/
+agent-pay-client/package-lock.json
+agent-pay-server/package-lock.json
