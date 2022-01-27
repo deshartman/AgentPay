@@ -3,6 +3,8 @@
   //import { variables } from "$lib/variables";
   import PayClient from "@deshartman/agent-pay";
   import SessionStore from "../stores/SessionStore";
+  import ProtectedLayout from "../libs/ProtectedLayout.svelte";
+
   // import { Styles } from "sveltestrap";
   // import { InputGroup, Button } from "sveltestrap";
 
@@ -252,55 +254,57 @@
   });
 </script>
 
-<main>
-  <!-- <Styles /> -->
-  <h1>Twilio Demo</h1>
-  <h2>Agent Assisted Pay</h2>
+<ProtectedLayout>
+  <main>
+    <!-- <Styles /> -->
+    <h1>Twilio Demo</h1>
+    <h2>Agent Assisted Pay</h2>
 
-  {#if callConnected && !capturing}
-    <button on:click={startCapture}>Start Pay Session</button>
-  {/if}
+    {#if callConnected && !capturing}
+      <button on:click={startCapture}>Start Pay Session</button>
+    {/if}
 
-  <br />
-  <br />
-  <div class="card_capture">
-    <div class="capture_line">
-      <span class="card-label">Card Number:</span>
-      <div class="inputpair">
-        <input type="text" placeholder="card number" readonly bind:value={cardData.paymentCardNumber} />
-        <button class="reset" on:click={resetCard} disabled={!capturingCard}>x</button>
-      </div>
-      <p class="card-type">({cardData.paymentCardType})</p>
-    </div>
-    <div class="capture_line">
-      <span class="card-label">Security Code:</span>
-      <div class="inputpair">
-        <input type="text" placeholder="Security Code" bind:value={cardData.securityCode} readonly />
-        <button class="reset" on:click={resetSecurityCode} disabled={!capturingSecurityCode}>x</button>
-      </div>
-    </div>
-    <div class="capture_line">
-      <span class="card-label">Expiry Date:</span>
-      <div class="inputpair">
-        <input type="text" placeholder="MM/YY" bind:value={formattedDate} readonly />
-        <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
-      </div>
-    </div>
-  </div>
-  <br />
-  <br />
-  <div>
-    {#if captureComplete}
-      <button on:click={submit}>Submit</button>
-    {/if}
-    {#if capturing || captureComplete}
-      <button on:click={cancel}>Cancel</button>
-    {/if}
-    <p>ProfileId: {cardData.profileId}</p>
     <br />
-    <p>Token: {cardData.paymentToken}</p>
-  </div>
-</main>
+    <br />
+    <div class="card_capture">
+      <div class="capture_line">
+        <span class="card-label">Card Number:</span>
+        <div class="inputpair">
+          <input type="text" placeholder="card number" readonly bind:value={cardData.paymentCardNumber} />
+          <button class="reset" on:click={resetCard} disabled={!capturingCard}>x</button>
+        </div>
+        <p class="card-type">({cardData.paymentCardType})</p>
+      </div>
+      <div class="capture_line">
+        <span class="card-label">Security Code:</span>
+        <div class="inputpair">
+          <input type="text" placeholder="Security Code" bind:value={cardData.securityCode} readonly />
+          <button class="reset" on:click={resetSecurityCode} disabled={!capturingSecurityCode}>x</button>
+        </div>
+      </div>
+      <div class="capture_line">
+        <span class="card-label">Expiry Date:</span>
+        <div class="inputpair">
+          <input type="text" placeholder="MM/YY" bind:value={formattedDate} readonly />
+          <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
+        </div>
+      </div>
+    </div>
+    <br />
+    <br />
+    <div>
+      {#if captureComplete}
+        <button on:click={submit}>Submit</button>
+      {/if}
+      {#if capturing || captureComplete}
+        <button on:click={cancel}>Cancel</button>
+      {/if}
+      <p>ProfileId: {cardData.profileId}</p>
+      <br />
+      <p>Token: {cardData.paymentToken}</p>
+    </div>
+  </main>
+</ProtectedLayout>
 
 <style>
   main {
