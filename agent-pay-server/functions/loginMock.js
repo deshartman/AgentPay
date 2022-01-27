@@ -35,7 +35,7 @@ exports.handler = async function (context, event, callback) {
         .toString()
         .split(':');
     // If the password doesn't match the AUTH_TOKEN, reject
-    if (password !== 'sed') {   // context.AUTH_TOKEN)
+    if (password !== context.AUTH_TOKEN) {
         return callback(null, setUnauthorized(twilioResponse));
     }
 

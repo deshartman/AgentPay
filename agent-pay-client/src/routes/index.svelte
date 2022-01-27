@@ -97,7 +97,7 @@
     <input type="text" placeholder="password" bind:value={password} />
     <button>Login</button>
   </form>
-  <p>Log in with any identity and password</p>
+  <p>Log in with any identity and password = Twilio Auth Token</p>
 </main>
 
 <style>
