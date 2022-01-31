@@ -44,11 +44,13 @@ exports.handler = async function (context, event, callback) {
 
         try {
             const apiResponse = await twilioAPI.post(theUrl, urlEncodedData);
-            callback(null, twilioResponse.setBody(apiResponse.data.sid));   // Pay SID
+            return callback(null, twilioResponse.setBody(apiResponse.data.sid));   // Pay SID
         } catch (error) {
-            callback(twilioResponse.setBody(`Error with StartCapture: ${error}`), null);
+            twilioResponse.setStatusCode(400);
+            return callback(null, twilioResponse.setBody(`Error with StartCapture: ${error}`));
         }
     } else {
-        callback(twilioResponse.setBody(`Authorisation Error ${authorized.error}`));
+        twilioResponse.setStatusCode(401);
+        return callback(null, twilioResponse.setBody(`Authorisation Error ${authorized.error}`));
     }
 };

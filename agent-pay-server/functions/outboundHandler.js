@@ -21,8 +21,8 @@ exports.handler = function (context, event, callback) {
             },
             to);
 
-        callback(null, voiceResponse);
+        return callback(null, voiceResponse);
     } catch (error) {
-        callback(`Error with OutboundHandler: ${error}`, null);
+        return callback(`Error with OutboundHandler: ${error}`, null);
     }
 };

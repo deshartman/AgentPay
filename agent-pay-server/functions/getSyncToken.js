@@ -8,16 +8,12 @@ var SyncGrant = AccessToken.SyncGrant;
 
 exports.handler = async function (context, event, callback) {
 
-    // CORS handler. Remove on Deployment
-    function sendResponse(data) {
-        const response = new Twilio.Response();
-        response.appendHeader("Access-Control-Allow-Origin", "*");
-        response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-        response.appendHeader("Content-Type", "application/json");
-        response.setBody(data);
-        return response;
-    }
+    const twilioResponse = new Twilio.Response();
 
+    // CORS handler. Remove on Deployment
+    twilioResponse.appendHeader("Access-Control-Allow-Origin", "*");
+    twilioResponse.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+    twilioResponse.appendHeader("Content-Type", "application/json");
 
     // Create a "grant" identifying the Sync service instance for this app.
     var syncGrant = new SyncGrant({
@@ -35,7 +31,13 @@ exports.handler = async function (context, event, callback) {
     token.addGrant(syncGrant);
     token.identity = event.identity;
 
-    // Serialize the token to a JWT string and include it in a JSON response
-    callback(null, sendResponse(token.toJwt()));
+    if (token) {
+        // Serialize the token to a JWT string and include it in a JSON response
+        twilioResponse.setBody(token.toJwt());
+        return callback(null, twilioResponse);
+    } else {
+        twilioResponse.setStatusCode(400);
+        return callback(null, twilioResponse.setBody(`Error with getting Synd Token`));
+    }
 
 };

@@ -56,12 +56,12 @@ exports.handler = async function (context, event, callback) {
         await createMapItem();
       }
       finally {
-        callback(null, uui);
+        return callback(null, uui);
       }
     } else {
-      callback('Cannot extract UUI from call, so cannot establish Pay', null);
+      return callback(null, 'Cannot extract UUI from call, so cannot establish Pay');
     }
   } catch (error) {
-    callback(`Error with Outbound Sync Update: ${error}`, null);
+    return callback(`Error with Outbound Sync Update: ${error}`, null);
   }
 };

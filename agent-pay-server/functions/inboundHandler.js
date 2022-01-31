@@ -25,7 +25,7 @@ exports.handler = async function (context, event, callback) {
                 key: event.CallSid,
                 data: {
                     "uui": event.CallSid,
-                    "pstnSid": event.CallSid 
+                    "pstnSid": event.CallSid
                 },
                 ttl: 43200  // 12 hours
             });
@@ -53,11 +53,11 @@ exports.handler = async function (context, event, callback) {
 
             // Dial SIP URL
             voiceResponse.dial().sip(sipTo);
-            callback(null, voiceResponse);
+            return callback(null, voiceResponse);
         }
     } catch (error) {
         // Some other error occurred
-        callback(`Error with InboundHandler: ${error}`, null);
+        return callback(`Error with InboundHandler: ${error}`, null);
     }
 };
 
