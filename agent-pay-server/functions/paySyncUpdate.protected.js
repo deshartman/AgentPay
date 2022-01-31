@@ -42,14 +42,14 @@
 exports.handler = async function (context, event, callback) {
 
   // CORS handler. Remove on Deployment
-  function sendResponse(data) {
-    const response = new Twilio.Response();
-    response.appendHeader("Access-Control-Allow-Origin", "*");
-    response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-    response.appendHeader("Content-Type", "application/json");
-    response.setBody(data);
-    return response;
-  }
+  // function sendResponse(data) {
+  //   const response = new Twilio.Response();
+  //   response.appendHeader("Access-Control-Allow-Origin", "*");
+  //   response.appendHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+  //   response.appendHeader("Content-Type", "application/json");
+  //   response.setBody(data);
+  //   return response;
+  // }
 
   const restClient = context.getTwilioClient();
 
@@ -88,9 +88,9 @@ exports.handler = async function (context, event, callback) {
         await createMapItem();
       }
     } finally {
-      callback(null, sendResponse(event.Sid));
+      return callback(null, event.Sid);
     }
   } catch (error) {
-    callback(sendResponse(`Error with paySyncUpdate: ${error}`), null);
+    return callback(null, `Error with paySyncUpdate: ${error}`);
   }
 };
