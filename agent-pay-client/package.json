@@ -15,6 +15,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@deshartman/agent-pay": "^4.3.0"
+    "@deshartman/agent-pay": "^4.3.1",
+    "sveltestrap": "^5.8.3"
   }
 }

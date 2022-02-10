@@ -5,8 +5,8 @@
   import SessionStore from "../stores/SessionStore";
   import ProtectedLayout from "../libs/ProtectedLayout.svelte";
 
-  // import { Styles } from "sveltestrap";
-  // import { InputGroup, Button } from "sveltestrap";
+  import { Styles } from "sveltestrap";
+  import { Label, Icon, InputGroup, InputGroupText, Input, Button, Col, Container, Row } from "sveltestrap";
 
   // Set the Agent variable. These are passed to the Agent screen, so this is a temp POC
   let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
@@ -58,6 +58,7 @@
     cardData.securityCode = "";
     cardData.expirationDate = "";
   };
+
   const submit = () => {
     payClient.submitCapture();
     cardData.paymentCardNumber = "";
@@ -254,6 +255,7 @@
   });
 </script>
 
+<Styles />
 <ProtectedLayout>
   <main>
     <!-- <Styles /> -->
@@ -302,6 +304,26 @@
       <p>ProfileId: {cardData.profileId}</p>
       <br />
       <p>Token: {cardData.paymentToken}</p>
+    </div>
+
+    <hr />
+
+    <div>
+      <InputGroup>
+        <InputGroupText>Card Number</InputGroupText>
+        <Input readonly>{cardData.paymentCardNumber}({cardData.paymentCardType})</Input>
+        <Button on:click={resetCard} disabled={!capturingCard}><Icon name="x-circle" /></Button>
+      </InputGroup>
+      <InputGroup>
+        <InputGroupText>Expiry Date</InputGroupText>
+        <Input readonly>{formattedDate}</Input>
+        <Button on:click={resetSecurityCode} disabled={!capturingSecurityCode}><Icon name="x-circle" /></Button>
+      </InputGroup>
+      <InputGroup>
+        <InputGroupText>CVC Code</InputGroupText>
+        <Input readonly>{cardData.securityCode}</Input>
+        <Button on:click={resetDate} disabled={!capturingDate}><Icon name="x-circle" /></Button>
+      </InputGroup>
     </div>
   </main>
 </ProtectedLayout>
