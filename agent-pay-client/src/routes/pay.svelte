@@ -30,6 +30,8 @@
   let captureComplete = false;
   // This value needs to be provided by contact centre CTI, when calling this page
   let callSid = null;
+  let formattedCard;
+  let formattedDate;
 
   let cardData = {
     paymentCardNumber: "",
@@ -43,7 +45,17 @@
   // --------------------------------------------------
   // Reactive Variables
   // --------------------------------------------------
-  $: formattedDate = cardData.expirationDate.substring(0, 2) + "/" + cardData.expirationDate.substring(2, 4) || "YY"; // This is to handle the bug VPAY-832
+  $: if (cardData.expirationDate) {
+    formattedDate = cardData.expirationDate.substring(0, 2) + "/" + cardData.expirationDate.substring(2, 4) || "YY"; // This is to handle the bug VPAY-832
+  } else {
+    formattedDate = "MM/YY";
+  }
+
+  $: if (cardData.paymentCardType) {
+    formattedCard = cardData.paymentCardNumber + " (" + cardData.paymentCardType + ")";
+  } else {
+    formattedCard = cardData.paymentCardNumber;
+  }
 
   // --------------------------------------------------
   // Methods
@@ -311,17 +323,17 @@
     <div>
       <InputGroup>
         <InputGroupText>Card Number</InputGroupText>
-        <Input readonly>{cardData.paymentCardNumber}({cardData.paymentCardType})</Input>
+        <Input readonly bind:value={formattedCard} />
         <Button on:click={resetCard} disabled={!capturingCard}><Icon name="x-circle" /></Button>
       </InputGroup>
       <InputGroup>
         <InputGroupText>Expiry Date</InputGroupText>
-        <Input readonly>{formattedDate}</Input>
+        <Input readonly bind:value={formattedDate} />
         <Button on:click={resetSecurityCode} disabled={!capturingSecurityCode}><Icon name="x-circle" /></Button>
       </InputGroup>
       <InputGroup>
         <InputGroupText>CVC Code</InputGroupText>
-        <Input readonly>{cardData.securityCode}</Input>
+        <Input readonly bind:value={cardData.securityCode} />
         <Button on:click={resetDate} disabled={!capturingDate}><Icon name="x-circle" /></Button>
       </InputGroup>
     </div>
