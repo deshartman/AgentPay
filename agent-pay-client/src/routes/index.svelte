@@ -1,80 +1,17 @@
-<script context="module">
-  // let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
-
-  // // Generate the JWT token based on the identity
-  // export async function load(context) {
-  //   const res = await context.fetch(functionsURL + "/getSyncToken?" + new URLSearchParams({ identity: "Alice" }));
-  //   const syncToken = await res.json();
-
-  //   if (res.ok) {
-  //     console.log(`Sync Token: ${syncToken}`);
-  //     return {
-  //       props: { syncToken: syncToken.data },
-  //     };
-  //   }
-
-  //   return {
-  //     status: res.status,
-  //     error: new Error(`Failed to get sync token: ${res.status} ${res.statusText}`),
-  //   };
-  // }
-</script>
-
 <script>
   import { goto, prefetch } from "$app/navigation";
   import SessionStore from "../stores/SessionStore";
+  import LoginTwilio from "../components/LoginTwilio.svelte";
 
-  let functionsURL = import.meta.env.VITE_FUNCTIONS_URL;
-  let identity;
-  let password;
-  let bearer;
-  let response;
-  let waiting = false;
-  let unauthorised = false;
+  let loginURL = import.meta.env.VITE_FUNCTIONS_URL + "/loginMock";
 
-  const handleSubmit = async () => {
-    console.log(identity, password);
-    waiting = true;
-    unauthorised = false;
-
-    // New Authorization Header for username and password
-    const headers = new Headers({
-      method: "POST",
-      Authorization: "Basic " + btoa(identity + ":" + password),
-    });
-    //console.log(`headers: ${JSON.stringify(headers, null, 4)}`);
-
-    response = await fetch(functionsURL + "/loginMock", {
-      headers: headers,
-    });
-
-    const syncToken = await response.json();
-
-    console.log("Response.json");
-    console.log(response);
-    waiting = false;
-
-    if (response.ok) {
-      console.log(`Response is OK, status: ${response.status}`);
-
-      // update the Store
-      $SessionStore = {
-        identity: identity,
-        bearer: syncToken,
-      };
-
-      goto("/pay");
-    } else {
-      unauthorised = true;
-      console.log(`Response is NOT ok, status: ${response.status}`);
-
-      if ([401, 403].includes(response.status)) {
-        console.error("NOT authorized");
-
-        //history.pushState("/index");
-        //throw new Error(`Failed to get sync token: ${response.status} ${response.statusText}`);
-      }
-    }
+  const handleLogin = (data) => {
+    // update the Store
+    $SessionStore = {
+      identity: data.detail.identity,
+      bearer: data.detail.bearer,
+    };
+    goto("/pay");
   };
 </script>
 
@@ -82,20 +19,7 @@
   <h1>Twilio Demo</h1>
   <h2>Agent Assisted Pay</h2>
 
-  {#if waiting}
-    <h3>Logging in....</h3>
-  {/if}
-
-  {#if unauthorised}
-    <h3>Unauthorised. Please try again....</h3>
-  {/if}
-
-  <form on:submit|preventDefault={handleSubmit}>
-    <input type="text" placeholder="identity" bind:value={identity} />
-    <input type="password" placeholder="password" bind:value={password} />
-    <button>Login</button>
-  </form>
-  <p>Log in with any identity and password = Twilio Auth Token</p>
+  <LoginTwilio authURL={loginURL} on:authorised={handleLogin} />
 </main>
 
 <style>

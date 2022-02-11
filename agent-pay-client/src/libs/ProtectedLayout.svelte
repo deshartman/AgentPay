@@ -13,5 +13,5 @@
 {#if $SessionStore.bearer}
   <slot />
 {:else}
-  <p>Loading.Index...</p>
+  <p>Loading. No bearer Auth found...</p>
 {/if}
