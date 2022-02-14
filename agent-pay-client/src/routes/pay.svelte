@@ -29,6 +29,7 @@
   let callSid = null;
   let formattedCard;
   let formattedDate;
+  let formattedSecurity;
 
   let cardData = {
     paymentCardNumber: "",
@@ -42,16 +43,26 @@
   // --------------------------------------------------
   // Reactive Variables
   // --------------------------------------------------
+  $: if (cardData.paymentCardType) {
+    formattedCard = cardData.paymentCardNumber + " (" + cardData.paymentCardType + ")";
+  } else {
+    if (cardData.paymentCardNumber) {
+      formattedCard = cardData.paymentCardNumber;
+    } else {
+      formattedCard = "Card Number";
+    }
+  }
+
   $: if (cardData.expirationDate) {
     formattedDate = cardData.expirationDate.substring(0, 2) + "/" + cardData.expirationDate.substring(2, 4) || "YY"; // This is to handle the bug VPAY-832
   } else {
     formattedDate = "MM/YY";
   }
 
-  $: if (cardData.paymentCardType) {
-    formattedCard = cardData.paymentCardNumber + " (" + cardData.paymentCardType + ")";
+  $: if (cardData.securityCode) {
+    formattedSecurity = cardData.securityCode;
   } else {
-    formattedCard = cardData.paymentCardNumber;
+    formattedSecurity = "Security Code";
   }
 
   // --------------------------------------------------
@@ -265,19 +276,38 @@
 </script>
 
 <ProtectedLayout>
-  <main>
-    <!-- <Styles /> -->
+  <header>
     <h1>Twilio Demo</h1>
     <h2>Agent Assisted Pay</h2>
+  </header>
 
-    {#if callConnected && !capturing}
+  <main>
+    {#if callConnected && !capturing}{/if}
+    <div class="start-btn">
       <button on:click={startCapture}>Start Pay Session</button>
-    {/if}
+    </div>
 
-    <br />
-    <br />
     <div class="card_capture">
       <div class="capture_line">
+        <label class="card-item">Card Number: </label>
+        <label class="card-data">{formattedCard}</label>
+        <button class="reset" on:click={resetCard} disabled={!capturingCard}>x</button>
+        <!-- <label class="card-type"> (Mastercard{cardData.paymentCardType})</label> -->
+      </div>
+
+      <div class="capture_line">
+        <label class="card-item">Security Code: </label>
+        <label class="security-data">{formattedSecurity}</label>
+        <button class="reset" on:click={resetSecurityCode} disabled={!capturingSecurityCode}>x</button>
+      </div>
+
+      <div class="capture_line">
+        <label class="card-item">Expiry Date: </label>
+        <label class="date-data">{formattedDate}</label>
+        <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
+      </div>
+
+      <!-- <div class="capture_line">
         <span class="card-label">Card Number:</span>
         <div class="inputpair">
           <input type="text" placeholder="card number" readonly bind:value={cardData.paymentCardNumber} />
@@ -299,48 +329,78 @@
           <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
         </div>
       </div>
-    </div>
-    <br />
-    <br />
-    <div>
-      {#if captureComplete}
-        <button on:click={submit}>Submit</button>
-      {/if}
-      {#if capturing || captureComplete}
-        <button on:click={cancel}>Cancel</button>
-      {/if}
-      <p>ProfileId: {cardData.profileId}</p>
-      <br />
-      <p>Token: {cardData.paymentToken}</p>
-    </div>
+    </div> -->
 
-    <hr />
+      <div class="action-btn">
+        {#if captureComplete}{/if}
+        <button on:click={submit}>Submit</button>
+        {#if capturing || captureComplete}{/if}
+        <button on:click={cancel}>Cancel</button>
+      </div>
+
+      <hr />
+      <footer>
+        <textarea>{JSON.stringify(cardData, null, 4)}</textarea>
+        <!-- <p>ProfileId: {cardData.profileId}</p>
+        <p>Token: {cardData.paymentToken}</p> -->
+      </footer>
+    </div>
   </main>
 </ProtectedLayout>
 
 <style>
-  main {
+  header {
     text-align: center;
   }
 
-  /* .card_capture {
-     margin: 0 auto 0 auto;
-  } */
+  .card_capture {
+    /* text-align: center; */
+  }
+  .card-item {
+    display: inline-block;
+    height: 20px;
+    width: 100px;
+  }
+
+  .card-data,
+  .security-data,
+  .date-data {
+    display: inline-block;
+    height: 20px;
+    width: 200px;
+    border-style: solid;
+    border-color: lightgray;
+    color: rgb(114, 114, 114);
+    text-align: left;
+  }
+
+  .card-type {
+    display: inline-block;
+    height: 20px;
+    width: 86px;
+  }
+
+  main {
+    max-width: 100%;
+    width: 500px;
+    margin: 40px auto;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    border-style: solid;
+    border-color: lightgray;
+  }
 
   .capture_line {
     margin: 5px;
   }
-
   .card-label {
     display: inline-block;
     width: 150px;
     text-align: right;
   }
-
   .inputpair {
     display: inline-block;
   }
-
   .card_input {
     /* display: inline; */
   }
@@ -368,5 +428,18 @@
 
   p {
     margin: 5px;
+  }
+
+  .action-btn {
+    display: flex;
+    justify-content: center;
+  }
+  .start-btn {
+    display: flex;
+    justify-content: center;
+  }
+  textarea {
+    width: 400px;
+    height: 200px;
   }
 </style>
