@@ -282,9 +282,8 @@
   </header>
 
   <main>
-    {#if callConnected && !capturing}{/if}
     <div class="start-btn">
-      <button on:click={startCapture}>Start Pay Session</button>
+      <button disabled={!callConnected && !capturing} on:click={startCapture}>Start Pay Session</button>
     </div>
 
     <div class="card_capture">
@@ -307,42 +306,14 @@
         <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
       </div>
 
-      <!-- <div class="capture_line">
-        <span class="card-label">Card Number:</span>
-        <div class="inputpair">
-          <input type="text" placeholder="card number" readonly bind:value={cardData.paymentCardNumber} />
-          <button class="reset" on:click={resetCard} disabled={!capturingCard}>x</button>
-        </div>
-        <p class="card-type">({cardData.paymentCardType})</p>
-      </div>
-      <div class="capture_line">
-        <span class="card-label">Security Code:</span>
-        <div class="inputpair">
-          <input type="text" placeholder="Security Code" bind:value={cardData.securityCode} readonly />
-          <button class="reset" on:click={resetSecurityCode} disabled={!capturingSecurityCode}>x</button>
-        </div>
-      </div>
-      <div class="capture_line">
-        <span class="card-label">Expiry Date:</span>
-        <div class="inputpair">
-          <input type="text" placeholder="MM/YY" bind:value={formattedDate} readonly />
-          <button class="reset" on:click={resetDate} disabled={!capturingDate}>x</button>
-        </div>
-      </div>
-    </div> -->
-
       <div class="action-btn">
-        {#if captureComplete}{/if}
-        <button on:click={submit}>Submit</button>
-        {#if capturing || captureComplete}{/if}
-        <button on:click={cancel}>Cancel</button>
+        <button disabled={!captureComplete} on:click={submit}>Submit</button>
+        <button disabled={!capturing || !captureComplete} on:click={cancel}>Cancel</button>
       </div>
 
       <hr />
       <footer>
         <textarea>{JSON.stringify(cardData, null, 4)}</textarea>
-        <!-- <p>ProfileId: {cardData.profileId}</p>
-        <p>Token: {cardData.paymentToken}</p> -->
       </footer>
     </div>
   </main>
@@ -409,11 +380,18 @@
     background-color: red;
     color: white;
     padding: 5px 20px;
-    margin: 10px;
+    margin: 0px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
+  }
+
+  button:disabled,
+  button[disabled] {
+    border: 1px solid #999999;
+    background-color: #cccccc;
+    color: #666666;
   }
 
   .reset {
@@ -433,10 +411,16 @@
   .action-btn {
     display: flex;
     justify-content: center;
+    margin: 10px auto;
+  }
+
+  .action-btn button {
+    margin: 5px;
   }
   .start-btn {
     display: flex;
     justify-content: center;
+    margin-bottom: 20px;
   }
   textarea {
     width: 400px;
