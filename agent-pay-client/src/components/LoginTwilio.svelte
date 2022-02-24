@@ -15,7 +15,7 @@
   let response;
 
   const handleSubmit = async () => {
-    console.log(identity, password);
+    console.log(identity);
     waiting = true;
 
     // New Authorization Header for username and password

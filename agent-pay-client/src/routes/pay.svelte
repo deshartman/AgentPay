@@ -25,6 +25,7 @@
   let capturingSecurityCode = false;
   let capturingDate = false;
   let captureComplete = false;
+  let submitComplete = false;
   // This value needs to be provided by contact centre CTI, when calling this page
   let callSid = null;
   let formattedCard;
@@ -39,6 +40,8 @@
     paymentToken: "",
     profileId: "",
   };
+
+  let rawData = {};
 
   // --------------------------------------------------
   // Reactive Variables
@@ -80,10 +83,12 @@
   };
 
   const submit = () => {
-    payClient.submitCapture();
     cardData.paymentCardNumber = "";
     cardData.securityCode = "";
     cardData.expirationDate = "";
+
+    payClient.submitCapture();
+    submitComplete = true;
   };
 
   const resetCard = () => {
@@ -125,13 +130,13 @@
       //------------------------------------------------------
       payClient.on("UUIItemAdded", (callSid) => {
         callConnected = true;
-        console.log(`UUIItemAdded: Call SID: ${callSid} `);
+        console.log(`on UUIItemAdded: Call SID: ${callSid} `);
       });
 
       // Now hook in all the event listeners for GUI.
       payClient.on("callConnected", () => {
         callConnected = true;
-        //console.log(`callConnected: callConnected ${callConnected}`);
+        console.log(`on callConnected: ${callConnected}`);
       });
 
       payClient.on("capturing", () => {
@@ -184,6 +189,10 @@
       });
 
       payClient.on("captureComplete", () => {
+        capturingCard = false;
+        capturingSecurityCode = false;
+        capturingDate = false;
+
         captureComplete = true;
         // console.log(
         //   `captureComplete: captureComplete ${captureComplete}`
@@ -231,7 +240,10 @@
           }
        */
       payClient.on("cardUpdate", (data) => {
-        // console.log(`Vue cardUpdate: data ${JSON.stringify(data, null, 4)}`);
+        // Delete the HTTP headers
+        delete data.request;
+        rawData = data;
+        // console.log(`CardUpdate: raw data ${JSON.stringify(data, null, 4)}`);
 
         if (captureComplete) {
           cardData.paymentToken = data.PaymentToken;
@@ -283,7 +295,7 @@
 
   <main>
     <div class="start-btn">
-      <button disabled={!callConnected && !capturing} on:click={startCapture}>Start Pay Session</button>
+      <button disabled={!callConnected || capturing} on:click={startCapture}>Start Pay Session</button>
     </div>
 
     <div class="card_capture">
@@ -307,13 +319,13 @@
       </div>
 
       <div class="action-btn">
-        <button disabled={!captureComplete} on:click={submit}>Submit</button>
+        <button disabled={!captureComplete || submitComplete} on:click={submit}>Submit</button>
         <button disabled={!capturing || !captureComplete} on:click={cancel}>Cancel</button>
       </div>
 
       <hr />
       <footer>
-        <textarea>{JSON.stringify(cardData, null, 4)}</textarea>
+        <textarea>{JSON.stringify(rawData, null, 4)}</textarea>
       </footer>
     </div>
   </main>
@@ -395,7 +407,7 @@
   }
 
   .reset {
-    background-color: grey;
+    background-color: red;
     padding: 0px 10px;
     margin: 0px;
   }
