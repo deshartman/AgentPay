@@ -19,9 +19,12 @@
     waiting = true;
 
     // New Authorization Header for username and password
+    const encodedBase64Token = Buffer.from(`${identity}:${password}`).toString("base64");
+    const authorization = `Basic ${encodedBase64Token}`;
+
     const headers = new Headers({
       method: "POST",
-      Authorization: "Basic " + btoa(identity + ":" + password),
+      Authorization: authorization,
     });
     //console.log(`headers: ${JSON.stringify(headers, null, 4)}`);
 
