@@ -9,8 +9,11 @@ exports.handler = function (context, event, callback) {
 
     const voiceResponse = new Twilio.twiml.VoiceResponse();
 
+    let to = event.To.match(/^sip:((\+)?[0-9]+)@(.*)/)[1];
+    let from = event.From.match(/^sip:((\+)?[0-9]+)@(.*)/)[1];
+
     try {
-        // console.log(`Dialing ${to} with Caller ID ${from} - Was to:${event.To} from:${event.From}`);
+        console.log(`Dialing ${to} with Caller ID ${from}`);
         const dial = voiceResponse.dial({ callerId: from });
         dial.number(
             {
