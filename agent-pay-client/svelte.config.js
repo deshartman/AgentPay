@@ -5,11 +5,15 @@ const config = {
 	kit: {
 		adapter: adapter({
 			pages: '../agent-pay-server/assets',
-			assets: '../agent-pay-server/assets'
+			assets: '../agent-pay-server/assets',
+			fallback: null,
+			precompress: false
 		}),
 
-		// hydrate the <div id="svelte"> element in src/app.html
-		target: '#svelte'
+		prerender: {
+			// This can be false if you're using a fallback (i.e. SPA mode)
+			default: true
+		}
 	}
 };
 
