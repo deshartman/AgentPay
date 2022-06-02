@@ -20,16 +20,16 @@ For the demo we use a Twilio SIP registered client. How the call is routed depen
 
 ### Inbound
 
-Convention is that the SIP domain configured under "SIP_DOMAIN" needs to correspond with the SIP PBX or Twilio Registered SIP user.
+Convention is that the SIP domain configured under "ORIGINATION_URI" needs to correspond with the SIP PBX or Twilio Registered SIP user.
 When the call is made we will automatically add a User-to-User attribute to the call, which will be the PSTN side CallSID. We will
 also write the CallSID into a Sync map.
 
-Note: When registering a Twilio SIP user, the username MUST include the "+", i.e., +number@SIP_DOMAIN
+Note: When registering a Twilio SIP user, the username MUST include the "+", i.e., +number@ORIGINATION_URI
 
 ### Outbound
 
 As with inbound, the user and domain is derived from what is sent to us from the SIP PBX. The SIP PBX MUST also send a unique
-User-To-User header "+E164@SIP_DOMAIN?User-to-User=XXXXXXXXXX". As with Inbound, the PSTN side UUI will be written into
+User-To-User header "+E164@ORIGINATION_URI?User-to-User=XXXXXXXXXX". As with Inbound, the PSTN side UUI will be written into
 a Sync Map along with the CallSID, but only once the call has been answered.
 
 Note: When the SIP PBX sends the call, they MUST configure the +E.164@domain as the Twilio +E.164 number. This will be extracted
@@ -59,7 +59,7 @@ npm install
 
 2. Create a Twilio Sync Service named "AgentAssistedPaySync" and update PAY_SYNC_SERVICE_SID in "agent-pay-server/.env"
 
-3. Configure a SIP Domain and registered SIP users as required and update SIP_DOMAIN in "agent-pay-server/.env"
+3. Configure a SIP Domain and registered SIP users as required and update ORIGINATION_URI in "agent-pay-server/.env"
 
 4. Deploy the Server side with "twilio serverless:deploy"
 

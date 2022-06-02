@@ -48,8 +48,8 @@ exports.handler = async function (context, event, callback) {
         } finally {
             const voiceResponse = new Twilio.twiml.VoiceResponse();
 
-            // Send to SIP user -> sip:+number@SIP_DOMAIN?User-to-User=CAxxxxx
-            const sipTo = event.To + '@' + context.SIP_DOMAIN + '?' + 'User-to-User=' + event.CallSid;
+            // Send to SIP user -> sip:+number@ORIGINATION_URI?User-to-User=CAxxxxx
+            const sipTo = event.To + '@' + context.ORIGINATION_URI + '?' + 'User-to-User=' + event.CallSid;
 
             // Dial SIP URL
             voiceResponse.dial().sip(sipTo);

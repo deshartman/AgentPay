@@ -10,4 +10,4 @@ PAY_SYNC_SERVICE_SID=ISxxxx
 # Variables for SIP Voice. Call will be to/from -> sip:+nnnnnnn@yyyyy.sip.twilio.com
 # NB: Registered SIP endpoint MUST have "+" in username
 # NB: SIP Trunk MUST have "+" in from number
-SIP_DOMAIN=yyyy.sip.twilio.com
+ORIGINATION_URI=yyyy.sip.twilio.com
