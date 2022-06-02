@@ -343,6 +343,7 @@
     display: inline-block;
     height: 20px;
     width: 100px;
+    text-align: left;
   }
 
   .card-data,
@@ -365,7 +366,7 @@
 
   main {
     max-width: 100%;
-    width: 500px;
+    width: 600px;
     margin: 40px auto;
     padding: 20px 40px;
     box-sizing: border-box;
@@ -374,7 +375,8 @@
   }
 
   .capture_line {
-    margin: 5px;
+    margin: 5px auto;
+    text-align: center;
   }
   .card-label {
     display: inline-block;
@@ -435,7 +437,7 @@
     margin-bottom: 20px;
   }
   textarea {
-    width: 400px;
-    height: 200px;
+    width: 500px;
+    height: 400px;
   }
 </style>
