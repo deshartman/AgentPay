@@ -12,6 +12,12 @@ exports.handler = function (context, event, callback) {
     let to = event.To.match(/^sip:((\+)?[0-9]+)@(.*)/)[1];
     let from = event.From.match(/^sip:((\+)?[0-9]+)@(.*)/)[1];
 
+    console.log(`outboundHandler Event Details: ${JSON.stringify(event, null, 4)}`);
+
+    let UUIX = event["SipHeader_User-to-User"];
+
+    console.log(`UUIX: ${UUIX}`);
+
     try {
         console.log(`Dialing ${to} with Caller ID ${from}`);
         const dial = voiceResponse.dial({ callerId: from });
@@ -19,7 +25,7 @@ exports.handler = function (context, event, callback) {
             {
                 // Only update Sync when call is answered
                 statusCallbackEvent: 'answered',
-                statusCallback: '/outboundSyncUpdate',
+                statusCallback: `/outboundSyncUpdate?UUI=${UUIX}`,
                 statusCallbackMethod: 'POST'
             },
             to);
